@@ -5,8 +5,28 @@ const nextConfig = {
     return [
       {
         source: '/categoria/gotas',
-        destination: '/categoria/moronel-gotas',
+        destination: '/categoria/extractos-y-gotas',
         permanent: true,
+      },
+      {
+        source: '/categoria/moronel-gotas',
+        destination: '/categoria/extractos-y-gotas',
+        permanent: true,
+      },
+      {
+        source: '/categoria/moronel-capsulas',
+        destination: '/categoria/capsulas',
+        permanent: true,
+      },
+      {
+        source: '/categoria/moronel-hierba',
+        destination: '/categoria/hierbas-e-infusiones',
+        permanent: true,
+      },
+      {
+        source: '/categoria/herbazen',
+        destination: '/categoria/extractos-y-gotas',
+        permanent: false,
       },
       {
         source: '/producto/moronel-gotas',
