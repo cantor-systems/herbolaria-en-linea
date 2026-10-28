@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState, use } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { PRODUCTS } from '@/data/products';
+import { getBrandBySlug } from '@/data/brands';
 import { ProductVariant } from '@/types';
 import { ProductGallery } from '@/components/product/ProductGallery';
 import { VariantSelector } from '@/components/product/VariantSelector';
@@ -43,7 +44,8 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
   const { addToCart } = useCart();
   const trackedProductSlug = useRef<string | null>(null);
-  const isSingleVariantHerbazen = product.brand === 'Herbazen' && product.variants.length === 1;
+  const brandName = getBrandBySlug(product.brandSlug)?.name ?? product.brandSlug;
+  const isSingleVariantHerbazen = product.brandSlug === 'herbazen' && product.variants.length === 1;
   const defaultVariant = product.variants.find((v) => v.isPopular) || product.variants[0];
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(defaultVariant);
   const [selectedImage, setSelectedImage] = useState(defaultVariant.image || product.images[0] || '');
@@ -97,7 +99,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     sku: product.id,
     brand: {
       '@type': 'Brand',
-      name: product.brand,
+      name: brandName,
     },
     ...(product.status === 'active'
       ? {
@@ -179,7 +181,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-[#285F50] text-[#FAF7E8]">
-                {isSingleVariantHerbazen ? product.brand : `Marca ${product.brand}`}
+                {isSingleVariantHerbazen ? brandName : `Marca ${brandName}`}
               </span>
               {!isSingleVariantHerbazen && (
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-[#D17B24] text-white">

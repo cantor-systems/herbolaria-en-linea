@@ -8,6 +8,7 @@ import { formatCurrency, calculateSavingsPercentage } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
 import { getWhatsAppHref } from '@/config/store';
 import { SHOW_MOCK_RATINGS } from '@/data/ratings';
+import { getBrandBySlug } from '@/data/brands';
 import { trackWhatsAppClick } from '@/lib/analytics';
 
 interface ProductCardProps {
@@ -26,6 +27,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   );
 
   const whatsappHref = getWhatsAppHref();
+  const brandName = getBrandBySlug(product.brandSlug)?.name ?? product.brandSlug;
   const visibleBadges: string[] = [];
 
   const whatsappMessage = encodeURIComponent(
@@ -47,7 +49,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 z-10">
           <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#285F50] text-[#FAF7E8] shadow-sm">
-            {product.brand}
+            {brandName}
           </span>
           {savings > 0 && (
             <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#D17B24] text-white shadow-sm">

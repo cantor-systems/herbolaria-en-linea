@@ -1,4 +1,22 @@
+export type CatalogStatus = 'active' | 'draft';
 export type StockStatus = 'in_stock' | 'low_stock' | 'out_of_stock';
+
+export interface SeoMetadata {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+export interface Brand {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  image?: string;
+  status: CatalogStatus;
+  sortOrder?: number;
+  seo?: SeoMetadata;
+}
 
 export interface ProductVariant {
   id: string;
@@ -11,6 +29,7 @@ export interface ProductVariant {
   badge?: string;
   isPopular?: boolean;
   freeShippingEligible: boolean;
+  wholesaleEligible: boolean;
 }
 
 export interface ProductClaim {
@@ -24,7 +43,7 @@ export interface Product {
   id: string;
   slug: string;
   name: string;
-  brand: string; // "Herbazen"
+  brandSlug: string;
   categorySlug: string;
   categoryName: string;
   shortDescription: string;
@@ -40,7 +59,7 @@ export interface Product {
   badges: string[];
   claims?: ProductClaim[];
   featured: boolean;
-  status: 'active' | 'draft';
+  status: CatalogStatus;
   ingredients?: string[];
   usageInstructions?: string;
   contentVolume?: string;

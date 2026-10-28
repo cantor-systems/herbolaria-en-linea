@@ -14,19 +14,15 @@ export interface WholesaleDiscount {
   piecesUntilDiscount: number | null;
 }
 
-interface WholesaleProductIdentity {
-  categorySlug: string;
-}
-
 interface WholesaleVariantIdentity {
-  unitsCount: number;
+  wholesaleEligible: boolean;
 }
 
 export function isWholesaleEligiblePresentation(
-  product: WholesaleProductIdentity,
+  _product: unknown,
   variant: WholesaleVariantIdentity
 ) {
-  return variant.unitsCount === 1 && product.categorySlug !== 'paquetes-y-promociones';
+  return variant.wholesaleEligible;
 }
 
 export function wholesaleDiscountPercentForQuantity(

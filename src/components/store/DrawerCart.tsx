@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight, Tag, ShieldCheck, Truck } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { getBrandBySlug } from '@/data/brands';
 import { formatCurrency } from '@/lib/utils';
 import { SHIPPING_CONFIG } from '@/config/shipping';
 import { trackBeginCheckout } from '@/lib/analytics';
@@ -151,7 +152,7 @@ export const DrawerCart: React.FC = () => {
                   />
                   <div className="flex-1 min-w-0 pr-6">
                     <span className="text-[10px] font-bold text-[#D17B24] uppercase tracking-wider block">
-                      {item.product.brand}
+                      {getBrandBySlug(item.product.brandSlug)?.name ?? item.product.brandSlug}
                     </span>
                     <h5 className="font-bold text-[#23312C] text-sm leading-tight truncate mb-1">
                       {item.product.name}

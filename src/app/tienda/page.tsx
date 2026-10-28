@@ -4,6 +4,7 @@ import React, { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { PRODUCTS } from '@/data/products';
 import { CATEGORIES } from '@/data/categories';
+import { getBrandBySlug } from '@/data/brands';
 import { ProductCard } from '@/components/product/ProductCard';
 import { Search, Filter, SlidersHorizontal, Leaf } from 'lucide-react';
 
@@ -18,10 +19,11 @@ function StoreCatalogContent() {
 
   const filteredProducts = useMemo(() => {
     return PRODUCTS.filter((product) => {
+      const brandName = getBrandBySlug(product.brandSlug)?.name ?? product.brandSlug;
       const matchesSearch =
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.shortDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.brand.toLowerCase().includes(searchTerm.toLowerCase());
+        brandName.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesCategory =
         selectedCategory === 'todas' || product.categorySlug === selectedCategory;

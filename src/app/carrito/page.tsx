@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import { getBrandBySlug } from '@/data/brands';
 import { formatCurrency } from '@/lib/utils';
 import { SHIPPING_CONFIG } from '@/config/shipping';
 import { trackBeginCheckout } from '@/lib/analytics';
@@ -130,7 +131,7 @@ export default function CartPage() {
                     />
                     <div className="min-w-0">
                       <span className="text-[10px] font-bold text-[#D17B24] uppercase block">
-                        {item.product.brand}
+                        {getBrandBySlug(item.product.brandSlug)?.name ?? item.product.brandSlug}
                       </span>
                       <h4 className="font-extrabold text-[#23312C] text-sm leading-snug truncate">
                         {item.product.name}
