@@ -34,7 +34,7 @@ export default function HomePage() {
             Elige la forma de consumir Moronel que mejor se adapta a ti
           </h2>
           <p className="text-xm text-[#6F8F69] font-medium">
-            Materia prima seleccionada y procesada con los más altos estándares de higiene en México.
+            Explora las categorías y presentaciones disponibles en nuestro catálogo.
           </p>
         </div>
 

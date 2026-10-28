@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, Truck, MessageSquare, Award } from 'lucide-react';
+import { ShieldCheck, Truck, PackageSearch, Award } from 'lucide-react';
 import { SHIPPING_CONFIG } from '@/config/shipping';
 
 export const TrustBar: React.FC = () => {
@@ -17,12 +17,12 @@ export const TrustBar: React.FC = () => {
     {
       icon: Award,
       title: 'Productos Herbazen',
-      subtitle: '100% de origen natural seleccionado',
+      subtitle: 'Consulta ingredientes y modo de uso en cada ficha',
     },
     {
-      icon: MessageSquare,
-      title: 'Atención Directa',
-      subtitle: 'Contamos con asesores especializados para ti',
+      icon: PackageSearch,
+      title: 'Rastreo de pedidos',
+      subtitle: 'Consulta el estado de tu compra en línea',
     },
   ];
 

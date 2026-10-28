@@ -37,7 +37,7 @@ export default function AccountPage() {
         <div className="bg-[#FAF7E8] p-5 rounded-2xl border border-[#D9D1B9] space-y-2">
           <ShieldCheck className="w-6 h-6 text-[#285F50]" />
           <h3 className="font-extrabold text-[#23312C] text-sm">Soporte y Asistencia</h3>
-          <p className="text-xs text-[#6F8F69]">Atención rápida personalizada vía WhatsApp.</p>
+          <p className="text-xs text-[#6F8F69]">Consulta los canales de atención disponibles.</p>
           <Link href="/contacto" className="text-xs font-bold text-[#285F50] hover:underline block pt-2">
             Ir a Contacto →
           </Link>

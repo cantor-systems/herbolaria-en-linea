@@ -1,3 +1,6 @@
+import { SHIPPING_CONFIG } from '@/config/shipping';
+import { STORE_CONFIG } from '@/config/store';
+
 export const HOMEPAGE_CONTENT = {
   hero: {
     eyebrow: 'Moronel Planta de la vida',
@@ -22,7 +25,7 @@ export const HOMEPAGE_CONTENT = {
     {
       icon: 'ShieldCheck',
       title: 'Pago en línea',
-      description: 'Los métodos de pago se habilitarán próximamente.',
+      description: 'Pago procesado de forma segura mediante Mercado Pago.',
     },
     {
       icon: 'Leaf',
@@ -32,7 +35,9 @@ export const HOMEPAGE_CONTENT = {
     {
       icon: 'MessageSquare',
       title: 'Atención Personalizada',
-      description: 'El canal de WhatsApp se habilitará al confirmarse.',
+      description: STORE_CONFIG.contact.whatsapp.enabled
+        ? 'Atención disponible mediante WhatsApp.'
+        : 'Consulta los canales disponibles en la página de contacto.',
     },
   ],
   educational: {
@@ -40,8 +45,8 @@ export const HOMEPAGE_CONTENT = {
     subtitle: 'Historia, tradición herbolaria y preservación de fitoactivos',
     content: [
       'Conocida popularmente como Planta de la Vida o Moronel (lonicera subspicata var. denudata), es una especie apreciada en la herbolaria mexicana por su vitalidad y sus usos tradicionales.',
-      'En Moronel Planta de la Vida seleccionamos cuidadosamente las plantas maduras para extraer sus propiedades en dosis estandarizadas mediante extracto concentrado en gotas, cápsulas micropulverizadas y hojuela seca deshidratada a la sombra.',
-      'Nuestras presentaciones te permiten elegir la forma de consumo que mejor se adapte a tu rutina diaria con total comodidad y garantía de frescura.',
+      'Los productos Moronel están disponibles en extracto concentrado en gotas, cápsulas y hierba deshidratada.',
+      'Estas presentaciones ofrecen distintas opciones de preparación, almacenamiento y portabilidad.',
     ],
   },
   howToBuySteps: [
@@ -75,22 +80,23 @@ export const HOMEPAGE_CONTENT = {
     {
       question: '¿Cómo realizo el pago de mi pedido?',
       answer:
-        'Podrás hacer tu pago con tarjeta de Débito, Crédito, Transferencia Bancaria o en Efectivo',
+        'El pago se procesa de forma segura mediante Mercado Pago. Los métodos disponibles se muestran directamente al continuar con el pago.',
     },
     {
       question: '¿En cuánto tiempo llega mi pedido?',
       answer:
-        'El tiempo estimado de entrega a la mayoría de las ciudades en México es de 2 a 5 días hábiles a través de paqueterías líderes (DHL, FedEx, Estafeta).',
+        `El envío estándar tiene un tiempo estimado de ${SHIPPING_CONFIG.standardEstimatedDays} y el envío exprés de ${SHIPPING_CONFIG.expressEstimatedDays}. Los tiempos están sujetos a disponibilidad y cobertura de la paquetería.`,
     },
     {
       question: '¿Cómo recibo mi número de guía de rastreo?',
       answer:
-        'La guía de rastreo se compartirá al Whatsapp y Correo Electrónico que hayas proporcionado',
+        'Cuando el pedido sea enviado, recibirás la información de rastreo por correo electrónico y, si lo autorizaste, también por WhatsApp.',
     },
     {
       question: '¿Puedo realizar mi compra directamente por WhatsApp?',
-      answer:
-        'Si, podrás realizar tu pedido por WhatsApp diréctamente con un Agente de atención a clientes',
+      answer: STORE_CONFIG.contact.whatsapp.enabled
+        ? 'Sí. Puedes solicitar atención por WhatsApp mediante los enlaces disponibles en el sitio.'
+        : 'El canal de WhatsApp no está disponible actualmente. Consulta los canales habilitados en la página de contacto.',
     },
   ],
 };
