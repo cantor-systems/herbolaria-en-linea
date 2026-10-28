@@ -3,22 +3,29 @@
 import React, { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { PRODUCTS } from '@/data/products';
-import { CATEGORIES } from '@/data/categories';
-import { getBrandBySlug } from '@/data/brands';
+import { getActiveCategories } from '@/data/categories';
+import { getActiveBrands, getBrandBySlug } from '@/data/brands';
 import { ProductCard } from '@/components/product/ProductCard';
 import { Search, Filter, SlidersHorizontal, Leaf } from 'lucide-react';
+
+const activeCategories = getActiveCategories();
+const activeBrands = getActiveBrands();
+const activeProducts = PRODUCTS.filter((product) => product.status === 'active');
 
 function StoreCatalogContent() {
   const searchParams = useSearchParams();
   const queryParam = searchParams?.get('q') || '';
   const categoryParam = searchParams?.get('categoria') || 'todas';
+  const brandParam =
+    activeBrands.length > 1 ? searchParams?.get('marca') || 'todas' : 'todas';
 
   const [searchTerm, setSearchTerm] = useState(queryParam);
   const [selectedCategory, setSelectedCategory] = useState(categoryParam);
+  const [selectedBrand, setSelectedBrand] = useState(brandParam);
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured');
 
   const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter((product) => {
+    return activeProducts.filter((product) => {
       const brandName = getBrandBySlug(product.brandSlug)?.name ?? product.brandSlug;
       const matchesSearch =
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -27,15 +34,17 @@ function StoreCatalogContent() {
 
       const matchesCategory =
         selectedCategory === 'todas' || product.categorySlug === selectedCategory;
+      const matchesBrand =
+        selectedBrand === 'todas' || product.brandSlug === selectedBrand;
 
-      return matchesSearch && matchesCategory;
+      return matchesSearch && matchesCategory && matchesBrand;
     }).sort((a, b) => {
       if (sortBy === 'price-asc') return a.priceCents - b.priceCents;
       if (sortBy === 'price-desc') return b.priceCents - a.priceCents;
       if (sortBy === 'rating') return b.rating - a.rating;
       return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
     });
-  }, [searchTerm, selectedCategory, sortBy]);
+  }, [searchTerm, selectedCategory, selectedBrand, sortBy]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -77,9 +86,9 @@ function StoreCatalogContent() {
                 : 'bg-[#F4EFD6] text-[#23312C] hover:bg-[#D9D1B9]/50'
             }`}
           >
-            Todas ({PRODUCTS.length})
+            Todas ({activeProducts.length})
           </button>
-          {CATEGORIES.map((cat) => (
+          {activeCategories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.slug)}
@@ -93,6 +102,22 @@ function StoreCatalogContent() {
             </button>
           ))}
         </div>
+
+        {activeBrands.length > 1 && (
+          <select
+            value={selectedBrand}
+            onChange={(e) => setSelectedBrand(e.target.value)}
+            aria-label="Filtrar por marca"
+            className="bg-[#F4EFD6] border border-[#D9D1B9] text-xs font-bold text-[#23312C] px-3 py-2 rounded-xl focus:outline-hidden shrink-0"
+          >
+            <option value="todas">Todas las marcas</option>
+            {activeBrands.map((brand) => (
+              <option key={brand.id} value={brand.slug}>
+                {brand.name}
+              </option>
+            ))}
+          </select>
+        )}
 
         {/* Sort Select */}
         <div className="flex items-center gap-2 shrink-0">
@@ -121,6 +146,7 @@ function StoreCatalogContent() {
             onClick={() => {
               setSearchTerm('');
               setSelectedCategory('todas');
+              setSelectedBrand('todas');
             }}
             className="px-4 py-2 bg-[#285F50] text-white text-xs font-bold rounded-xl"
           >

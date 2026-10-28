@@ -11,6 +11,7 @@ import { ProductGallery } from '@/components/product/ProductGallery';
 import { VariantSelector } from '@/components/product/VariantSelector';
 import { ProductCard } from '@/components/product/ProductCard';
 import { formatCurrency, calculateSavingsPercentage } from '@/lib/utils';
+import { getRelatedProducts } from '@/lib/catalog';
 import { useCart } from '@/context/CartContext';
 import { STORE_CONFIG, getWhatsAppHref } from '@/config/store';
 import { SHOW_MOCK_RATINGS } from '@/data/ratings';
@@ -84,7 +85,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     )}). ¿Me ayudan a levantar el pedido?`
   );
 
-  const relatedProducts = PRODUCTS.filter((p) => p.id !== product.id).slice(0, 3);
+  const relatedProducts = getRelatedProducts(product);
   const productUrl = absoluteUrl(`/producto/${product.slug}`);
   const productAvailability =
     product.stockStatus === 'in_stock' || product.stockStatus === 'low_stock'
@@ -426,7 +427,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       {/* Related Products */}
       <div className="space-y-4 pt-6 border-t border-[#D9D1B9]">
         <h2 className="text-xl font-bold text-[#23312C]">
-          Otras Presentaciones de Moronel Planta de la Vida:
+          Productos relacionados
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {relatedProducts.map((p) => (

@@ -16,8 +16,11 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { STORE_CONFIG, getWhatsAppHref } from '@/config/store';
+import { getActiveCategories } from '@/data/categories';
 import { useCart } from '@/context/CartContext';
 import { trackWhatsAppClick } from '@/lib/analytics';
+
+const activeCategories = getActiveCategories();
 
 export const Header: React.FC = () => {
   const router = useRouter();
@@ -183,34 +186,20 @@ export const Header: React.FC = () => {
               >
                 Tienda y Catálogo
               </Link>
-              <Link
-                href="/categoria/moronel-gotas"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2.5 rounded-lg hover:bg-[#FAF7E8] pl-6 text-sm text-[#6F8F69]"
-              >
-                • Moronel en Gotas
-              </Link>
-              <Link
-                href="/categoria/moronel-capsulas"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2.5 rounded-lg hover:bg-[#FAF7E8] pl-6 text-sm text-[#6F8F69]"
-              >
-                • Moronel en Cápsulas
-              </Link>
-              <Link
-                href="/categoria/moronel-hierba"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2.5 rounded-lg hover:bg-[#FAF7E8] pl-6 text-sm text-[#6F8F69]"
-              >
-                • Moronel en Hierba
-              </Link>
-              <Link
-                href="/categoria/paquetes-y-promociones"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2.5 rounded-lg hover:bg-[#FAF7E8] pl-6 text-sm text-[#D17B24] font-bold"
-              >
-                • Paquetes y Promociones
-              </Link>
+              {activeCategories.map((category) => (
+                <Link
+                  key={category.id}
+                  href={`/categoria/${category.slug}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-3 py-2.5 rounded-lg hover:bg-[#FAF7E8] pl-6 text-sm ${
+                    category.slug === 'paquetes-y-promociones'
+                      ? 'text-[#D17B24] font-bold'
+                      : 'text-[#6F8F69]'
+                  }`}
+                >
+                  • {category.name}
+                </Link>
+              ))}
               <Link
                 href="/conocer-moronel"
                 onClick={() => setMobileMenuOpen(false)}
