@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { BLOG_ARTICLES } from '@/content/blog';
-import { CATEGORIES } from '@/data/categories';
+import { getActiveCategories } from '@/data/categories';
 import { PRODUCTS } from '@/data/products';
 import { absoluteUrl } from '@/lib/site';
 
@@ -19,9 +19,11 @@ const publicRoutes = [
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const categories = getActiveCategories();
+
   return [
     ...publicRoutes.map((path) => ({ url: absoluteUrl(path) })),
-    ...CATEGORIES.map((category) => ({ url: absoluteUrl(`/categoria/${category.slug}`) })),
+    ...categories.map((category) => ({ url: absoluteUrl(`/categoria/${category.slug}`) })),
     ...PRODUCTS.filter((product) => product.status === 'active').map((product) => ({
       url: absoluteUrl(`/producto/${product.slug}`),
     })),

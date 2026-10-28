@@ -211,7 +211,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           'La presentación en hierba contiene 240 gramos por bolsa y permite preparar una infusión siguiendo las indicaciones del empaque. Es una opción para quienes disfrutan el proceso tradicional de calentar agua, reposar la planta y colar la bebida.',
           'Para conservarla, guarda la bolsa cerrada en un lugar fresco, seco y alejado de la humedad. Su elección se relaciona con la experiencia de preparación, no con una ventaja médica frente a otros formatos.',
         ],
-        links: [{ href: '/categoria/moronel-hierba', label: 'Ver Moronel en hierba deshidratada' }],
+        links: [{ href: '/categoria/hierbas-e-infusiones', label: 'Ver Moronel en hierba deshidratada' }],
       },
       {
         heading: 'Moronel en gotas',
@@ -219,7 +219,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           'Las gotas se presentan en un frasco de 50 ml con gotero. Su formato líquido es compacto y facilita medir la porción de acuerdo con las indicaciones específicas de la etiqueta.',
           'Mantén el frasco bien cerrado, en un sitio fresco y protegido de la luz directa. Es una alternativa práctica para quienes prefieren una presentación líquida sin una preparación compleja.',
         ],
-        links: [{ href: '/categoria/moronel-gotas', label: 'Ver Moronel en gotas' }],
+        links: [{ href: '/categoria/extractos-y-gotas', label: 'Ver Moronel en gotas' }],
       },
       {
         heading: 'Moronel en cápsulas',
@@ -227,7 +227,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           'Las cápsulas se ofrecen en frascos con 60 cápsulas. Este formato evita la preparación de una bebida y puede resultar cómodo para transportar o integrar en una rutina cotidiana.',
           'Guarda el envase cerrado, en un lugar fresco y seco, y consulta siempre sus indicaciones. La practicidad de las cápsulas no significa que sean médicamente superiores a las otras presentaciones.',
         ],
-        links: [{ href: '/categoria/moronel-capsulas', label: 'Ver Moronel en cápsulas' }],
+        links: [{ href: '/categoria/capsulas', label: 'Ver Moronel en cápsulas' }],
       },
       {
         heading: '¿Qué presentación elegir?',

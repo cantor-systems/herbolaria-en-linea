@@ -66,7 +66,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         </Link>
 
         <span className="text-xs font-black uppercase tracking-widest text-[#AFC28E] block">
-          Categoría Herbazen · Moronel
+          Categoría de productos
         </span>
         <h1 className="text-2xl sm:text-4xl font-extrabold leading-tight">
           {category.name}
