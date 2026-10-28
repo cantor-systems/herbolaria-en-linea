@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ShoppingBag, MessageCircle, ShieldCheck, Star, ArrowRight, Truck } from 'lucide-react';
 import { HOMEPAGE_CONTENT } from '@/content/homepage';
 import { PRODUCTS } from '@/data/products';
+import { getBrandBySlug } from '@/data/brands';
 import { SHOW_MOCK_RATINGS } from '@/data/ratings';
 import { formatCurrency } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
@@ -12,6 +13,8 @@ import { useCart } from '@/context/CartContext';
 export const HeroBanner: React.FC = () => {
   const { addToCart } = useCart();
   const featuredProduct = PRODUCTS.find((p) => p.featured) || PRODUCTS[0];
+  const featuredBrandName =
+    getBrandBySlug(featuredProduct.brandSlug)?.name ?? featuredProduct.brandSlug;
   const featuredVariant =
     featuredProduct.variants.find((v) => v.isPopular) || featuredProduct.variants[0];
 
@@ -92,7 +95,7 @@ export const HeroBanner: React.FC = () => {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <span className="absolute bottom-3 left-3 bg-[#285F50] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                  {featuredProduct.brand}
+                  {featuredBrandName}
                 </span>
               </div>
 
