@@ -1,3 +1,5 @@
+import { absoluteUrl, SITE_NAME } from '@/lib/site';
+
 export function normalizeMexicanWhatsAppNumber(phone: string | null) {
   if (!phone || !/^[\d\s()+-]+$/.test(phone)) return null;
 
@@ -48,9 +50,9 @@ export function buildWhatsAppShippingUrl(input: WhatsAppShippingMessageInput) {
     trackingUrl,
     '',
     'También puedes conocer más sobre plantas medicinales en nuestro blog 🌿',
-    'https://www.moronelplantadelavida.com/blog',
+    absoluteUrl('/blog'),
     '',
-    'Gracias por tu compra en Moronel Planta de la Vida. Te esperamos pronto 😃',
+    `Gracias por tu compra en ${SITE_NAME}. Te esperamos pronto 😃`,
   ].join('\n');
 
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;

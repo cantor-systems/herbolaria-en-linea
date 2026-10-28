@@ -2,6 +2,7 @@ import 'server-only';
 
 import { Resend } from 'resend';
 import { SHIPPING_CONFIG } from '@/config/shipping';
+import { SITE_NAME } from '@/lib/site';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
 type NotificationResult = 'sent' | 'skipped' | 'failed';
@@ -324,7 +325,7 @@ function buildAdminEmail(order: OrderNotificationRow, items: OrderItemNotificati
   <body style="margin:0;background:#f3f4f6;font-family:Arial,sans-serif;color:#111827;">
     <div style="max-width:720px;margin:0 auto;padding:24px;">
       <div style="background:#ffffff;border-radius:12px;padding:24px;">
-        <h1 style="margin:0 0 8px;font-size:24px;">Nuevo pedido pagado — Moronel Planta de la Vida</h1>
+        <h1 style="margin:0 0 8px;font-size:24px;">Nuevo pedido pagado — ${SITE_NAME}</h1>
         <p style="margin:0 0 24px;color:#4b5563;">El pago fue verificado y la orden quedó aprobada.</p>
 
         <h2 style="font-size:18px;margin:24px 0 10px;">Pedido</h2>
@@ -384,7 +385,7 @@ function buildAdminEmail(order: OrderNotificationRow, items: OrderItemNotificati
     .filter(Boolean)
     .join('\n');
 
-  const text = `Nuevo pedido pagado — Moronel Planta de la Vida
+  const text = `Nuevo pedido pagado — ${SITE_NAME}
 
 El pago fue verificado y la orden quedó aprobada.
 
@@ -413,7 +414,7 @@ Envío: ${formatCurrency(order.shipping_cents)}
 Total: ${total}`;
 
   return {
-    subject: `Nuevo pedido #${order.public_order_number} pagado — ${total} — Moronel`,
+    subject: `Nuevo pedido #${order.public_order_number} pagado — ${total} — ${SITE_NAME}`,
     html,
     text,
   };
@@ -463,7 +464,7 @@ function buildCustomerEmail(
   <body style="margin:0;background:#f4f1e8;font-family:Arial,sans-serif;color:#23312c;">
     <div style="max-width:680px;margin:0 auto;padding:20px 12px;">
       <div style="background:#ffffff;border-radius:12px;border-top:6px solid #285f50;padding:24px;">
-        <p style="margin:0 0 8px;color:#6f8f69;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Moronel Planta de la Vida</p>
+        <p style="margin:0 0 8px;color:#6f8f69;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">${SITE_NAME}</p>
         <h1 style="margin:0 0 18px;color:#285f50;font-size:26px;line-height:1.2;">¡Gracias por tu compra!</h1>
         <p style="margin:0 0 10px;line-height:1.6;">${greeting}</p>
         <p style="margin:0 0 24px;line-height:1.6;">Recibimos tu pago y tu pedido quedó confirmado correctamente.</p>
@@ -546,7 +547,7 @@ ${estimatedDelivery}
 Conserva este correo como referencia de tu compra.`;
 
   return {
-    subject: `Pedido #${order.public_order_number} confirmado — Moronel Planta de la Vida`,
+    subject: `Pedido #${order.public_order_number} confirmado — ${SITE_NAME}`,
     html,
     text,
   };
@@ -605,7 +606,7 @@ function buildCustomerShippedEmail(
   <body style="margin:0;background:#f4f1e8;font-family:Arial,sans-serif;color:#23312c;">
     <div style="max-width:680px;margin:0 auto;padding:20px 12px;">
       <div style="background:#ffffff;border-radius:12px;border-top:6px solid #285f50;padding:24px;">
-        <p style="margin:0 0 8px;color:#6f8f69;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Moronel Planta de la Vida</p>
+        <p style="margin:0 0 8px;color:#6f8f69;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">${SITE_NAME}</p>
         <h1 style="margin:0 0 18px;color:#285f50;font-size:26px;line-height:1.2;">Tu pedido ya fue enviado.</h1>
         <p style="margin:0 0 24px;line-height:1.6;">Ya puedes consultar el avance de tu envío con los datos de rastreo siguientes.</p>
 
@@ -670,7 +671,7 @@ ${estimatedDelivery}
 El tiempo de entrega puede variar según la paquetería y la ubicación.`;
 
   return {
-    subject: `Tu pedido #${order.public_order_number} ha sido enviado — Moronel Planta de la Vida`,
+    subject: `Tu pedido #${order.public_order_number} ha sido enviado — ${SITE_NAME}`,
     html,
     text,
   };
