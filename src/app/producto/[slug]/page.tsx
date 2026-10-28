@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { PRODUCTS } from '@/data/products';
 import { getBrandBySlug } from '@/data/brands';
+import { getCategoryBySlug } from '@/data/categories';
 import { ProductVariant } from '@/types';
 import { ProductGallery } from '@/components/product/ProductGallery';
 import { VariantSelector } from '@/components/product/VariantSelector';
@@ -45,6 +46,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { addToCart } = useCart();
   const trackedProductSlug = useRef<string | null>(null);
   const brandName = getBrandBySlug(product.brandSlug)?.name ?? product.brandSlug;
+  const categoryName = getCategoryBySlug(product.categorySlug)?.name ?? product.categorySlug;
   const isSingleVariantHerbazen = product.brandSlug === 'herbazen' && product.variants.length === 1;
   const defaultVariant = product.variants.find((v) => v.isPopular) || product.variants[0];
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(defaultVariant);
@@ -126,7 +128,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       {
         '@type': 'ListItem',
         position: 2,
-        name: product.categoryName,
+        name: categoryName,
         item: absoluteUrl(`/categoria/${product.categorySlug}`),
       },
       {
@@ -157,7 +159,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         </Link>
         <span>/</span>
         <Link href={`/categoria/${product.categorySlug}`} className="hover:text-[#285F50]">
-          {product.categoryName}
+          {categoryName}
         </Link>
         <span>/</span>
         <span className="text-[#23312C] truncate max-w-xs">{product.name}</span>
@@ -185,7 +187,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               </span>
               {!isSingleVariantHerbazen && (
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-[#D17B24] text-white">
-                  {product.categoryName}
+                  {categoryName}
                 </span>
               )}
             </div>
@@ -209,7 +211,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           <p className="text-xs sm:text-sm text-[#23312C]/80 leading-relaxed bg-[#F4EFD6] p-3.5 rounded-2xl border border-[#D9D1B9]">
             {isSingleVariantHerbazen
               ? product.shortDescription
-              : `Información de la presentación: ${product.categoryName}.`}
+              : `Información de la presentación: ${categoryName}.`}
           </p>
 
           {/* Variant Selector Component */}

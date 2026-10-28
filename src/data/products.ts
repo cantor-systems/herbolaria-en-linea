@@ -17,7 +17,6 @@ export const PRODUCTS: Product[] = [
     name: 'Moronel Extracto Concentrado en Gotas (50 ml)',
     brandSlug: 'herbazen',
     categorySlug: 'moronel-gotas',
-    categoryName: 'Moronel en Gotas',
     shortDescription:
       'Extracto fluido de Moronel (Planta de la Vida) de rápida asimilación. Frasco de vidrio ámbar con cuentagotas de precisión.',
     description:
@@ -111,7 +110,6 @@ export const PRODUCTS: Product[] = [
     name: 'Moronel en Cápsulas Vegetales (60 Cápsulas)',
     brandSlug: 'herbazen',
     categorySlug: 'moronel-capsulas',
-    categoryName: 'Moronel en Cápsulas',
     shortDescription:
       'Cápsulas vegetales de 500 mg de hoja pura micropulverizada de Moronel. Sin sabor amargo, fácil de tragar.',
     description:
@@ -204,7 +202,6 @@ export const PRODUCTS: Product[] = [
     name: 'Moronel Hierba Orgánica Deshidratada (240g)',
     brandSlug: 'herbazen',
     categorySlug: 'moronel-hierba',
-    categoryName: 'Moronel en Hierba',
     shortDescription:
       'Hojas deshidratadas de Moronel para preparación de té, infusión o maceración en agua de uso diario.',
     description:
@@ -294,7 +291,6 @@ export const PRODUCTS: Product[] = [
     name: 'Paquete Moronel Integral (Gotas + Cápsulas + Hierba)',
     brandSlug: 'herbazen',
     categorySlug: 'paquetes-y-promociones',
-    categoryName: 'Paquetes y Promociones',
     shortDescription:
       'Kit completo que combina las 3 presentaciones principales de Moronel Herbazen con precio especial de paquete.',
     description:
@@ -351,7 +347,6 @@ export const PRODUCTS: Product[] = [
     name: 'Plantas del Colesterol y Triglicéridos',
     brandSlug: 'herbazen',
     categorySlug: 'herbazen',
-    categoryName: 'Herbazen',
     shortDescription:
       'Extracto herbolario líquido formulado con Eryngium serratum, Moronel y otros extractos de la fórmula.',
     description:
@@ -392,7 +387,6 @@ export const PRODUCTS: Product[] = [
     name: 'Plantas del Hígado',
     brandSlug: 'herbazen',
     categorySlug: 'herbazen',
-    categoryName: 'Herbazen',
     shortDescription:
       'Extracto herbolario líquido formulado con Cardo Mariano, Moronel, Boldo, Diente de León, Alcachofa y Cuasia.',
     description:
@@ -437,7 +431,6 @@ export const PRODUCTS: Product[] = [
     name: 'Plantas de los Riñones',
     brandSlug: 'herbazen',
     categorySlug: 'herbazen',
-    categoryName: 'Herbazen',
     shortDescription:
       'Extracto herbolario líquido formulado con Cola de caballo, Guásima, Enebro, Arándano, Diente de León, Doradilla y Pelo de elote.',
     description:
@@ -482,7 +475,6 @@ export const PRODUCTS: Product[] = [
     name: 'Súper Cúrcuma',
     brandSlug: 'herbazen',
     categorySlug: 'herbazen',
-    categoryName: 'Herbazen',
     shortDescription:
       'Extracto herbolario líquido formulado con cúrcuma (Curcuma longa) y extracto de pimienta negra o piperina.',
     description:
@@ -519,7 +511,6 @@ export const PRODUCTS: Product[] = [
     name: 'Súper Propóleo',
     brandSlug: 'herbazen',
     categorySlug: 'herbazen',
-    categoryName: 'Herbazen',
     shortDescription:
       'Extracto herbolario líquido formulado con extractos de propóleo y echinacea.',
     description:

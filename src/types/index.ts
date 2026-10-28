@@ -45,7 +45,6 @@ export interface Product {
   name: string;
   brandSlug: string;
   categorySlug: string;
-  categoryName: string;
   shortDescription: string;
   description: string;
   images: string[];
@@ -70,11 +69,13 @@ export interface Category {
   id: string;
   slug: string;
   name: string;
-  subtitle: string;
   description: string;
-  image: string;
+  image?: string;
+  subtitle?: string;
   badge?: string;
-  productCount: number;
+  status: CatalogStatus;
+  sortOrder?: number;
+  seo?: SeoMetadata;
 }
 
 export interface Testimonial {

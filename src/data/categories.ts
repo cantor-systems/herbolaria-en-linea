@@ -11,7 +11,8 @@ export const CATEGORIES: Category[] = [
     image:
       '/images/products/moronel-gotas-50ml.webp',
     badge: 'Más Vendido',
-    productCount: 1,
+    status: 'active',
+    sortOrder: 10,
   },
   {
     id: 'cat-herbazen',
@@ -22,7 +23,8 @@ export const CATEGORIES: Category[] = [
       'Extractos herbolarios líquidos Herbazen en presentaciones individuales de 50 ml.',
     image:
       '/images/products/plantas-colesterol-trigliceridos.webp',
-    productCount: 5,
+    status: 'active',
+    sortOrder: 20,
   },
   {
     id: 'cat-capsulas',
@@ -34,7 +36,8 @@ export const CATEGORIES: Category[] = [
     image:
       '/images/products/moronel-capsulas-100.webp',
     badge: 'Popular',
-    productCount: 1,
+    status: 'active',
+    sortOrder: 30,
   },
   {
     id: 'cat-hierba',
@@ -46,7 +49,8 @@ export const CATEGORIES: Category[] = [
     image:
       '/images/products/moronel-hierba-deshidratada.webp',
     badge: '100% Natural',
-    productCount: 1,
+    status: 'active',
+    sortOrder: 40,
   },
   {
     id: 'cat-paquetes',
@@ -58,6 +62,17 @@ export const CATEGORIES: Category[] = [
     image:
       '/images/products/moronel-paquete-integral.webp',
     badge: 'Máximo Ahorro',
-    productCount: 1,
+    status: 'active',
+    sortOrder: 50,
   },
 ];
+
+export function getCategoryBySlug(slug: string) {
+  return CATEGORIES.find((category) => category.slug === slug);
+}
+
+export function getActiveCategories() {
+  return CATEGORIES.filter((category) => category.status === 'active').sort(
+    (left, right) => (left.sortOrder ?? 0) - (right.sortOrder ?? 0)
+  );
+}
