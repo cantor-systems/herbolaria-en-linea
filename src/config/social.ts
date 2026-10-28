@@ -12,7 +12,7 @@ export const SOCIAL_CONFIG: SocialConfig[] = [
   {
     id: 'instagram',
     platform: 'Instagram',
-    label: 'Instagram Herbazen',
+    label: 'Instagram Herbolaria en Línea',
     href: null,
     enabled: false,
     isPlaceholder: true,

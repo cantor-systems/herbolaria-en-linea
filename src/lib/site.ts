@@ -1,10 +1,7 @@
-export const SITE_NAME = 'Moronel Planta de la Vida';
+export const SITE_NAME = 'Herbolaria en Línea';
 
 const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, '');
-const defaultSiteUrl =
-  process.env.NODE_ENV === 'production'
-    ? 'https://www.moronelplantadelavida.com'
-    : 'http://localhost:3000';
+const defaultSiteUrl = 'http://localhost:3000';
 
 export const SITE_URL = configuredSiteUrl || defaultSiteUrl;
 export const metadataBase = new URL(SITE_URL);

@@ -155,7 +155,7 @@ export const Header: React.FC = () => {
             <form onSubmit={handleSearchSubmit} className="mb-4 relative">
               <input
                 type="text"
-                placeholder="Buscar en Moronel Planta de la Vida..."
+                placeholder="Buscar en Herbolaria en Línea..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-[#FAF7E8] text-[#23312C] text-sm pl-4 pr-10 py-2.5 rounded-full border border-[#D9D1B9]"

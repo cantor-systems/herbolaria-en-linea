@@ -7,7 +7,7 @@ import { Header } from '@/components/store/Header';
 import { Footer } from '@/components/store/Footer';
 import { DrawerCart } from '@/components/store/DrawerCart';
 import { STORE_CONFIG } from '@/config/store';
-import { DEFAULT_OG_IMAGE, metadataBase, SITE_NAME, SITE_URL } from '@/lib/site';
+import { metadataBase, SITE_NAME, SITE_URL } from '@/lib/site';
 import { Clarity } from '@/components/analytics/Clarity';
 
 const googleAnalyticsId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
@@ -28,17 +28,16 @@ const organizationStructuredData = {
 export const metadata: Metadata = {
   ...(metadataBase ? { metadataBase } : {}),
   title: {
-    default: 'Moronel Planta de la Vida | Productos Moronel en México',
+    default: 'Herbolaria en Línea | Productos herbolarios en México',
     template: `%s | ${SITE_NAME}`,
   },
-  description: 'Conoce Moronel Planta de la Vida y sus presentaciones en hierba, gotas y cápsulas. Compra en línea y consulta información sobre productos, uso tradicional y presentaciones disponibles.',
+  description: 'Compra productos herbolarios en línea y encuentra distintas marcas, categorías y presentaciones con envío en México.',
   openGraph: {
     type: 'website',
     locale: 'es_MX',
     siteName: SITE_NAME,
-    title: 'Moronel Planta de la Vida | Productos Moronel en México',
-    description: 'Conoce Moronel Planta de la Vida y sus presentaciones en hierba, gotas y cápsulas.',
-    images: [{ url: DEFAULT_OG_IMAGE, alt: 'Moronel Planta de la Vida en un contexto de herbolaria tradicional' }],
+    title: 'Herbolaria en Línea | Productos herbolarios en México',
+    description: 'Compra productos herbolarios en línea de distintas marcas y categorías, con envío en México.',
   },
   twitter: { card: 'summary_large_image' },
 };

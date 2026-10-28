@@ -3,11 +3,11 @@ import { StoreConfig } from '@/types';
 const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/\D/g, '') ?? '';
 
 export const STORE_CONFIG: StoreConfig = {
-  storeName: 'Moronel Planta de la Vida',
-  brandName: 'Herbazen',
+  storeName: 'Herbolaria en Línea',
+  brandName: 'Herbolaria en Línea',
   tagline: 'Herbolaria Tradicional de Calidad Superior',
   description:
-    'Tienda oficial para la compra directa de Moronel Planta de la Vida en presentaciones en gotas, capsulas y hierba deshidratada bajo la marca Herbazen.',
+    'Tienda en línea de productos herbolarios de distintas marcas y categorías.',
   contact: {
     whatsapp: { value: whatsappNumber || null, enabled: whatsappNumber.length > 0 },
     email: { value: null, enabled: false },
@@ -20,8 +20,8 @@ export const STORE_CONFIG: StoreConfig = {
     paymentMode: 'demo',
   },
   logo: {
-    text: 'Moronel',
-    tagline: 'Planta de la Vida',
+    text: 'Herbolaria',
+    tagline: 'en Línea',
   },
 };
 
