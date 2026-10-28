@@ -1,19 +1,13 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Herbolaria en Línea
 
-# Run and deploy your AI Studio app
+Base de comercio electrónico en Next.js para una tienda multimarca de productos herbolarios.
 
-This contains everything you need to run your app locally.
+## Desarrollo local
 
-View your app in AI Studio: https://ai.studio/apps/caf7e4ec-cb75-44a6-a691-e2c9efb89686
+**Requisito:** Node.js
 
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
+1. Instala las dependencias:
    `npm install`
-2. Run the app:
+2. Configura las variables de entorno documentadas en `.env.example`.
+3. Inicia la aplicación:
    `npm run dev`

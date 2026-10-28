@@ -33,7 +33,7 @@ export const Footer: React.FC = () => {
               </div>
             </div>
             <p className="text-xs text-[#F4EFD6]/80 leading-relaxed">
-              Tienda oficial dedicada a la divulgación y comercialización de la Planta de la Vida (Moronel) en extracto en gotas, cápsulas vegetales y hoja seca deshidratada en México.
+              {STORE_CONFIG.description}
             </p>
             <div className="pt-2">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#285F50]/60 border border-[#285F50] text-xs text-[#FAF7E8]">
@@ -173,7 +173,7 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Bar & Copyright */}
         <div className="pt-4 border-t border-[#285F50] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#F4EFD6]/70">
-          <p>© {new Date().getFullYear()} {STORE_CONFIG.storeName}. Todos los derechos reservados. Marca Herbazen.</p>
+          <p>© {new Date().getFullYear()} {STORE_CONFIG.storeName}. Todos los derechos reservados.</p>
           <div className="flex items-center gap-4 text-[11px]">
             <span>Envíos por FedEx / DHL / Estafeta</span>
             <span>·</span>

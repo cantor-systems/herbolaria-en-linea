@@ -1,6 +1,6 @@
 {
-  "name": "Moronel Planta de la Vida",
-  "description": "Plataforma e-commerce reutilizable de productos herbolarios de la marca Herbazen elaborados con Moronel.",
+  "name": "Herbolaria en Línea",
+  "description": "Plataforma e-commerce para una tienda multimarca de productos herbolarios.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
