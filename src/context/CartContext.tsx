@@ -54,7 +54,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Load saved cart from localStorage on mount
   useEffect(() => {
     try {
-      const savedCart = localStorage.getItem('moronel_cart_items');
+      const savedCart = localStorage.getItem('herbolaria_cart_items_v1');
       if (savedCart) {
         const parsedCart: unknown = JSON.parse(savedCart);
         if (Array.isArray(parsedCart)) {
@@ -71,7 +71,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setCart(currentCart);
         }
       }
-      const savedPromo = localStorage.getItem('moronel_applied_promo');
+      const savedPromo = localStorage.getItem('herbolaria_applied_promo_v1');
       if (savedPromo) {
         let savedCode = savedPromo;
         try {
@@ -98,11 +98,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Save cart changes
   useEffect(() => {
     try {
-      localStorage.setItem('moronel_cart_items', JSON.stringify(cart));
+      localStorage.setItem('herbolaria_cart_items_v1', JSON.stringify(cart));
       if (selectedPromotionCode) {
-        localStorage.setItem('moronel_applied_promo', selectedPromotionCode);
+        localStorage.setItem('herbolaria_applied_promo_v1', selectedPromotionCode);
       } else {
-        localStorage.removeItem('moronel_applied_promo');
+        localStorage.removeItem('herbolaria_applied_promo_v1');
       }
     } catch (e) {
       console.error('Error saving cart to storage', e);
