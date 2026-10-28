@@ -9,6 +9,7 @@ import { trackWhatsAppClick } from '@/lib/analytics';
 
 export const FAQSection: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const whatsappHref = getWhatsAppHref();
 
   const toggleAccordion = (idx: number) => {
     setOpenIndex((prev) => (prev === idx ? null : idx));
@@ -43,20 +44,21 @@ export const FAQSection: React.FC = () => {
           ))}
         </div>
 
-        <div className="bg-[#F4EFD6] p-5 rounded-2xl border border-[#D9D1B9] text-center space-y-2">
-          <p className="text-xs font-bold text-[#23312C]">
-            ¿Tienes otra pregunta sobre el producto o tu pedido?
-          </p>
-          <a
-            href={getWhatsAppHref() || undefined}
-            aria-disabled={!getWhatsAppHref()}
-            onClick={() => trackWhatsAppClick('faq', { placement: 'faq_section' })}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors"
-          >
-            <MessageCircle className="w-4 h-4" />
-            <span>Preguntar directamente por WhatsApp</span>
-          </a>
-        </div>
+        {whatsappHref && (
+          <div className="bg-[#F4EFD6] p-5 rounded-2xl border border-[#D9D1B9] text-center space-y-2">
+            <p className="text-xs font-bold text-[#23312C]">
+              ¿Tienes otra pregunta sobre el producto o tu pedido?
+            </p>
+            <a
+              href={whatsappHref}
+              onClick={() => trackWhatsAppClick('faq', { placement: 'faq_section' })}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>Preguntar directamente por WhatsApp</span>
+            </a>
+          </div>
+        )}
 
       </div>
     </section>

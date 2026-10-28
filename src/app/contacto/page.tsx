@@ -1,20 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import Link from 'next/link';
 import { STORE_CONFIG, getWhatsAppHref } from '@/config/store';
-import { MessageCircle, Mail, Clock, MapPin, Send, CheckCircle2 } from 'lucide-react';
+import { MessageCircle, Mail, Clock, Truck } from 'lucide-react';
 import { trackWhatsAppClick } from '@/lib/analytics';
 
 export default function ContactPage() {
-  const [submitted, setSubmitted] = useState(false);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitted(true);
-  };
+  const whatsappHref = getWhatsAppHref();
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -68,64 +60,48 @@ export default function ContactPage() {
           </div>
         </div>
 
-        {/* Form (7 cols) */}
+        {/* Available contact channel (7 cols) */}
         <div className="md:col-span-7 bg-[#FAF7E8] p-6 sm:p-8 rounded-3xl border border-[#D9D1B9] space-y-4">
           <h3 className="font-extrabold text-[#23312C] text-lg border-b border-[#D9D1B9] pb-3">
-            Envíanos un Mensaje
+            Canales disponibles
           </h3>
 
-          {submitted ? (
-            <div className="p-6 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-2xl text-center space-y-2">
-              <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto" />
-              <h4 className="font-extrabold text-sm">¡Mensaje enviado con éxito!</h4>
-              <p className="text-xs">Te responderemos a la brevedad a tu correo electrónico.</p>
+          {whatsappHref ? (
+            <div className="p-6 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-2xl text-center space-y-4">
+              <MessageCircle className="w-8 h-8 text-emerald-600 mx-auto" />
+              <div className="space-y-1">
+                <h4 className="font-extrabold text-sm">Atención por WhatsApp</h4>
+                <p className="text-xs">
+                  Escríbenos para recibir ayuda con productos, envíos o pedidos.
+                </p>
+              </div>
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackWhatsAppClick('contact', { placement: 'contact_page_form_replacement' })}
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-xs font-bold text-white hover:bg-emerald-700"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Abrir WhatsApp
+              </a>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <div>
-                <label className="block text-xs font-bold text-[#23312C] mb-1">Tu Nombre *</label>
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-[#F4EFD6] border border-[#D9D1B9] text-xs font-medium px-4 py-3 rounded-xl"
-                  placeholder="Tu nombre completo"
-                />
+            <div className="p-6 bg-[#F4EFD6] border border-[#D9D1B9] text-[#23312C] rounded-2xl text-center space-y-4">
+              <Truck className="w-8 h-8 text-[#285F50] mx-auto" />
+              <div className="space-y-1">
+                <h4 className="font-extrabold text-sm">Consulta el estado de tu pedido</h4>
+                <p className="text-xs text-[#6F8F69]">
+                  El formulario de contacto no está disponible actualmente. Si ya realizaste una compra, puedes consultar su estado en línea.
+                </p>
               </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#23312C] mb-1">Correo Electrónico *</label>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-[#F4EFD6] border border-[#D9D1B9] text-xs font-medium px-4 py-3 rounded-xl"
-                  placeholder="tu@correo.com"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#23312C] mb-1">Mensaje o Pregunta *</label>
-                <textarea
-                  rows={4}
-                  required
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="w-full bg-[#F4EFD6] border border-[#D9D1B9] text-xs font-medium p-4 rounded-xl"
-                  placeholder="Escribe tu duda sobre productos, envíos o pedidos..."
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-3.5 px-6 bg-[#285F50] hover:bg-[#23312C] text-[#FAF7E8] font-bold text-xs rounded-xl shadow-md transition-colors flex items-center justify-center gap-2"
+              <Link
+                href="/rastrear-pedido"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-[#285F50] px-5 py-3 text-xs font-bold text-white hover:bg-[#23312C]"
               >
-                <Send className="w-4 h-4 text-[#D17B24]" />
-                <span>Enviar Mensaje</span>
-              </button>
-            </form>
+                Rastrear pedido
+              </Link>
+            </div>
           )}
         </div>
 

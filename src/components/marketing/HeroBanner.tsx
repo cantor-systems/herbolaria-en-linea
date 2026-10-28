@@ -20,6 +20,7 @@ export const HeroBanner: React.FC = () => {
     getCategoryBySlug(featuredProduct.categorySlug)?.name ?? featuredProduct.categorySlug;
   const featuredVariant =
     featuredProduct.variants.find((v) => v.isPopular) || featuredProduct.variants[0];
+  const isFeaturedProductOutOfStock = featuredProduct.stockStatus === 'out_of_stock';
 
   return (
     <section className="bg-gradient-to-b from-[#F4EFD6] via-[#FAF7E8] to-[#FAF7E8] py-8 lg:py-16 border-b border-[#D9D1B9] overflow-hidden">
@@ -135,11 +136,16 @@ export const HeroBanner: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <button
-                    onClick={() => addToCart(featuredProduct, featuredVariant)}
-                    className="py-3 px-4 bg-[#285F50] hover:bg-[#23312C] text-[#FAF7E8] font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-98 min-h-[44px]"
+                    disabled={isFeaturedProductOutOfStock}
+                    onClick={() => {
+                      if (!isFeaturedProductOutOfStock) {
+                        addToCart(featuredProduct, featuredVariant);
+                      }
+                    }}
+                    className="py-3 px-4 bg-[#285F50] hover:bg-[#23312C] text-[#FAF7E8] font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-98 min-h-[44px] disabled:cursor-not-allowed disabled:bg-[#23312C]/45 disabled:shadow-none"
                   >
                     <ShoppingBag className="w-4 h-4 text-[#D17B24]" />
-                    <span>Agregar al Carrito</span>
+                    <span>{isFeaturedProductOutOfStock ? 'Agotado' : 'Agregar al Carrito'}</span>
                   </button>
 
                   <Link

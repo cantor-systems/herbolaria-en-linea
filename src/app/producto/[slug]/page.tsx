@@ -10,10 +10,11 @@ import { ProductVariant } from '@/types';
 import { ProductGallery } from '@/components/product/ProductGallery';
 import { VariantSelector } from '@/components/product/VariantSelector';
 import { ProductCard } from '@/components/product/ProductCard';
+import { StockStatusBadge } from '@/components/product/StockStatusBadge';
 import { formatCurrency, calculateSavingsPercentage } from '@/lib/utils';
 import { getRelatedProducts } from '@/lib/catalog';
 import { useCart } from '@/context/CartContext';
-import { STORE_CONFIG, getWhatsAppHref } from '@/config/store';
+import { getWhatsAppHref } from '@/config/store';
 import { SHOW_MOCK_RATINGS } from '@/data/ratings';
 import { trackViewItem, trackWhatsAppClick } from '@/lib/analytics';
 import { absoluteUrl } from '@/lib/site';
@@ -79,11 +80,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     selectedVariant.priceCents
   );
 
-  const whatsappMessage = encodeURIComponent(
-    `Hola, me interesa comprar el producto "${product.name}" en la presentación "${selectedVariant.name}" (${quantity} unidad/es, ${formatCurrency(
-      selectedVariant.priceCents * quantity
-    )}). ¿Me ayudan a levantar el pedido?`
-  );
+  const whatsappHref = getWhatsAppHref();
 
   const relatedProducts = getRelatedProducts(product);
   const productUrl = absoluteUrl(`/producto/${product.slug}`);
@@ -244,11 +241,14 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 </div>
               </div>
 
-              {savings > 0 && (
-                <span className="px-3 py-1 bg-[#D17B24] text-white text-xs font-black rounded-lg">
-                  {savings}% Ahorro Incluido
-                </span>
-              )}
+              <div className="flex flex-col items-end gap-2">
+                <StockStatusBadge stockStatus={product.stockStatus} />
+                {savings > 0 && (
+                  <span className="px-3 py-1 bg-[#D17B24] text-white text-xs font-black rounded-lg">
+                    {savings}% Ahorro Incluido
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Quantity Selector */}
@@ -280,22 +280,28 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             <div className="space-y-2 pt-2">
               <button
                 type="button"
+                disabled={product.stockStatus === 'out_of_stock'}
                 onClick={() => addToCart(product, selectedVariant, quantity)}
-                className="w-full py-3.5 px-6 bg-[#285F50] hover:bg-[#23312C] text-[#FAF7E8] font-black text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-98 min-h-[48px]"
+                className="w-full py-3.5 px-6 bg-[#285F50] hover:bg-[#23312C] text-[#FAF7E8] font-black text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-98 min-h-[48px] disabled:cursor-not-allowed disabled:bg-[#23312C]/45 disabled:shadow-none"
               >
                 <ShoppingBag className="w-5 h-5 text-[#D17B24]" />
-                <span>Agregar al Carrito de Compras</span>
+                <span>
+                  {product.stockStatus === 'out_of_stock'
+                    ? 'Producto agotado'
+                    : 'Agregar al Carrito de Compras'}
+                </span>
               </button>
 
-              <a
-                href={getWhatsAppHref() || undefined}
-                aria-disabled={!getWhatsAppHref()}
-                onClick={() => trackWhatsAppClick('product', { productSlug: product.slug, placement: 'product_detail' })}
-                className="w-full py-3 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 min-h-[44px]"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>Pedir y Comprar por WhatsApp</span>
-              </a>
+              {whatsappHref && (
+                <a
+                  href={whatsappHref}
+                  onClick={() => trackWhatsAppClick('product', { productSlug: product.slug, placement: 'product_detail' })}
+                  className="w-full py-3 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 min-h-[44px]"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Pedir y Comprar por WhatsApp</span>
+                </a>
+              )}
             </div>
 
             <div className="flex items-center justify-around text-[11px] text-[#6F8F69] font-medium pt-2 border-t border-[#D9D1B9]/60">

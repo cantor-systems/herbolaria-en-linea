@@ -1,6 +1,6 @@
 import { SanitaryClaim } from '@/types';
 
-export const SHOW_UNAPPROVED_CLAIMS = true;
+export const SHOW_UNAPPROVED_CLAIMS = false;
 
 export const SANITARY_CLAIMS: SanitaryClaim[] = [
   {

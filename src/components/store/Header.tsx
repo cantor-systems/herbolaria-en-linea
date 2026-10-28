@@ -103,18 +103,19 @@ export const Header: React.FC = () => {
           {/* Action Icons & Buttons */}
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {/* WhatsApp Quick Link */}
-            <a
-              href={getWhatsAppHref() || undefined}
-              target={STORE_CONFIG.contact.whatsapp.enabled ? '_blank' : undefined}
-              rel={STORE_CONFIG.contact.whatsapp.enabled ? 'noopener noreferrer' : undefined}
-              aria-disabled={!STORE_CONFIG.contact.whatsapp.enabled}
-              onClick={() => trackWhatsAppClick('header', { placement: 'header' })}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 hover:bg-emerald-200 transition-colors"
-              title="Atención directa por WhatsApp"
-            >
-              <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
-              <span>WhatsApp</span>
-            </a>
+            {STORE_CONFIG.contact.whatsapp.enabled && getWhatsAppHref() && (
+              <a
+                href={getWhatsAppHref()!}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackWhatsAppClick('header', { placement: 'header' })}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 hover:bg-emerald-200 transition-colors"
+                title="Atención directa por WhatsApp"
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+                <span>WhatsApp</span>
+              </a>
+            )}
 
             {/* Account Icon */}
             <Link

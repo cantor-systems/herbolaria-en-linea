@@ -11,6 +11,7 @@ import { SHOW_MOCK_RATINGS } from '@/data/ratings';
 import { getBrandBySlug } from '@/data/brands';
 import { getCategoryBySlug } from '@/data/categories';
 import { trackWhatsAppClick } from '@/lib/analytics';
+import { StockStatusBadge } from './StockStatusBadge';
 
 interface ProductCardProps {
   product: Product;
@@ -31,12 +32,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const brandName = getBrandBySlug(product.brandSlug)?.name ?? product.brandSlug;
   const categoryName = getCategoryBySlug(product.categorySlug)?.name ?? product.categorySlug;
   const visibleBadges: string[] = [];
-
-  const whatsappMessage = encodeURIComponent(
-    `Hola, me interesa comprar el producto "${product.name}" en la presentación "${selectedVariant.name}" (${formatCurrency(
-      selectedVariant.priceCents
-    )}). ¿Me ayudan a levantar el pedido?`
-  );
 
   return (
     <div className="bg-[#FAF7E8] rounded-2xl border border-[#D9D1B9] overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group">
@@ -152,33 +147,35 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             )}
           </div>
 
-          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-md">
-            En Stock
-          </span>
+          <StockStatusBadge stockStatus={product.stockStatus} />
         </div>
 
         {/* Action Buttons */}
         <div className="space-y-2 pt-2">
           <button
+            disabled={product.stockStatus === 'out_of_stock'}
             onClick={() => addToCart(product, selectedVariant)}
-            className="w-full py-2.5 px-4 bg-[#285F50] hover:bg-[#23312C] text-[#FAF7E8] font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-98 min-h-[44px]"
+            className="w-full py-2.5 px-4 bg-[#285F50] hover:bg-[#23312C] text-[#FAF7E8] font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-98 min-h-[44px] disabled:cursor-not-allowed disabled:bg-[#23312C]/45 disabled:shadow-none"
           >
             <ShoppingBag className="w-4 h-4 text-[#D17B24]" />
-            <span>Agregar al Carrito</span>
+            <span>
+              {product.stockStatus === 'out_of_stock' ? 'Agotado' : 'Agregar al Carrito'}
+            </span>
           </button>
 
-          <div className="grid grid-cols-2 gap-1.5">
-            <a
-              href={whatsappHref || undefined}
-              target={whatsappHref ? '_blank' : undefined}
-              rel={whatsappHref ? 'noopener noreferrer' : undefined}
-              aria-disabled={!whatsappHref}
-              onClick={() => trackWhatsAppClick('product', { productSlug: product.slug, placement: 'product_card' })}
-              className="py-2 px-2 border border-emerald-600 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 font-bold text-[11px] rounded-lg text-center flex items-center justify-center gap-1 transition-colors min-h-[44px]"
-            >
-              <MessageCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-              <span>Por WhatsApp</span>
-            </a>
+          <div className={`grid gap-1.5 ${whatsappHref ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            {whatsappHref && (
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackWhatsAppClick('product', { productSlug: product.slug, placement: 'product_card' })}
+                className="py-2 px-2 border border-emerald-600 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 font-bold text-[11px] rounded-lg text-center flex items-center justify-center gap-1 transition-colors min-h-[44px]"
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>Por WhatsApp</span>
+              </a>
+            )}
 
             <Link
               href={`/producto/${product.slug}`}

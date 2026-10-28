@@ -13,6 +13,8 @@ export const FeaturedPromoPackage: React.FC = () => {
   const { addToCart } = useCart();
   const pkgProduct = PRODUCTS.find((p) => p.categorySlug === 'paquetes-y-promociones') || PRODUCTS[0];
   const pkgVariant = pkgProduct.variants[0];
+  const whatsappHref = getWhatsAppHref();
+  const isPackageOutOfStock = pkgProduct.stockStatus === 'out_of_stock';
 
   const packageIncludes = [
     '1x Frasco de Gotas Concentradas de Moronel (50 ml)',
@@ -75,24 +77,32 @@ export const FeaturedPromoPackage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className={`flex-1 grid grid-cols-1 gap-2 ${whatsappHref ? 'sm:grid-cols-2' : ''}`}>
                 <button
-                  onClick={() => addToCart(pkgProduct, pkgVariant)}
-                  className="py-3 px-4 bg-[#D17B24] hover:bg-[#98552B] text-white font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 active:scale-98 min-h-[48px]"
+                  disabled={isPackageOutOfStock}
+                  onClick={() => {
+                    if (!isPackageOutOfStock) {
+                      addToCart(pkgProduct, pkgVariant);
+                    }
+                  }}
+                  className="py-3 px-4 bg-[#D17B24] hover:bg-[#98552B] text-white font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 active:scale-98 min-h-[48px] disabled:cursor-not-allowed disabled:bg-[#98552B]/60 disabled:shadow-none"
                 >
                   <ShoppingBag className="w-4 h-4" />
-                  <span>Comprar Paquete</span>
+                  <span>{isPackageOutOfStock ? 'Paquete agotado' : 'Comprar Paquete'}</span>
                 </button>
 
-                <a
-                  href={getWhatsAppHref() || undefined}
-                  aria-disabled={!getWhatsAppHref()}
-                  onClick={() => trackWhatsAppClick('product', { productSlug: pkgProduct.slug, placement: 'featured_package' })}
-                  className="py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 min-h-[48px]"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Pedir por WhatsApp</span>
-                </a>
+                {whatsappHref && (
+                  <a
+                    href={whatsappHref}
+                    onClick={() => trackWhatsAppClick('product', { productSlug: pkgProduct.slug, placement: 'featured_package' })}
+                    className="py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 min-h-[48px]"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>
+                      {isPackageOutOfStock ? 'Consultar por WhatsApp' : 'Pedir por WhatsApp'}
+                    </span>
+                  </a>
+                )}
               </div>
             </div>
 
@@ -107,7 +117,7 @@ export const FeaturedPromoPackage: React.FC = () => {
                 className="w-full h-full object-cover"
               />
               <div className="absolute bottom-3 left-3 right-3 bg-[#23312C]/90 backdrop-blur-md p-3 rounded-xl border border-white/10 text-xs text-center text-[#FAF7E8] font-bold">
-                Edición Limitada Herbazen · Envío Estándar Gratis
+                Paquete Herbazen · Envío Estándar Gratis
               </div>
             </div>
           </div>

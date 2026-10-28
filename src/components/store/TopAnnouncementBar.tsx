@@ -18,7 +18,7 @@ export const TopAnnouncementBar: React.FC = () => {
             <ShieldCheck className="w-3.5 h-3.5 text-[#D17B24]" />
             <span>Pago seguro en línea con Mercado Pago</span>
           </div>
-          {!STORE_CONFIG.contact.whatsapp.enabled && (
+          {STORE_CONFIG.contact.whatsapp.enabled && (
             <div className="flex items-center gap-1.5 text-[#FAF7E8]">
               <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
               <span>WhatsApp</span>
