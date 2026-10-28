@@ -6,6 +6,9 @@ import { Leaf, MessageCircle, Mail, Clock, ShieldCheck, MapPin, Truck } from 'lu
 import { STORE_CONFIG, getWhatsAppHref } from '@/config/store';
 import { trackWhatsAppClick } from '@/lib/analytics';
 import { SOCIAL_CONFIG } from '@/config/social';
+import { getActiveCategories } from '@/data/categories';
+
+const activeCategories = getActiveCategories();
 
 export const Footer: React.FC = () => {
   const enabledSocials = SOCIAL_CONFIG.filter((s) => s.enabled && s.href);
@@ -54,26 +57,20 @@ export const Footer: React.FC = () => {
                   Catálogo Completo
                 </Link>
               </li>
-              <li>
-                <Link href="/categoria/moronel-gotas" className="hover:text-[#AFC28E] transition-colors">
-                  Moronel en Gotas
-                </Link>
-              </li>
-              <li>
-                <Link href="/categoria/moronel-capsulas" className="hover:text-[#AFC28E] transition-colors">
-                  Moronel en Cápsulas
-                </Link>
-              </li>
-              <li>
-                <Link href="/categoria/moronel-hierba" className="hover:text-[#AFC28E] transition-colors">
-                  Moronel en Hierba
-                </Link>
-              </li>
-              <li>
-                <Link href="/categoria/paquetes-y-promociones" className="hover:text-[#AFC28E] transition-colors text-[#D17B24] font-bold">
-                  Paquetes Promocionales
-                </Link>
-              </li>
+              {activeCategories.map((category) => (
+                <li key={category.id}>
+                  <Link
+                    href={`/categoria/${category.slug}`}
+                    className={`hover:text-[#AFC28E] transition-colors ${
+                      category.slug === 'paquetes-y-promociones'
+                        ? 'text-[#D17B24] font-bold'
+                        : ''
+                    }`}
+                  >
+                    {category.name}
+                  </Link>
+                </li>
+              ))}
               <li>
                 <Link href="/conocer-moronel" className="hover:text-[#AFC28E] transition-colors">
                   Conocer Moronel

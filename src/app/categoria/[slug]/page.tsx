@@ -51,7 +51,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  const categoryProducts = PRODUCTS.filter((p) => p.categorySlug === slug);
+  const categoryProducts = PRODUCTS.filter(
+    (product) => product.status === 'active' && product.categorySlug === slug
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
