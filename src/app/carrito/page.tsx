@@ -51,7 +51,7 @@ export default function CartPage() {
             Resumen de Tu Pedido
           </span>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#23312C]">
-            Carrito de Compras Moronel Planta de la Vida
+            Carrito de Compras Herbolaria en Línea
           </h1>
         </div>
         <Link

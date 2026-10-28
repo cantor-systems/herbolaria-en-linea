@@ -13,7 +13,7 @@ export const HowToBuySteps: React.FC = () => {
             Proceso Fácil y Transparente
           </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#23312C]">
-            ¿Cómo realizar tu compra en Moronel Planta de la Vida?
+            ¿Cómo realizar tu compra en Herbolaria en Línea?
           </h2>
         </div>
 

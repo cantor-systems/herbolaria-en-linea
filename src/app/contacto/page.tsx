@@ -20,7 +20,7 @@ export default function ContactPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       <div className="bg-[#285F50] text-[#FAF7E8] p-8 sm:p-10 rounded-3xl shadow-lg space-y-2 text-center">
         <span className="text-xs font-black uppercase text-[#D17B24]">Atención al Cliente</span>
-        <h1 className="text-3xl sm:text-4xl font-extrabold">Contacto y Asistencia Moronel</h1>
+        <h1 className="text-3xl sm:text-4xl font-extrabold">Contacto y Asistencia Herbolaria en Línea</h1>
         <p className="text-xs sm:text-sm text-[#FAF7E8]/90 max-w-lg mx-auto">
           ¿Tienes preguntas sobre tu pedido, envíos o presentaciones Herbazen? Estamos listos para atenderte.
         </p>
