@@ -159,7 +159,7 @@ export default function OrderTrackingPage() {
           <Truck className="h-6 w-6" />
         </div>
         <h1 className="text-2xl font-extrabold leading-tight sm:text-4xl">
-          Rastreo de Pedido Moronel Planta de la Vida
+          Rastreo de Pedido Herbolaria en Línea
         </h1>
         <p className="mx-auto max-w-xl text-xs text-[#FAF7E8]/90 sm:text-sm">
           Ingresa tu número de pedido y el correo que utilizaste al realizar tu compra.

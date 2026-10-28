@@ -13,7 +13,7 @@ export default function AccountPage() {
             <span className="text-xs font-bold text-[#AFC28E] uppercase tracking-wider block">
               Mi Cuenta Cliente
             </span>
-            <h1 className="text-2xl font-extrabold">Bienvenido a Moronel Planta de la Vida</h1>
+            <h1 className="text-2xl font-extrabold">Bienvenido a Herbolaria en Línea</h1>
           </div>
         </div>
       </div>
@@ -22,7 +22,7 @@ export default function AccountPage() {
         <div className="bg-[#FAF7E8] p-5 rounded-2xl border border-[#D9D1B9] space-y-2">
           <Package className="w-6 h-6 text-[#285F50]" />
           <h3 className="font-extrabold text-[#23312C] text-sm">Mis Pedidos Recientes</h3>
-          <p className="text-xs text-[#6F8F69]">Consulta el historial de tus compras de Moronel.</p>
+          <p className="text-xs text-[#6F8F69]">Consulta el historial de tus compras.</p>
           <Link href="/rastrear-pedido" className="text-xs font-bold text-[#285F50] hover:underline block pt-2">
             Ver Rastreo de Pedidos →
           </Link>

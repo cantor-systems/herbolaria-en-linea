@@ -170,7 +170,7 @@ function CheckoutContent() {
         <div className="flex items-center justify-between">
           <h1 className="text-xl sm:text-2xl font-extrabold flex items-center gap-2">
             <Lock className="w-5 h-5 text-[#D17B24]" />
-            <span>Checkout Seguro Moronel Planta de la Vida</span>
+            <span>Checkout Seguro Herbolaria en Línea</span>
           </h1>
           <span className="text-xs font-bold text-[#AFC28E]">Pago seguro con Mercado Pago</span>
         </div>

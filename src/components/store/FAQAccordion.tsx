@@ -10,7 +10,7 @@ const DEFAULT_FAQS: FAQItem[] = [
   {
     question: '¿Qué es el Moronel y cuáles son sus presentaciones?',
     answer:
-      'El Moronel (Calycophyllum candidissimum) es una planta de origen tradicional. En nuestra tienda Herbazen ofrecemos 3 presentaciones principales: Hierba deshidratada para infusión, Extracto concentrado en gotas y Cápsulas vegetales de 500mg, además de Paquetes combinados.',
+      'El Moronel (Calycophyllum candidissimum) es una planta de origen tradicional. En Herbolaria en Línea ofrecemos 3 presentaciones principales: Hierba deshidratada para infusión, Extracto concentrado en gotas y Cápsulas vegetales de 500mg, además de Paquetes combinados.',
   },
   {
     question: '¿Cuál es el tiempo de entrega y costo de envío a mi ciudad?',
