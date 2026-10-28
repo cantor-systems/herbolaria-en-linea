@@ -9,6 +9,7 @@ import { useCart } from '@/context/CartContext';
 import { getWhatsAppHref } from '@/config/store';
 import { SHOW_MOCK_RATINGS } from '@/data/ratings';
 import { getBrandBySlug } from '@/data/brands';
+import { getCategoryBySlug } from '@/data/categories';
 import { trackWhatsAppClick } from '@/lib/analytics';
 
 interface ProductCardProps {
@@ -28,6 +29,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   const whatsappHref = getWhatsAppHref();
   const brandName = getBrandBySlug(product.brandSlug)?.name ?? product.brandSlug;
+  const categoryName = getCategoryBySlug(product.categorySlug)?.name ?? product.categorySlug;
   const visibleBadges: string[] = [];
 
   const whatsappMessage = encodeURIComponent(
@@ -99,7 +101,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </Link>
 
           <p className="text-xs text-[#6F8F69] line-clamp-2 mt-1.5 leading-relaxed">
-            Información de la presentación: {product.categoryName}.
+            Información de la presentación: {categoryName}.
           </p>
         </div>
 

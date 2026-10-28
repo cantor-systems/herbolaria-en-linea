@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { CATEGORIES } from '@/data/categories';
+import { getCategoryBySlug } from '@/data/categories';
 import { PRODUCTS } from '@/data/products';
 import { ProductCard } from '@/components/product/ProductCard';
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
@@ -15,7 +15,7 @@ interface CategoryPageProps {
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const category = CATEGORIES.find((item) => item.slug === slug);
+  const category = getCategoryBySlug(slug);
 
   if (!category) {
     notFound();
@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
-  const category = CATEGORIES.find((c) => c.slug === slug);
+  const category = getCategoryBySlug(slug);
 
   if (!category) {
     notFound();

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowRight, BookOpen, CheckCircle2, Leaf, MessageCircle, PackageCheck, ShoppingBag, Sprout, Truck } from 'lucide-react';
 import { BLOG_ARTICLES } from '@/content/blog';
 import { PRODUCTS } from '@/data/products';
+import { getCategoryBySlug } from '@/data/categories';
 import { canonicalAlternates, socialMetadata } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -68,7 +69,7 @@ export default function ConocerMoronelPage() {
             const detail = presentationDetails[product.slug as keyof typeof presentationDetails];
             return <article key={product.id} className="rounded-3xl overflow-hidden border border-[#D9D1B9] bg-[#FAF7E8] shadow-sm flex flex-col">
               <div className="aspect-4/3 bg-[#F4EFD6] overflow-hidden"><img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" /></div>
-              <div className="p-5 space-y-3 flex flex-col flex-1"><h3 className="text-xl font-extrabold text-[#23312C]">{product.categoryName}</h3><p className="text-sm font-bold text-[#D17B24]">{detail.amount}</p><p className="text-sm leading-6 text-[#23312C]/80 flex-1">{detail.detail}</p><Link href={`/producto/${product.slug}`} className="inline-flex items-center gap-2 text-sm font-bold text-[#285F50] hover:underline pt-1">Ver producto <ArrowRight className="w-4 h-4" /></Link></div>
+              <div className="p-5 space-y-3 flex flex-col flex-1"><h3 className="text-xl font-extrabold text-[#23312C]">{getCategoryBySlug(product.categorySlug)?.name ?? product.categorySlug}</h3><p className="text-sm font-bold text-[#D17B24]">{detail.amount}</p><p className="text-sm leading-6 text-[#23312C]/80 flex-1">{detail.detail}</p><Link href={`/producto/${product.slug}`} className="inline-flex items-center gap-2 text-sm font-bold text-[#285F50] hover:underline pt-1">Ver producto <ArrowRight className="w-4 h-4" /></Link></div>
             </article>;
           })}
         </div>

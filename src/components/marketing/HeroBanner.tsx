@@ -6,6 +6,7 @@ import { ShoppingBag, MessageCircle, ShieldCheck, Star, ArrowRight, Truck } from
 import { HOMEPAGE_CONTENT } from '@/content/homepage';
 import { PRODUCTS } from '@/data/products';
 import { getBrandBySlug } from '@/data/brands';
+import { getCategoryBySlug } from '@/data/categories';
 import { SHOW_MOCK_RATINGS } from '@/data/ratings';
 import { formatCurrency } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
@@ -15,6 +16,8 @@ export const HeroBanner: React.FC = () => {
   const featuredProduct = PRODUCTS.find((p) => p.featured) || PRODUCTS[0];
   const featuredBrandName =
     getBrandBySlug(featuredProduct.brandSlug)?.name ?? featuredProduct.brandSlug;
+  const featuredCategoryName =
+    getCategoryBySlug(featuredProduct.categorySlug)?.name ?? featuredProduct.categorySlug;
   const featuredVariant =
     featuredProduct.variants.find((v) => v.isPopular) || featuredProduct.variants[0];
 
@@ -105,7 +108,7 @@ export const HeroBanner: React.FC = () => {
                 </h3>
 
                 <p className="text-sm text-[#6F8F69] leading-relaxed">
-                  Información de la presentación: {featuredProduct.categoryName}.
+                  Información de la presentación: {featuredCategoryName}.
                 </p>
 
                 <div className="flex items-baseline justify-between bg-[#F4EFD6] p-3 rounded-xl border border-[#D9D1B9]">
