@@ -9,7 +9,7 @@ import {
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-const DISPATCH_SESSION_COOKIE = 'moronel_dispatch_session';
+const DISPATCH_SESSION_COOKIE = 'herbolaria_dispatch_session';
 const DISPATCH_SESSION_DURATION_SECONDS = 8 * 60 * 60;
 const DISPATCH_SESSION_VERSION = 'v1';
 
@@ -22,7 +22,7 @@ function configuredPassword() {
 
 function sessionKey(password: string) {
   return createHash('sha256')
-    .update('moronel:dispatch-admin-session:v1\0', 'utf8')
+    .update('herbolaria:dispatch-admin-session:v1\0', 'utf8')
     .update(password, 'utf8')
     .digest();
 }
@@ -94,11 +94,11 @@ export function isDispatchAdminPasswordValid(candidate: string) {
   if (!password || candidate.length > 1024) return false;
 
   const expectedDigest = createHash('sha256')
-    .update('moronel:dispatch-admin-password:v1\0', 'utf8')
+    .update('herbolaria:dispatch-admin-password:v1\0', 'utf8')
     .update(password, 'utf8')
     .digest();
   const candidateDigest = createHash('sha256')
-    .update('moronel:dispatch-admin-password:v1\0', 'utf8')
+    .update('herbolaria:dispatch-admin-password:v1\0', 'utf8')
     .update(candidate, 'utf8')
     .digest();
 

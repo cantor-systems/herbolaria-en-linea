@@ -21,7 +21,7 @@ export default async function DispatchLayout({ children }: { children: React.Rea
             </span>
             <span className="min-w-0">
               <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-[#F4EFD6]/70">
-                Moronel · Operaciones
+                Herbolaria en Línea · Operaciones
               </span>
               <span className="block truncate text-base font-bold">Despacho de pedidos</span>
             </span>

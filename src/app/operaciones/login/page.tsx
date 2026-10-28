@@ -32,7 +32,7 @@ export default async function DispatchLoginPage({
             <ShieldCheck aria-hidden="true" size={23} />
           </div>
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#F4EFD6]/75">
-            Moronel · Operaciones
+            Herbolaria en Línea · Operaciones
           </p>
           <h1 className="mt-2 text-2xl font-bold tracking-tight">Acceso a despacho</h1>
         </div>
