@@ -16,14 +16,14 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
   variants,
   selectedVariant,
   onSelectVariant,
-  label = 'Selecciona Presentación / Paquete de Ahorro:',
+  label = 'Elige una presentación:',
 }) => {
   return (
     <div className="space-y-2.5">
       <label className="block text-xs font-bold text-[#23312C] uppercase tracking-wider">
         {label}
       </label>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
         {variants.map((variant) => {
           const isSelected = selectedVariant.id === variant.id;
           const savings = calculateSavingsPercentage(
@@ -36,7 +36,7 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
               key={variant.id}
               type="button"
               onClick={() => onSelectVariant(variant)}
-              className={`p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between ${
+              className={`min-h-[88px] p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between ${
                 isSelected
                   ? 'border-[#285F50] bg-[#FAF7E8] ring-2 ring-[#285F50]/30 shadow-sm'
                   : 'border-[#D9D1B9] bg-[#F4EFD6]/60 hover:bg-[#FAF7E8] hover:border-[#285F50]/50'

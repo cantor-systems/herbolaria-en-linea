@@ -15,20 +15,17 @@ import { formatCurrency, calculateSavingsPercentage } from '@/lib/utils';
 import { getRelatedProducts } from '@/lib/catalog';
 import { useCart } from '@/context/CartContext';
 import { getWhatsAppHref } from '@/config/store';
-import { SHOW_MOCK_RATINGS } from '@/data/ratings';
+import { SHIPPING_CONFIG } from '@/config/shipping';
 import { trackViewItem, trackWhatsAppClick } from '@/lib/analytics';
 import { absoluteUrl } from '@/lib/site';
 import {
-  Star,
   ShoppingBag,
   MessageCircle,
   Truck,
   ShieldCheck,
+  PackageSearch,
   CheckCircle2,
   ArrowLeft,
-  Info,
-  Clock,
-  HelpCircle,
 } from 'lucide-react';
 
 interface ProductDetailPageProps {
@@ -49,12 +46,12 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const trackedProductSlug = useRef<string | null>(null);
   const brandName = getBrandBySlug(product.brandSlug)?.name ?? product.brandSlug;
   const categoryName = getCategoryBySlug(product.categorySlug)?.name ?? product.categorySlug;
-  const isSingleVariantHerbazen = product.brandSlug === 'herbazen' && product.variants.length === 1;
+  const isSingleVariant = product.variants.length === 1;
   const defaultVariant = product.variants.find((v) => v.isPopular) || product.variants[0];
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(defaultVariant);
   const [selectedImage, setSelectedImage] = useState(defaultVariant.image || product.images[0] || '');
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState<'desc' | 'usage' | 'shipping' | 'claims' | 'faq'>('desc');
+  const [activeTab, setActiveTab] = useState<'desc' | 'usage' | 'shipping' | 'claims'>('desc');
 
   useEffect(() => {
     setSelectedVariant(defaultVariant);
@@ -164,10 +161,31 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       </div>
 
       {/* Main Product Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-x-12 lg:gap-y-6 items-start">
+        {/* Product identity appears first on mobile and beside the gallery on desktop. */}
+        <div className="order-1 lg:order-2 lg:col-span-7 space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#285F50]">
+              {brandName}
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#F4EFD6] text-[#6F8F69] border border-[#D9D1B9]">
+              {categoryName}
+            </span>
+          </div>
 
-        {/* Left Column: Gallery (5 cols) */}
-        <div className="lg:col-span-5">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#23312C] leading-tight">
+            {product.name}
+          </h1>
+
+          {product.shortDescription && (
+            <p className="text-sm text-[#23312C]/80 leading-relaxed">
+              {product.shortDescription}
+            </p>
+          )}
+        </div>
+
+        {/* Gallery remains unchanged and follows the product identity on mobile. */}
+        <div className="order-2 lg:order-1 lg:col-span-5 lg:row-span-2">
           <ProductGallery
             images={product.images}
             productName={product.name}
@@ -176,155 +194,149 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           />
         </div>
 
-        {/* Right Column: Details & Selection (7 cols) */}
-        <div className="lg:col-span-7 space-y-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-[#285F50] text-[#FAF7E8]">
-                {isSingleVariantHerbazen ? brandName : `Marca ${brandName}`}
+        {/* Purchase controls */}
+        <div className="order-3 lg:col-span-7 bg-[#FAF7E8] p-4 sm:p-5 rounded-2xl border-2 border-[#285F50] space-y-4 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between border-b border-[#D9D1B9] pb-3">
+            <div>
+              <span className="text-[11px] text-[#6F8F69] font-bold uppercase block">
+                Precio
               </span>
-              {!isSingleVariantHerbazen && (
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-[#D17B24] text-white">
-                  {categoryName}
+              <div className="flex flex-wrap items-baseline gap-2">
+                <span className="text-3xl font-black text-[#285F50]">
+                  {formatCurrency(selectedVariant.priceCents * quantity)}
                 </span>
-              )}
-            </div>
-
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#23312C] leading-tight">
-              {product.name}
-            </h1>
-
-            {/* Rating */}
-            {SHOW_MOCK_RATINGS && <div className="flex items-center gap-2 mt-2 text-amber-600">
-              <div className="flex text-amber-500">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-current text-amber-500" />
-                ))}
-              </div>
-              <span className="text-xs font-bold text-[#23312C]">{product.rating}</span>
-              <span className="text-xs text-[#6F8F69]">({product.reviewCount} opiniones verificadas)</span>
-            </div>}
-          </div>
-
-          <p className="text-xs sm:text-sm text-[#23312C]/80 leading-relaxed bg-[#F4EFD6] p-3.5 rounded-2xl border border-[#D9D1B9]">
-            {isSingleVariantHerbazen
-              ? product.shortDescription
-              : `Información de la presentación: ${categoryName}.`}
-          </p>
-
-          {/* Variant Selector Component */}
-          <VariantSelector
-            variants={product.variants}
-            selectedVariant={selectedVariant}
-            onSelectVariant={handleVariantChange}
-            label={isSingleVariantHerbazen ? 'Presentación:' : undefined}
-          />
-
-          {/* Price & Quantity Controls Box */}
-          <div className="bg-[#FAF7E8] p-4 sm:p-5 rounded-2xl border-2 border-[#285F50] space-y-4 shadow-sm">
-
-            <div className="flex items-baseline justify-between border-b border-[#D9D1B9] pb-3">
-              <div>
-                <span className="text-[11px] text-[#6F8F69] font-bold uppercase block">
-                  Precio Total Selección ({quantity} paquete/s):
-                </span>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-black text-[#285F50]">
-                    {formatCurrency(selectedVariant.priceCents * quantity)}
-                  </span>
-                  {selectedVariant.compareAtPriceCents &&
-                    selectedVariant.compareAtPriceCents > selectedVariant.priceCents && (
-                    <span className="text-sm text-[#23312C]/60 line-through">
-                      {formatCurrency(selectedVariant.compareAtPriceCents * quantity)}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-col items-end gap-2">
-                <StockStatusBadge stockStatus={product.stockStatus} />
-                {savings > 0 && (
-                  <span className="px-3 py-1 bg-[#D17B24] text-white text-xs font-black rounded-lg">
-                    {savings}% Ahorro Incluido
+                {selectedVariant.compareAtPriceCents &&
+                  selectedVariant.compareAtPriceCents > selectedVariant.priceCents && (
+                  <span className="text-sm text-[#23312C]/60 line-through">
+                    {formatCurrency(selectedVariant.compareAtPriceCents * quantity)}
                   </span>
                 )}
               </div>
-            </div>
-
-            {/* Quantity Selector */}
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-xs font-bold text-[#23312C] uppercase">
-                {isSingleVariantHerbazen ? 'Cantidad:' : 'Cantidad de Paquetes:'}
-              </span>
-
-              <div className="flex items-center border border-[#D9D1B9] rounded-xl bg-[#F4EFD6]">
-                <button
-                  type="button"
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="px-3 py-1.5 text-base font-bold text-[#23312C] hover:bg-[#D9D1B9]/50 rounded-l-xl"
-                >
-                  -
-                </button>
-                <span className="px-4 text-sm font-black text-[#23312C]">{quantity}</span>
-                <button
-                  type="button"
-                  onClick={() => setQuantity((q) => q + 1)}
-                  className="px-3 py-1.5 text-base font-bold text-[#23312C] hover:bg-[#D9D1B9]/50 rounded-r-xl"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            {/* CTAs */}
-            <div className="space-y-2 pt-2">
-              <button
-                type="button"
-                disabled={product.stockStatus === 'out_of_stock'}
-                onClick={() => addToCart(product, selectedVariant, quantity)}
-                className="w-full py-3.5 px-6 bg-[#285F50] hover:bg-[#23312C] text-[#FAF7E8] font-black text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-98 min-h-[48px] disabled:cursor-not-allowed disabled:bg-[#23312C]/45 disabled:shadow-none"
-              >
-                <ShoppingBag className="w-5 h-5 text-[#D17B24]" />
-                <span>
-                  {product.stockStatus === 'out_of_stock'
-                    ? 'Producto agotado'
-                    : 'Agregar al Carrito de Compras'}
+              {selectedVariant.unitsCount > 1 && (
+                <span className="text-[11px] text-[#6F8F69] font-medium block mt-1">
+                  {formatCurrency(selectedVariant.unitPriceCents)} por unidad
                 </span>
-              </button>
-
-              {whatsappHref && (
-                <a
-                  href={whatsappHref}
-                  onClick={() => trackWhatsAppClick('product', { productSlug: product.slug, placement: 'product_detail' })}
-                  className="w-full py-3 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 min-h-[44px]"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Pedir y Comprar por WhatsApp</span>
-                </a>
+              )}
+              {selectedVariant.freeShippingEligible && (
+                <span className="text-[11px] font-bold text-emerald-700 block mt-1">
+                  Incluye envío estándar gratis
+                </span>
               )}
             </div>
 
-            <div className="flex items-center justify-around text-[11px] text-[#6F8F69] font-medium pt-2 border-t border-[#D9D1B9]/60">
-              <span className="flex items-center gap-1">
-                <Truck className="w-3.5 h-3.5 text-[#D17B24]" /> Envíos a todo México
-              </span>
-              <span className="flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#285F50]" /> Pago seguro con Mercado Pago
-              </span>
+            <div className="flex flex-wrap items-center gap-2 sm:flex-col sm:items-end">
+              <StockStatusBadge stockStatus={product.stockStatus} />
+              {savings > 0 && (
+                <span className="px-3 py-1 bg-[#D17B24] text-white text-xs font-black rounded-lg">
+                  {savings}% de ahorro
+                </span>
+              )}
             </div>
-
           </div>
 
-        </div>
+          {isSingleVariant ? (
+            <div className="flex items-center justify-between gap-4 rounded-xl bg-[#F4EFD6] border border-[#D9D1B9] px-3 py-2.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#6F8F69]">
+                Presentación
+              </span>
+              <span className="text-xs font-bold text-[#23312C] text-right">
+                {selectedVariant.name}
+              </span>
+            </div>
+          ) : (
+            <VariantSelector
+              variants={product.variants}
+              selectedVariant={selectedVariant}
+              onSelectVariant={handleVariantChange}
+            />
+          )}
 
+          {selectedVariant.wholesaleEligible && (
+            <p className="text-xs font-semibold text-[#98552B] bg-[#D17B24]/10 border border-[#D17B24]/20 rounded-xl px-3 py-2.5">
+              Disponible para compra por volumen
+            </p>
+          )}
+
+          {/* Quantity Selector */}
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-xs font-bold text-[#23312C] uppercase">
+              Cantidad
+            </span>
+
+            <div className="flex items-center border border-[#D9D1B9] rounded-xl bg-[#F4EFD6]">
+              <button
+                type="button"
+                aria-label="Disminuir cantidad"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                className="min-w-[44px] min-h-[44px] px-3 text-base font-bold text-[#23312C] hover:bg-[#D9D1B9]/50 rounded-l-xl"
+              >
+                -
+              </button>
+              <span className="min-w-12 px-2 text-center text-sm font-black text-[#23312C]">{quantity}</span>
+              <button
+                type="button"
+                aria-label="Aumentar cantidad"
+                onClick={() => setQuantity((q) => q + 1)}
+                className="min-w-[44px] min-h-[44px] px-3 text-base font-bold text-[#23312C] hover:bg-[#D9D1B9]/50 rounded-r-xl"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            disabled={product.stockStatus === 'out_of_stock'}
+            onClick={() => {
+              if (product.stockStatus !== 'out_of_stock') {
+                addToCart(product, selectedVariant, quantity);
+              }
+            }}
+            className="w-full py-3.5 px-6 bg-[#285F50] hover:bg-[#23312C] text-[#FAF7E8] font-black text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-98 min-h-[48px] disabled:cursor-not-allowed disabled:bg-[#23312C]/45 disabled:shadow-none"
+          >
+            <ShoppingBag className="w-5 h-5 text-[#D17B24]" />
+            <span>
+              {product.stockStatus === 'out_of_stock'
+                ? 'Producto agotado'
+                : 'Agregar al carrito'}
+            </span>
+          </button>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-[#6F8F69] font-medium">
+            <span className="min-h-[44px] flex items-center gap-2 rounded-xl bg-[#F4EFD6] px-3 py-2">
+              <ShieldCheck className="w-4 h-4 text-[#285F50] shrink-0" /> Pago mediante Mercado Pago
+            </span>
+            {SHIPPING_CONFIG.enabled && (
+              <span className="min-h-[44px] flex items-center gap-2 rounded-xl bg-[#F4EFD6] px-3 py-2">
+                <Truck className="w-4 h-4 text-[#D17B24] shrink-0" /> Envío disponible en México
+              </span>
+            )}
+            {SHIPPING_CONFIG.trackingAvailable && (
+              <span className="min-h-[44px] flex items-center gap-2 rounded-xl bg-[#F4EFD6] px-3 py-2">
+                <PackageSearch className="w-4 h-4 text-[#285F50] shrink-0" /> Rastreo de pedido
+              </span>
+            )}
+          </div>
+
+          {whatsappHref && (
+            <a
+              href={whatsappHref}
+              onClick={() => trackWhatsAppClick('product', { productSlug: product.slug, placement: 'product_detail' })}
+              className="w-full py-3 px-6 border border-emerald-600 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 min-h-[44px]"
+            >
+              <MessageCircle className="w-4 h-4 text-emerald-600" />
+              <span>Consultar por WhatsApp</span>
+            </a>
+          )}
+        </div>
       </div>
 
       {/* Tabs Section */}
       <div className="bg-[#FAF7E8] border border-[#D9D1B9] rounded-3xl p-6 space-y-6 shadow-xs">
-        <div className="flex items-center gap-2 border-b border-[#D9D1B9] pb-3 overflow-x-auto">
+        <div className="flex items-center gap-2 border-b border-[#D9D1B9] pb-3 overflow-x-auto overscroll-x-contain">
           <button
             onClick={() => setActiveTab('desc')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors ${
+            className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors ${
               activeTab === 'desc'
                 ? 'bg-[#285F50] text-[#FAF7E8]'
                 : 'bg-[#F4EFD6] text-[#23312C] hover:bg-[#D9D1B9]/50'
@@ -334,7 +346,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           </button>
           <button
             onClick={() => setActiveTab('usage')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors ${
+            className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors ${
               activeTab === 'usage'
                 ? 'bg-[#285F50] text-[#FAF7E8]'
                 : 'bg-[#F4EFD6] text-[#23312C] hover:bg-[#D9D1B9]/50'
@@ -344,7 +356,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           </button>
           <button
             onClick={() => setActiveTab('shipping')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors ${
+            className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors ${
               activeTab === 'shipping'
                 ? 'bg-[#285F50] text-[#FAF7E8]'
                 : 'bg-[#F4EFD6] text-[#23312C] hover:bg-[#D9D1B9]/50'
@@ -354,7 +366,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           </button>
           <button
             onClick={() => setActiveTab('claims')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors ${
+            className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors ${
               activeTab === 'claims'
                 ? 'bg-[#285F50] text-[#FAF7E8]'
                 : 'bg-[#F4EFD6] text-[#23312C] hover:bg-[#D9D1B9]/50'
@@ -367,7 +379,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         <div className="text-xs sm:text-sm text-[#23312C]/90 leading-relaxed">
           {activeTab === 'desc' && (
             <div className="space-y-3">
-              <p>Información de la presentación y contenido del envase.</p>
+              <p>{product.description}</p>
               {product.benefits && (
                 <div className="space-y-1.5 pt-2">
                   <h4 className="font-bold text-[#285F50]">Cualidades Principales:</h4>
@@ -408,14 +420,17 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           {activeTab === 'shipping' && (
             <div className="space-y-3 text-xs">
               <p>
-                <strong>Envíos Nacionales:</strong> Realizamos despachos diarios a través de paqueterías líderes en México (FedEx, DHL, Estafeta).
+                <strong>Envíos nacionales:</strong> {SHIPPING_CONFIG.coverage}. Paqueterías disponibles: {SHIPPING_CONFIG.couriers.join(', ')}.
               </p>
               <p>
-                <strong>Tiempo estimado de entrega:</strong> Estándar 4–5 días hábiles; exprés 1–2 días hábiles. Te enviaremos tu código de rastreo por WhatsApp y correo electrónico.
+                <strong>Tiempo estimado de entrega:</strong> Estándar {SHIPPING_CONFIG.standardEstimatedDays}; exprés {SHIPPING_CONFIG.expressEstimatedDays}. {SHIPPING_CONFIG.disclaimer}
               </p>
               <p>
-                <strong>Envío Gratis:</strong> Estándar sin costo desde $799 MXN o cuando el carrito incluye una presentación participante.
+                <strong>Envío gratis:</strong> Estándar sin costo desde {formatCurrency(SHIPPING_CONFIG.freeShippingThresholdCents)} o cuando el carrito incluye una presentación participante.
               </p>
+              {SHIPPING_CONFIG.trackingAvailable && (
+                <p><strong>Rastreo:</strong> Consulta el estado del pedido y la guía cuando el envío sea despachado.</p>
+              )}
             </div>
           )}
 
@@ -423,7 +438,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             <div className="space-y-3 text-xs bg-[#F4EFD6] p-4 rounded-xl border border-[#D9D1B9]">
               <p className="font-bold text-[#98552B]">Aviso de Consumo Herbolario Tradicional:</p>
               <p>
-                Los productos Herbazen a base de Moronel se venden como tradición herbolaria en México. No constituyen un diagnóstico ni tratamiento médico prescrito. Si estás bajo supervisión clínica o gestación, consulta a tu profesional de salud.
+                Este producto se ofrece dentro del contexto de la herbolaria tradicional. No constituye un diagnóstico ni tratamiento médico prescrito. Si estás bajo supervisión clínica o gestación, consulta a tu profesional de salud.
               </p>
             </div>
           )}
