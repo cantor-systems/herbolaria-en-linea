@@ -12,6 +12,7 @@ const activeCategories = getActiveCategories();
 
 export const Footer: React.FC = () => {
   const enabledSocials = SOCIAL_CONFIG.filter((s) => s.enabled && s.href);
+  const whatsappHref = getWhatsAppHref();
 
   return (
     <footer className="bg-[#23312C] text-[#F4EFD6] pt-12 pb-8 border-t-4 border-[#285F50] w-full max-w-full overflow-hidden">
@@ -31,7 +32,7 @@ export const Footer: React.FC = () => {
                   {STORE_CONFIG.storeName}
                 </span>
                 <span className="text-xs font-semibold text-[#AFC28E] uppercase tracking-wider">
-                  Productos {STORE_CONFIG.brandName}
+                  Tienda herbolaria
                 </span>
               </div>
             </div>
@@ -41,7 +42,7 @@ export const Footer: React.FC = () => {
             <div className="pt-2">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#285F50]/60 border border-[#285F50] text-xs text-[#FAF7E8]">
                 <ShieldCheck className="w-4 h-4 text-[#D17B24]" />
-                <span>Compra segura en línea</span>
+                <span>Pago mediante Mercado Pago</span>
               </div>
             </div>
           </div>
@@ -102,6 +103,16 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
+                <Link href="/envios" className="hover:text-[#AFC28E] transition-colors">
+                  Envíos
+                </Link>
+              </li>
+              <li>
+                <Link href="/devoluciones-y-cambios" className="hover:text-[#AFC28E] transition-colors">
+                  Devoluciones y cambios
+                </Link>
+              </li>
+              <li>
                 <Link href="/contacto" className="hover:text-[#AFC28E] transition-colors">
                   Contacto y Asistencia
                 </Link>
@@ -115,17 +126,18 @@ export const Footer: React.FC = () => {
               Atención al Cliente
             </h4>
             <div className="space-y-2.5 text-xs text-[#F4EFD6]/90">
-              <a
-                href={getWhatsAppHref() || undefined}
-                target={STORE_CONFIG.contact.whatsapp.enabled ? '_blank' : undefined}
-                rel={STORE_CONFIG.contact.whatsapp.enabled ? 'noopener noreferrer' : undefined}
-                style={{ display: STORE_CONFIG.contact.whatsapp.enabled ? undefined : 'none' }}
-                onClick={() => trackWhatsAppClick('footer', { placement: 'footer' })}
-                className="flex items-center gap-2 text-emerald-300 font-bold hover:underline"
-              >
-                <MessageCircle className="w-4 h-4 shrink-0" />
-                <span>WhatsApp</span>
-              </a>
+              {whatsappHref && (
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackWhatsAppClick('footer', { placement: 'footer' })}
+                  className="flex items-center gap-2 text-emerald-300 font-bold hover:underline"
+                >
+                  <MessageCircle className="w-4 h-4 shrink-0" />
+                  <span>WhatsApp</span>
+                </a>
+              )}
               <div className="flex items-center gap-2" style={{ display: STORE_CONFIG.contact.email.enabled ? undefined : 'none' }}>
                 <Mail className="w-4 h-4 text-[#C9AD83] shrink-0" />
                 <span>{STORE_CONFIG.contact.email.value}</span>
@@ -164,17 +176,16 @@ export const Footer: React.FC = () => {
             Aviso de Responsabilidad y Uso Herbolario Tradicional:
           </p>
           <p>
-            Los productos de la marca Herbazen elaborados a base de Moronel (Lonicera subspicata) se comercializan bajo el concepto de tradición herbolaria de México. La información contenida en esta tienda en línea es exclusivamente informativa y no constituye una recomendación ni prescripción médica. Si padece alguna condición de salud particular, consulte previamente a un profesional sanitario calificado.
+            Los productos herbolarios disponibles en esta tienda se comercializan dentro del contexto de la tradición herbolaria. La información del sitio es exclusivamente informativa y no constituye una recomendación, diagnóstico ni prescripción médica. Si tienes una condición de salud particular, consulta previamente a un profesional sanitario calificado.
           </p>
         </div>
 
         {/* Bottom Bar & Copyright */}
         <div className="pt-4 border-t border-[#285F50] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#F4EFD6]/70">
           <p>© {new Date().getFullYear()} {STORE_CONFIG.storeName}. Todos los derechos reservados.</p>
-          <div className="flex items-center gap-4 text-[11px]">
-            <span>Envíos por FedEx / DHL / Estafeta</span>
-            <span>·</span>
-            <span>Métodos de pago Mercado Pago</span>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px]">
+            <Link href="/privacidad" className="hover:text-[#AFC28E] transition-colors">Privacidad</Link>
+            <Link href="/terminos-y-condiciones" className="hover:text-[#AFC28E] transition-colors">Términos y condiciones</Link>
           </div>
         </div>
 
