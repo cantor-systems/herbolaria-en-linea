@@ -32,11 +32,12 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
 
       {/* Thumbnails */}
       {images.length > 1 && (
-        <div className="flex gap-3 overflow-x-auto pb-2">
+        <div className="flex gap-3 overflow-x-auto overscroll-x-contain pb-2">
           {images.map((img, idx) => (
             <button
               key={idx}
               type="button"
+              aria-label={`Ver imagen ${idx + 1} de ${productName}`}
               onClick={() => onSelectImage(img)}
               className={`w-20 h-20 rounded-xl border-2 overflow-hidden shrink-0 transition-all ${
                 activeImage === img
