@@ -6,11 +6,12 @@ import { PRODUCTS } from '@/data/products';
 import { getActiveCategories } from '@/data/categories';
 import { getActiveBrands, getBrandBySlug } from '@/data/brands';
 import { ProductCard } from '@/components/product/ProductCard';
-import { Search, Filter, SlidersHorizontal, Leaf } from 'lucide-react';
+import { Search, SlidersHorizontal, Leaf } from 'lucide-react';
 
 const activeCategories = getActiveCategories();
 const activeBrands = getActiveBrands();
 const activeProducts = PRODUCTS.filter((product) => product.status === 'active');
+type StoreSort = 'featured' | 'price-asc' | 'price-desc';
 
 function StoreCatalogContent() {
   const searchParams = useSearchParams();
@@ -22,7 +23,7 @@ function StoreCatalogContent() {
   const [searchTerm, setSearchTerm] = useState(queryParam);
   const [selectedCategory, setSelectedCategory] = useState(categoryParam);
   const [selectedBrand, setSelectedBrand] = useState(brandParam);
-  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured');
+  const [sortBy, setSortBy] = useState<StoreSort>('featured');
 
   const filteredProducts = useMemo(() => {
     return activeProducts.filter((product) => {
@@ -41,7 +42,6 @@ function StoreCatalogContent() {
     }).sort((a, b) => {
       if (sortBy === 'price-asc') return a.priceCents - b.priceCents;
       if (sortBy === 'price-desc') return b.priceCents - a.priceCents;
-      if (sortBy === 'rating') return b.rating - a.rating;
       return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
     });
   }, [searchTerm, selectedCategory, selectedBrand, sortBy]);
@@ -51,36 +51,74 @@ function StoreCatalogContent() {
       {/* Title Header */}
       <div className="bg-[#285F50] text-[#FAF7E8] p-6 sm:p-10 rounded-3xl shadow-lg space-y-3">
         <span className="text-xs font-black uppercase tracking-widest text-[#D17B24]">
-          Catálogo Oficial Moronel Planta de la Vida
+          Herbolaria en Línea
         </span>
         <h1 className="text-2xl sm:text-4xl font-extrabold leading-tight">
-          Tienda de Productos Herbolarios Herbazen
+          Tienda
         </h1>
         <p className="text-xs sm:text-sm text-[#FAF7E8]/90 max-w-2xl leading-relaxed">
-          Explora todas las presentaciones de Moronel en gotas concentradas, cápsulas vegetales y hoja seca deshidratada con envío seguro a todo México.
+          Explora productos herbolarios por categoría y presentación.
         </p>
       </div>
 
       {/* Filter & Controls Bar */}
-      <div className="bg-[#FAF7E8] p-4 rounded-2xl border border-[#D9D1B9] shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+      <div className="bg-[#FAF7E8] p-4 rounded-2xl border border-[#D9D1B9] shadow-xs space-y-4">
 
-        {/* Search */}
-        <div className="relative flex-1 max-w-md">
-          <input
-            type="text"
-            placeholder="Buscar por nombre, presentación o ingrediente..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-[#F4EFD6] text-[#23312C] text-xs sm:text-sm pl-4 pr-10 py-2.5 rounded-xl border border-[#D9D1B9] focus:outline-hidden focus:border-[#285F50]"
-          />
-          <Search className="w-4 h-4 text-[#6F8F69] absolute right-3 top-1/2 -translate-y-1/2" />
+        <div className="flex flex-col sm:flex-row items-stretch gap-3">
+          {/* Search */}
+          <div className="relative flex-1 min-w-0">
+            <input
+              type="search"
+              placeholder="Buscar por producto o marca..."
+              aria-label="Buscar por producto o marca"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="min-h-[44px] w-full bg-[#F4EFD6] text-[#23312C] text-xs sm:text-sm pl-4 pr-10 py-2.5 rounded-xl border border-[#D9D1B9] focus:outline-hidden focus:border-[#285F50]"
+            />
+            <Search className="w-4 h-4 text-[#6F8F69] absolute right-3 top-1/2 -translate-y-1/2" />
+          </div>
+
+          {activeBrands.length > 1 && (
+            <select
+              value={selectedBrand}
+              onChange={(e) => setSelectedBrand(e.target.value)}
+              aria-label="Filtrar por marca"
+              className="min-h-[44px] bg-[#F4EFD6] border border-[#D9D1B9] text-xs font-bold text-[#23312C] px-3 py-2 rounded-xl focus:outline-hidden shrink-0"
+            >
+              <option value="todas">Todas las marcas</option>
+              {activeBrands.map((brand) => (
+                <option key={brand.id} value={brand.slug}>
+                  {brand.name}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Sort Select */}
+          <div className="flex items-center gap-2 shrink-0">
+            <SlidersHorizontal className="w-4 h-4 text-[#6F8F69]" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as StoreSort)}
+              aria-label="Ordenar productos"
+              className="min-h-[44px] flex-1 sm:flex-none bg-[#F4EFD6] border border-[#D9D1B9] text-xs font-bold text-[#23312C] px-3 py-2 rounded-xl focus:outline-hidden"
+            >
+              <option value="featured">Destacados</option>
+              <option value="price-asc">Precio: menor a mayor</option>
+              <option value="price-desc">Precio: mayor a menor</option>
+            </select>
+          </div>
         </div>
 
         {/* Category Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
+        <div
+          className="flex w-full items-center gap-1.5 overflow-x-auto pb-1 overscroll-x-contain"
+          role="group"
+          aria-label="Filtrar por categoría"
+        >
           <button
             onClick={() => setSelectedCategory('todas')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-colors ${
+            className={`min-h-[44px] px-3 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors ${
               selectedCategory === 'todas'
                 ? 'bg-[#285F50] text-[#FAF7E8]'
                 : 'bg-[#F4EFD6] text-[#23312C] hover:bg-[#D9D1B9]/50'
@@ -92,7 +130,7 @@ function StoreCatalogContent() {
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.slug)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-colors ${
+              className={`min-h-[44px] px-3 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors ${
                 selectedCategory === cat.slug
                   ? 'bg-[#285F50] text-[#FAF7E8]'
                   : 'bg-[#F4EFD6] text-[#23312C] hover:bg-[#D9D1B9]/50'
@@ -101,37 +139,6 @@ function StoreCatalogContent() {
               {cat.name}
             </button>
           ))}
-        </div>
-
-        {activeBrands.length > 1 && (
-          <select
-            value={selectedBrand}
-            onChange={(e) => setSelectedBrand(e.target.value)}
-            aria-label="Filtrar por marca"
-            className="bg-[#F4EFD6] border border-[#D9D1B9] text-xs font-bold text-[#23312C] px-3 py-2 rounded-xl focus:outline-hidden shrink-0"
-          >
-            <option value="todas">Todas las marcas</option>
-            {activeBrands.map((brand) => (
-              <option key={brand.id} value={brand.slug}>
-                {brand.name}
-              </option>
-            ))}
-          </select>
-        )}
-
-        {/* Sort Select */}
-        <div className="flex items-center gap-2 shrink-0">
-          <SlidersHorizontal className="w-4 h-4 text-[#6F8F69]" />
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
-            className="bg-[#F4EFD6] border border-[#D9D1B9] text-xs font-bold text-[#23312C] px-3 py-2 rounded-xl focus:outline-hidden"
-          >
-            <option value="featured">Destacados</option>
-            <option value="price-asc">Precio: Menor a Mayor</option>
-            <option value="price-desc">Precio: Mayor a Menor</option>
-            <option value="rating">Mejor Calificados</option>
-          </select>
         </div>
 
       </div>
@@ -147,10 +154,11 @@ function StoreCatalogContent() {
               setSearchTerm('');
               setSelectedCategory('todas');
               setSelectedBrand('todas');
+              setSortBy('featured');
             }}
-            className="px-4 py-2 bg-[#285F50] text-white text-xs font-bold rounded-xl"
+            className="min-h-[44px] px-5 py-2.5 bg-[#285F50] text-white text-xs font-bold rounded-xl"
           >
-            Limpiar Filtros
+            Limpiar filtros
           </button>
         </div>
       ) : (
