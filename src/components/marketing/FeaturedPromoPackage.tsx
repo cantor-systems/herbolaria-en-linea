@@ -33,7 +33,7 @@ export const FeaturedPromoPackage: React.FC = () => {
           <div className="lg:col-span-7 space-y-5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D17B24] text-white text-xs font-black uppercase tracking-wider">
               <Gift className="w-4 h-4" />
-              <span>Paquete Ahorro Familiar Exclusivo</span>
+              <span>Paquete Ahorro Familiar</span>
             </div>
 
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#FAF7E8] leading-tight">

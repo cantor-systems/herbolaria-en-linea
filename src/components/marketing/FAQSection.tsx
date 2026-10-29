@@ -22,13 +22,13 @@ export const FAQSection: React.FC = () => {
         <div className="text-center space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#285F50]/10 text-[#285F50] text-xs font-bold uppercase tracking-wider">
             <HelpCircle className="w-3.5 h-3.5 text-[#D17B24]" />
-            <span>Resolvemos tus Dudas</span>
+            <span>Información de compra</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#23312C]">
-            Preguntas Frecuentes sobre Moronel Planta de la Vida
+            Preguntas frecuentes sobre compras en línea
           </h2>
           <p className="text-xs text-[#6F8F69] font-medium">
-            Información transparente sobre presentaciones, pagos, envíos y compras asistidas.
+            Consulta información sobre pagos, envíos, rastreo y canales de atención.
           </p>
         </div>
 

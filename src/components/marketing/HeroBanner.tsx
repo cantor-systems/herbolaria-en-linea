@@ -35,11 +35,11 @@ export const HeroBanner: React.FC = () => {
               <span>{HOMEPAGE_CONTENT.hero.eyebrow}</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#111f1a] tracking-normal leading-[1.0]">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#111f1a] tracking-normal leading-[1.05]">
               {HOMEPAGE_CONTENT.hero.h1}
             </h1>
 
-            <p className="text-xl sm:text-2xl lg:text-3xl text-[#23312C]/80 font-bold leading-normal max-w-2xl">
+            <p className="text-lg sm:text-2xl lg:text-3xl text-[#23312C]/80 font-bold leading-normal max-w-2xl">
               {HOMEPAGE_CONTENT.hero.subtitle}
             </p>
 
@@ -69,7 +69,7 @@ export const HeroBanner: React.FC = () => {
               </div>
               <div className="flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-[#285F50]" />
-                <span>Pagos seguros</span>
+                <span>Pago seguro con Mercado Pago</span>
               </div>
             </div>
 

@@ -7,6 +7,14 @@ export function getProductCountByCategory(categorySlug: string) {
   ).length;
 }
 
+export function getFeaturedProducts(limit = 4) {
+  const activeProducts = PRODUCTS.filter((product) => product.status === 'active');
+  const featuredProducts = activeProducts.filter((product) => product.featured);
+  const remainingProducts = activeProducts.filter((product) => !product.featured);
+
+  return [...featuredProducts, ...remainingProducts].slice(0, limit);
+}
+
 export function getRelatedProducts(product: Product, limit = 3) {
   const activeProducts = PRODUCTS.filter(
     (candidate) => candidate.status === 'active' && candidate.id !== product.id
