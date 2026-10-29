@@ -6,7 +6,7 @@ export const TrustBar: React.FC = () => {
   const items = [
     {
       icon: CreditCard,
-      title: 'Pago seguro con Mercado Pago',
+      title: 'Pago mediante Mercado Pago',
       subtitle: 'Métodos disponibles al continuar con el pago',
     },
     {

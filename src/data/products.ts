@@ -338,7 +338,7 @@ export const PRODUCTS: Product[] = [
       'Combinación de todas las formas de consumo tradicional',
       'Ahorro instantáneo de $93 MXN sobre el precio de comparación',
       'Incluye guía informativa de la Planta de la Vida',
-      'Envío asegurado hasta tu domicilio',
+      'Envío disponible a domicilio',
     ],
   },
   {

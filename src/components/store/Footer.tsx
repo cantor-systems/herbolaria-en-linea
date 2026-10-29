@@ -132,7 +132,7 @@ export const Footer: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => trackWhatsAppClick('footer', { placement: 'footer' })}
-                  className="flex items-center gap-2 text-emerald-300 font-bold hover:underline"
+                  className="flex min-h-[44px] items-center gap-2 text-emerald-300 font-bold hover:underline"
                 >
                   <MessageCircle className="w-4 h-4 shrink-0" />
                   <span>WhatsApp</span>
@@ -171,7 +171,7 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Legal Disclaimer Box */}
-        <div className="bg-[#285F50]/40 border border-[#285F50] p-4 rounded-xl text-[11px] text-[#F4EFD6]/80 leading-relaxed space-y-1.5">
+        <div className="bg-[#285F50]/40 border border-[#285F50] p-4 rounded-xl text-xs text-[#F4EFD6]/80 leading-relaxed space-y-1.5">
           <p className="font-bold text-[#AFC28E] uppercase tracking-wider">
             Aviso de Responsabilidad y Uso Herbolario Tradicional:
           </p>

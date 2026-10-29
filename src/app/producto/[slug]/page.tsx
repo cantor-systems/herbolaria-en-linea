@@ -302,7 +302,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             </span>
           </button>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-[#6F8F69] font-medium">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-[#6F8F69] font-medium">
             <span className="min-h-[44px] flex items-center gap-2 rounded-xl bg-[#F4EFD6] px-3 py-2">
               <ShieldCheck className="w-4 h-4 text-[#285F50] shrink-0" /> Pago mediante Mercado Pago
             </span>

@@ -170,9 +170,9 @@ function CheckoutContent() {
         <div className="flex items-center justify-between">
           <h1 className="text-xl sm:text-2xl font-extrabold flex items-center gap-2">
             <Lock className="w-5 h-5 text-[#D17B24]" />
-            <span>Checkout Seguro Herbolaria en Línea</span>
+            <span>Checkout Herbolaria en Línea</span>
           </h1>
-          <span className="text-xs font-bold text-[#AFC28E]">Pago seguro con Mercado Pago</span>
+          <span className="text-xs font-bold text-[#AFC28E]">Pago mediante Mercado Pago</span>
         </div>
 
         {/* Step Progress Bar */}
@@ -473,19 +473,19 @@ function CheckoutContent() {
               <div className="space-y-3">
                 <div className="p-4 rounded-2xl border-2 border-[#285F50] bg-[#F4EFD6]">
                   <span className="font-extrabold text-xs text-[#23312C] block">
-                    Pago Seguro con Mercado Pago
+                    Pago mediante Mercado Pago
                   </span>
-                  <p className="text-[11px] text-[#6F8F69] mt-0.5 leading-relaxed">
+                  <p className="text-xs text-[#6F8F69] mt-0.5 leading-relaxed">
                     Serás redirigido a Mercado Pago para elegir el medio de pago. No capturamos datos de tarjeta en este sitio.
                   </p>
                   <div className="mt-3 border-t border-[#D9D1B9] pt-3 space-y-1.5">
                     <p className="text-sm font-black text-[#285F50]">
                       Total que pagarás en Mercado Pago: {formatCurrency(totalCents)} MXN
                     </p>
-                    <p className="text-[11px] text-[#6F8F69] leading-relaxed">
+                    <p className="text-xs text-[#6F8F69] leading-relaxed">
                       Incluye productos, descuentos aplicados y el método de envío seleccionado.
                     </p>
-                    <p className="text-[11px] text-[#6F8F69] leading-relaxed">
+                    <p className="text-xs text-[#6F8F69] leading-relaxed">
                       Mercado Pago puede mostrar productos y envío por separado. El cargo total de esta compra será de {formatCurrency(totalCents)} MXN.
                     </p>
                   </div>
@@ -584,7 +584,7 @@ function CheckoutContent() {
             <div className="hidden bg-[#F4EFD6] p-3 rounded-xl border border-[#D9D1B9] text-[11px] text-[#6F8F69] space-y-1">
               <div className="flex items-center gap-1.5 font-bold text-[#285F50]">
                 <ShieldCheck className="w-4 h-4" />
-                <span>Garantía de Satisfacción</span>
+                <span>Resumen de pedido antes del pago</span>
               </div>
               <p>Procesamos y despachamos tu pedido en días hábiles con seguimiento continuo.</p>
             </div>

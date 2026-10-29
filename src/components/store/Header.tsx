@@ -56,7 +56,7 @@ export const Header: React.FC = () => {
                 </span>
               </span>
               <span className="text-[10px] sm:text-xs font-semibold text-[#6F8F69] tracking-wider uppercase truncate">
-                Productos <span className="text-[#D17B24] font-bold">{STORE_CONFIG.brandName}</span>
+                Tienda herbolaria
               </span>
             </div>
           </Link>
@@ -68,11 +68,11 @@ export const Header: React.FC = () => {
               placeholder="Buscar gotas, cápsulas, hierba..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#FAF7E8] text-[#23312C] text-sm pl-4 pr-10 py-2 rounded-full border border-[#D9D1B9] focus:outline-hidden focus:border-[#285F50] focus:ring-1 focus:ring-[#285F50] transition-all"
+              className="min-h-[44px] w-full bg-[#FAF7E8] text-[#23312C] text-sm pl-4 pr-12 py-2 rounded-full border border-[#D9D1B9] focus:outline-hidden focus:border-[#285F50] focus:ring-1 focus:ring-[#285F50] transition-all"
             />
             <button
               type="submit"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6F8F69] hover:text-[#285F50]"
+              className="absolute right-0 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[#6F8F69] hover:text-[#285F50] focus-visible:outline-2 focus-visible:outline-[#D17B24] rounded-full"
               aria-label="Buscar"
             >
               <Search className="w-4 h-4" />
@@ -109,7 +109,7 @@ export const Header: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackWhatsAppClick('header', { placement: 'header' })}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 hover:bg-emerald-200 transition-colors"
+                className="hidden min-h-[44px] sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 hover:bg-emerald-200 transition-colors"
                 title="Atención directa por WhatsApp"
               >
                 <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
@@ -162,11 +162,12 @@ export const Header: React.FC = () => {
                 placeholder="Buscar en Herbolaria en Línea..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#FAF7E8] text-[#23312C] text-sm pl-4 pr-10 py-2.5 rounded-full border border-[#D9D1B9]"
+                className="min-h-[44px] w-full bg-[#FAF7E8] text-[#23312C] text-sm pl-4 pr-12 py-2.5 rounded-full border border-[#D9D1B9] focus:outline-hidden focus:border-[#285F50] focus:ring-1 focus:ring-[#285F50]"
               />
               <button
                 type="submit"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6F8F69]"
+                className="absolute right-0 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[#6F8F69] focus-visible:outline-2 focus-visible:outline-[#D17B24] rounded-full"
+                aria-label="Buscar"
               >
                 <Search className="w-4 h-4" />
               </button>

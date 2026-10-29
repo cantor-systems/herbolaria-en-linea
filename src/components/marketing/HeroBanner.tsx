@@ -69,7 +69,7 @@ export const HeroBanner: React.FC = () => {
               </div>
               <div className="flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-[#285F50]" />
-                <span>Pago seguro con Mercado Pago</span>
+                <span>Pago mediante Mercado Pago</span>
               </div>
             </div>
 

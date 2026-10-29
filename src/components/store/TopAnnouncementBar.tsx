@@ -16,7 +16,7 @@ export const TopAnnouncementBar: React.FC = () => {
         <div className="hidden md:flex items-center gap-6 text-[#C9AD83]">
           <div className="flex items-center gap-1.5">
             <ShieldCheck className="w-3.5 h-3.5 text-[#D17B24]" />
-            <span>Pago seguro en línea con Mercado Pago</span>
+            <span>Pago mediante Mercado Pago</span>
           </div>
           {STORE_CONFIG.contact.whatsapp.enabled && (
             <div className="flex items-center gap-1.5 text-[#FAF7E8]">
