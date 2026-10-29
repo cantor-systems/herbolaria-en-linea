@@ -51,7 +51,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       {/* Content Body */}
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
         <div className="space-y-1.5">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#6F8F69]">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#6F8F69]">
             {brandName}
           </span>
 
@@ -78,12 +78,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               )}
             </div>
             {selectedVariant.unitsCount > 1 && (
-              <span className="text-[10px] text-[#6F8F69] font-medium block">
+              <span className="text-xs text-[#6F8F69] font-medium block">
                 Equivale a {formatCurrency(selectedVariant.unitPriceCents)} por unidad
               </span>
             )}
             {selectedVariant.freeShippingEligible && (
-              <span className="text-[10px] font-bold text-emerald-700 block">
+              <span className="text-xs font-bold text-emerald-700 block">
                 Incluye envío estándar gratis
               </span>
             )}
@@ -104,7 +104,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   key={variant.id}
                   type="button"
                   onClick={() => setSelectedVariant(variant)}
-                  className={`min-h-[44px] px-1.5 py-1 rounded-lg text-[10px] font-bold text-center border transition-all leading-tight ${
+                  className={`min-h-[44px] px-1.5 py-1 rounded-lg text-[11px] font-bold text-center border transition-all leading-tight ${
                     selectedVariant.id === variant.id
                       ? 'bg-[#285F50] text-[#FAF7E8] border-[#285F50]'
                       : 'bg-[#F4EFD6] text-[#23312C] border-[#D9D1B9] hover:border-[#285F50]'
