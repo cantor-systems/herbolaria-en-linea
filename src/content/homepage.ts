@@ -3,17 +3,17 @@ import { STORE_CONFIG } from '@/config/store';
 
 export const HOMEPAGE_CONTENT = {
   hero: {
-    eyebrow: 'Moronel Planta de la vida',
-    h1: 'Moronel en distintas presentaciones, directo hasta tu hogar',
+    eyebrow: 'Herbolaria en Línea',
+    h1: 'Productos herbolarios para comprar en línea',
     subtitle:
-      'Té, gotas o cápsulas: tú eliges cómo integrar Moronel a tu vida.',
+      'Explora extractos, cápsulas, hierbas y paquetes seleccionados en un solo lugar.',
     ctaPrimary: {
       text: 'Ver productos',
       href: '/tienda',
     },
     ctaSecondary: {
-      text: 'Conocer Moronel',
-      href: '#presentaciones',
+      text: 'Explorar categorías',
+      href: '#categorias',
     },
   },
   benefits: [
@@ -41,10 +41,10 @@ export const HOMEPAGE_CONTENT = {
     },
   ],
   educational: {
-    title: '¿Qué es Moronel (Planta de la Vida)?',
-    subtitle: 'Historia, tradición herbolaria y preservación de fitoactivos',
+    title: 'Conoce más sobre Moronel',
+    subtitle: 'Historia, presentaciones y tradición herbolaria',
     content: [
-      'Conocida popularmente como Planta de la Vida o Moronel (lonicera subspicata var. denudata), es una especie apreciada en la herbolaria mexicana por su vitalidad y sus usos tradicionales.',
+      'Conocida popularmente como Planta de la Vida o Moronel (Lonicera subspicata var. denudata), esta especie forma parte de la tradición herbolaria mexicana.',
       'Los productos Moronel están disponibles en extracto concentrado en gotas, cápsulas y hierba deshidratada.',
       'Estas presentaciones ofrecen distintas opciones de preparación, almacenamiento y portabilidad.',
     ],
@@ -52,31 +52,26 @@ export const HOMEPAGE_CONTENT = {
   howToBuySteps: [
     {
       step: '01',
-      title: 'Elige tu presentación',
-      description: 'Selecciona entre Gotas, Cápsulas, Hierba o nuestro Paquete Promocional.',
+      title: 'Elige productos',
+      description: 'Explora el catálogo y agrega al carrito las presentaciones que prefieras.',
     },
     {
       step: '02',
-      title: 'Completa tus datos',
-      description: 'Ingresa tu dirección de entrega en México y tus datos de contacto.',
+      title: 'Revisa tu carrito',
+      description: 'Confirma productos, cantidades y opciones disponibles antes de continuar.',
     },
     {
       step: '03',
-      title: 'Paga de forma segura',
-      description: 'Haz tu pago con tarjeta o en efectivo',
+      title: 'Paga en línea',
+      description: 'Completa tus datos y realiza el pago mediante Mercado Pago.',
     },
     {
       step: '04',
-      title: 'Recibe seguimiento',
-      description: 'Podrás rastrear tu pedido con el número de guía de tu orden',
+      title: 'Recibe y rastrea tu pedido',
+      description: 'Consulta el estado de tu compra y la guía cuando el pedido sea enviado.',
     },
   ],
   faq: [
-    {
-      question: '¿Qué presentación debo elegir?',
-      answer:
-        'Si buscas máxima rapidez de ingesta y asimilación, te recomendamos las Gotas concentradas. Si prefieres evitar cualquier sabor y llevarlas contigo a cualquier parte, las Cápsulas son ideales. Si disfrutas la preparación ritual de té o infusión, la Hierba deshidratada es perfecta.',
-    },
     {
       question: '¿Cómo realizo el pago de mi pedido?',
       answer:

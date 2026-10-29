@@ -6,8 +6,8 @@ export const HowToBuySteps: React.FC = () => {
   const stepIcons = [ShoppingBag, FileText, CreditCard, Truck];
 
   return (
-    <section className="py-12 bg-[#F4EFD6] border-y border-[#D9D1B9]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
+    <section className="py-10 bg-[#F4EFD6] border-y border-[#D9D1B9]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
         <div>
           <span className="text-xs font-extrabold text-[#D17B24] uppercase tracking-wider block mb-1">
             Proceso Fácil y Transparente
@@ -17,13 +17,13 @@ export const HowToBuySteps: React.FC = () => {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {HOMEPAGE_CONTENT.howToBuySteps.map((item, idx) => {
             const Icon = stepIcons[idx] || ShoppingBag;
             return (
               <div
                 key={idx}
-                className="bg-[#FAF7E8] p-6 rounded-2xl border border-[#D9D1B9] shadow-xs text-left relative flex flex-col justify-between"
+                className="bg-[#FAF7E8] p-5 rounded-2xl border border-[#D9D1B9] shadow-xs text-left relative flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">

@@ -1,5 +1,6 @@
 import React from 'react';
-import { BookOpen, Leaf, Sparkles, Check } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, BookOpen, Check } from 'lucide-react';
 import { HOMEPAGE_CONTENT } from '@/content/homepage';
 
 export const EducationalSection: React.FC = () => {
@@ -19,7 +20,7 @@ export const EducationalSection: React.FC = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-[#23312C]/80 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4 right-4 text-[#FAF7E8] p-3 rounded-xl bg-[#285F50]/90 backdrop-blur-xs border border-[#AFC28E]/30">
                 <span className="text-xs font-bold uppercase tracking-wider block text-[#D17B24]">
-                  Especie Vegetal Seleccionada:
+                  Contenido sobre la especie:
                 </span>
                 <span className="text-sm font-semibold italic">Lonicera subspicata (Moronel)</span>
               </div>
@@ -30,7 +31,7 @@ export const EducationalSection: React.FC = () => {
           <div className="lg:col-span-7 space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#285F50]/10 text-[#285F50] text-xs font-bold uppercase tracking-wider">
               <BookOpen className="w-3.5 h-3.5 text-[#D17B24]" />
-              <span>Conocimiento y Herbolaria Tradicional</span>
+              <span>Contenido educativo</span>
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[#23312C] leading-snug">
@@ -52,17 +53,13 @@ export const EducationalSection: React.FC = () => {
               ))}
             </div>
 
-            <div className="pt-2 flex flex-wrap gap-2 text-xs font-bold text-[#285F50]">
-              <span className="px-3 py-1 bg-[#F4EFD6] rounded-lg border border-[#D9D1B9]">
-                ✓ Procesamiento en México
-              </span>
-              <span className="px-3 py-1 bg-[#F4EFD6] rounded-lg border border-[#D9D1B9]">
-                ✓ Frasco Ámbar Protector
-              </span>
-              <span className="px-3 py-1 bg-[#F4EFD6] rounded-lg border border-[#D9D1B9]">
-                ✓ Cuidado Artesanal Herbazen
-              </span>
-            </div>
+            <Link
+              href="/conocer-moronel"
+              className="min-h-[44px] inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#285F50] hover:bg-[#23312C] text-[#FAF7E8] text-sm font-bold rounded-xl transition-colors"
+            >
+              <span>Conocer Moronel</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
 
         </div>

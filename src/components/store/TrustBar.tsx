@@ -1,28 +1,28 @@
 import React from 'react';
-import { ShieldCheck, Truck, PackageSearch, Award } from 'lucide-react';
+import { CreditCard, FileText, Truck, PackageSearch } from 'lucide-react';
 import { SHIPPING_CONFIG } from '@/config/shipping';
 
 export const TrustBar: React.FC = () => {
   const items = [
     {
+      icon: CreditCard,
+      title: 'Pago seguro con Mercado Pago',
+      subtitle: 'Métodos disponibles al continuar con el pago',
+    },
+    {
       icon: Truck,
-      title: 'Envíos Nacionales',
-      subtitle: `${SHIPPING_CONFIG.standardEstimatedDays} a todo México`,
-    },
-    {
-      icon: ShieldCheck,
-      title: 'Pagos en línea seguros',
-      subtitle: 'En efectivo y con tarjeta de crédito o débito',
-    },
-    {
-      icon: Award,
-      title: 'Productos Herbazen',
-      subtitle: 'Consulta ingredientes y modo de uso en cada ficha',
+      title: 'Envíos en México',
+      subtitle: `Entrega estándar estimada en ${SHIPPING_CONFIG.standardEstimatedDays}`,
     },
     {
       icon: PackageSearch,
       title: 'Rastreo de pedidos',
       subtitle: 'Consulta el estado de tu compra en línea',
+    },
+    {
+      icon: FileText,
+      title: 'Información de producto',
+      subtitle: 'Consulta ingredientes y modo de uso en cada ficha',
     },
   ];
 
