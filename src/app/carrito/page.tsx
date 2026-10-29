@@ -7,7 +7,7 @@ import { getBrandBySlug } from '@/data/brands';
 import { formatCurrency } from '@/lib/utils';
 import { SHIPPING_CONFIG } from '@/config/shipping';
 import { trackBeginCheckout } from '@/lib/analytics';
-import { ShoppingBag, Trash2, Plus, Minus, Tag, ArrowRight, ArrowLeft, ShieldCheck, Truck } from 'lucide-react';
+import { ShoppingBag, Trash2, Plus, Minus, Tag, ArrowRight, ArrowLeft, Truck } from 'lucide-react';
 
 export default function CartPage() {
   const {
@@ -20,6 +20,7 @@ export default function CartPage() {
     subtotalCents,
     discountCents,
     wholesaleDiscountPercent,
+    wholesalePiecesUntilDiscount,
     shippingCents,
     totalCents,
     freeShippingRemainingCents,
@@ -46,18 +47,18 @@ export default function CartPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Title */}
-      <div className="flex items-center justify-between border-b border-[#D9D1B9] pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[#D9D1B9] pb-4">
         <div>
           <span className="text-xs font-black uppercase text-[#D17B24] tracking-wider block">
-            Resumen de Tu Pedido
+            Resumen de tu pedido
           </span>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#23312C]">
-            Carrito de Compras Herbolaria en Línea
+            Carrito de compras
           </h1>
         </div>
         <Link
           href="/tienda"
-          className="text-xs font-bold text-[#285F50] hover:underline flex items-center gap-1"
+          className="min-h-[44px] text-xs font-bold text-[#285F50] hover:underline inline-flex items-center gap-1 self-start sm:self-auto"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Seguir Comprando</span>
@@ -70,14 +71,14 @@ export default function CartPage() {
             <ShoppingBag className="w-8 h-8" />
           </div>
           <h3 className="font-extrabold text-xl text-[#23312C]">Tu carrito está vacío</h3>
-          <p className="text-xs text-[#6F8F69]">
-            Aún no has agregado ninguna presentación de Moronel Planta de la Vida a tu carrito.
+          <p className="text-sm text-[#6F8F69]">
+            Agrega productos desde la tienda para comenzar tu compra.
           </p>
           <Link
             href="/tienda"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#285F50] text-[#FAF7E8] font-bold text-xs rounded-xl shadow-md hover:bg-[#23312C]"
+            className="min-h-[44px] inline-flex items-center gap-2 px-6 py-3 bg-[#285F50] text-[#FAF7E8] font-bold text-xs rounded-xl shadow-md hover:bg-[#23312C]"
           >
-            <span>Ver Productos Disponibles</span>
+            <span>Ver productos</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -86,35 +87,6 @@ export default function CartPage() {
 
           {/* Cart Items List (8 cols) */}
           <div className="lg:col-span-8 space-y-4">
-
-            {/* Free Shipping Banner */}
-            <div className="bg-[#FAF7E8] p-4 rounded-2xl border border-[#D9D1B9] space-y-2">
-              {freeShippingRemainingCents > 0 ? (
-                <div>
-                  <div className="flex justify-between text-xs font-bold text-[#23312C] mb-1">
-                    <span>Agrega <strong className="text-[#285F50]">{formatCurrency(freeShippingRemainingCents)}</strong> para Envío GRATIS</span>
-                    <span>{freeShippingProgress}%</span>
-                  </div>
-                  <div className="w-full h-2.5 bg-[#D9D1B9] rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-[#D17B24] rounded-full transition-all duration-300"
-                      style={{ width: `${freeShippingProgress}%` }}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
-                  <Truck className="w-4 h-4 text-emerald-600" />
-                  <span>
-                    {wholesaleDiscountPercent > 0
-                      ? '¡Tu mayoreo incluye envío estándar GRATIS!'
-                      : hasFreeShippingPromotion
-                        ? '¡Tu carrito incluye una promoción de envío estándar GRATIS!'
-                      : '¡Felicidades! Tienes envío estándar GRATIS en tu pedido'}
-                  </span>
-                </div>
-              )}
-            </div>
 
             {/* Items */}
             <div className="space-y-3">
@@ -133,17 +105,12 @@ export default function CartPage() {
                       <span className="text-[10px] font-bold text-[#D17B24] uppercase block">
                         {getBrandBySlug(item.product.brandSlug)?.name ?? item.product.brandSlug}
                       </span>
-                      <h4 className="font-extrabold text-[#23312C] text-sm leading-snug truncate">
+                      <h4 className="font-extrabold text-[#23312C] text-sm leading-snug line-clamp-2">
                         {item.product.name}
                       </h4>
                       <p className="text-xs text-[#6F8F69] mt-0.5">
                         Presentación: {item.variant.name}
                       </p>
-                      {wholesaleDiscountPercent === 0 && item.variant.freeShippingEligible && (
-                        <p className="text-[10px] font-bold text-emerald-700 mt-1">
-                          Promoción: envío estándar gratis para todo el pedido
-                        </p>
-                      )}
                       <span className="text-xs font-extrabold text-[#285F50] block sm:hidden mt-1">
                         {formatCurrency(item.variant.priceCents)} c/u
                       </span>
@@ -155,14 +122,16 @@ export default function CartPage() {
                     <div className="flex items-center border border-[#D9D1B9] rounded-xl bg-[#F4EFD6]">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="p-1.5 hover:bg-[#D9D1B9]/50 text-[#23312C] rounded-l-xl"
+                        className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-[#D9D1B9]/50 text-[#23312C] rounded-l-xl"
+                        aria-label={`Disminuir cantidad de ${item.product.name}`}
                       >
                         <Minus className="w-3.5 h-3.5" />
                       </button>
                       <span className="px-3 text-xs font-bold text-[#23312C]">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="p-1.5 hover:bg-[#D9D1B9]/50 text-[#23312C] rounded-r-xl"
+                        className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-[#D9D1B9]/50 text-[#23312C] rounded-r-xl"
+                        aria-label={`Aumentar cantidad de ${item.product.name}`}
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>
@@ -176,8 +145,9 @@ export default function CartPage() {
 
                     <button
                       onClick={() => removeFromCart(item.id)}
-                      className="text-[#98552B] hover:text-red-700 p-1.5"
+                      className="min-w-[44px] min-h-[44px] flex items-center justify-center text-[#98552B] hover:text-red-700 rounded-lg hover:bg-red-50"
                       title="Eliminar"
+                      aria-label={`Eliminar ${item.product.name} del carrito`}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -187,14 +157,60 @@ export default function CartPage() {
               ))}
             </div>
 
+            {/* Shipping status */}
+            <div className="bg-[#FAF7E8] p-4 rounded-2xl border border-[#D9D1B9] space-y-2">
+              {freeShippingRemainingCents > 0 ? (
+                <div>
+                  <div className="flex justify-between gap-3 text-xs font-bold text-[#23312C] mb-1">
+                    <span>Agrega <strong className="text-[#285F50]">{formatCurrency(freeShippingRemainingCents)}</strong> para envío gratis</span>
+                    <span className="shrink-0">{freeShippingProgress}%</span>
+                  </div>
+                  <div className="w-full h-2.5 bg-[#D9D1B9] rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-[#D17B24] rounded-full transition-all duration-300"
+                      style={{ width: `${freeShippingProgress}%` }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
+                  <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>
+                    {wholesaleDiscountPercent > 0
+                      ? 'Tu mayoreo incluye envío estándar gratis'
+                      : hasFreeShippingPromotion
+                        ? 'Tu carrito incluye envío estándar gratis por promoción'
+                        : 'Tu pedido tiene envío estándar gratis'}
+                  </span>
+                </div>
+              )}
+            </div>
+
           </div>
 
           {/* Order Summary Sidebar (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
             <div className="bg-[#FAF7E8] p-5 rounded-3xl border-2 border-[#D9D1B9] shadow-sm space-y-4">
               <h3 className="font-extrabold text-[#23312C] text-base border-b border-[#D9D1B9] pb-3">
-                Resumen de Compra
+                Resumen de compra
               </h3>
+
+              {wholesalePiecesUntilDiscount !== null && (
+                <p className="rounded-xl border border-[#D17B24]/30 bg-[#D17B24]/10 p-2.5 text-[11px] font-bold text-[#7A3F22]">
+                  Agrega {wholesalePiecesUntilDiscount}{' '}
+                  {wholesalePiecesUntilDiscount === 1 ? 'pieza' : 'piezas'} más para obtener 35% de descuento de mayoreo.
+                </p>
+              )}
+
+              {wholesaleDiscountPercent > 0 && (
+                <div
+                  className="rounded-xl border border-emerald-200 bg-emerald-50 p-2.5 text-[11px] text-emerald-900"
+                  id="cart-wholesale-coupon-note"
+                >
+                  <p className="font-bold">Descuento de mayoreo aplicado: {wholesaleDiscountPercent}%</p>
+                  <p className="mt-0.5">El descuento de mayoreo reemplaza cupones y otras promociones.</p>
+                </div>
+              )}
 
               {/* Promo Code Input */}
               <form onSubmit={handleApplyPromo} className="space-y-2">
@@ -213,26 +229,18 @@ export default function CartPage() {
                     placeholder="Ej. MORONEL15"
                     value={promoInput}
                     onChange={(e) => setPromoInput(e.target.value)}
-                    className="flex-1 bg-[#F4EFD6] border border-[#D9D1B9] text-xs font-bold px-3 py-2 rounded-xl text-[#23312C] uppercase disabled:cursor-not-allowed disabled:opacity-55"
+                    aria-label="Código de cupón"
+                    className="min-h-[44px] min-w-0 flex-1 bg-[#F4EFD6] border border-[#D9D1B9] text-xs font-bold px-3 py-2 rounded-xl text-[#23312C] uppercase disabled:cursor-not-allowed disabled:opacity-55"
                   />
                   <button
                     disabled={wholesaleDiscountPercent > 0}
                     type="submit"
-                    className="px-3 py-2 bg-[#285F50] text-white text-xs font-bold rounded-xl disabled:cursor-not-allowed disabled:bg-[#23312C]/45"
+                    className="min-h-[44px] px-3 py-2 bg-[#285F50] text-white text-xs font-bold rounded-xl disabled:cursor-not-allowed disabled:bg-[#23312C]/45"
                   >
                     Aplicar
                   </button>
                 </div>
               </form>
-
-              {wholesaleDiscountPercent > 0 && (
-                <p
-                  className="rounded-xl border border-emerald-200 bg-emerald-50 p-2.5 text-[11px] font-bold text-emerald-900"
-                  id="cart-wholesale-coupon-note"
-                >
-                  El descuento de mayoreo reemplaza cupones y otras promociones.
-                </p>
-              )}
 
               {appliedPromo && (
                 <div className="flex items-center justify-between text-xs bg-emerald-50 text-emerald-900 border border-emerald-200 p-2.5 rounded-xl font-bold">
@@ -245,7 +253,7 @@ export default function CartPage() {
                       removePromoCode();
                       setPromoFeedback(null);
                     }}
-                    className="text-red-600 hover:underline text-[11px]"
+                    className="min-h-[44px] px-2 text-red-600 hover:underline text-[11px]"
                   >
                     Quitar
                   </button>
@@ -289,7 +297,7 @@ export default function CartPage() {
                 </div>
 
                 <div className="flex justify-between text-lg font-black text-[#285F50] border-t border-[#D9D1B9] pt-3">
-                  <span>Total Estimado:</span>
+                  <span>Total estimado:</span>
                   <span>{formatCurrency(totalCents)}</span>
                 </div>
               </div>
@@ -299,14 +307,10 @@ export default function CartPage() {
                 onClick={handleBeginCheckout}
                 className="w-full py-3.5 px-4 bg-[#D17B24] hover:bg-[#98552B] text-white font-black text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-98 min-h-[48px]"
               >
-                <span>Proceder al Checkout</span>
+                <span>Proceder al pago</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
 
-              <div className="hidden flex items-center justify-center gap-1.5 text-[11px] text-[#6F8F69] pt-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#285F50]" />
-                <span>Pago procesado de forma encriptada</span>
-              </div>
             </div>
           </div>
 

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight, Tag, ShieldCheck, Truck } from 'lucide-react';
+import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight, Tag, Truck } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { getBrandBySlug } from '@/data/brands';
 import { formatCurrency } from '@/lib/utils';
@@ -75,13 +75,23 @@ export const DrawerCart: React.FC = () => {
       />
 
       <div className="fixed inset-0 flex justify-end overflow-hidden pointer-events-none">
-        <div className="pointer-events-auto w-full sm:max-w-md h-dvh max-h-dvh min-h-0 overflow-hidden bg-[#F4EFD6] shadow-2xl flex flex-col border-l border-[#D9D1B9] animate-in slide-in-from-right duration-300">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="drawer-cart-title"
+          className="pointer-events-auto w-full sm:max-w-md h-dvh max-h-dvh min-h-0 overflow-hidden bg-[#F4EFD6] shadow-2xl flex flex-col border-l border-[#D9D1B9] animate-in slide-in-from-right duration-300"
+        >
 
           {/* Header */}
           <div className="shrink-0 p-4 sm:p-5 bg-[#285F50] text-[#FAF7E8] flex items-center justify-between shadow-md">
             <div className="flex items-center gap-2">
               <ShoppingBag className="w-5 h-5 text-[#D17B24]" />
-              <h3 className="text-lg font-bold">Tu Carrito de Compras</h3>
+              <div>
+                <h3 id="drawer-cart-title" className="text-lg font-bold leading-tight">Tu carrito</h3>
+                <span className="text-[11px] text-[#FAF7E8]/75">
+                  {cart.length} {cart.length === 1 ? 'producto' : 'productos'}
+                </span>
+              </div>
             </div>
             <button
               onClick={() => setIsCartOpen(false)}
@@ -90,35 +100,6 @@ export const DrawerCart: React.FC = () => {
             >
               <X className="w-5 h-5" />
             </button>
-          </div>
-
-          {/* Free Shipping Meter */}
-          <div className="shrink-0 bg-[#FAF7E8] p-3 border-b border-[#D9D1B9] text-xs">
-            {freeShippingRemainingCents > 0 ? (
-              <div className="space-y-1.5">
-                <div className="flex justify-between font-medium text-[#23312C]">
-                  <span>Agrega <strong className="text-[#285F50]">{formatCurrency(freeShippingRemainingCents)}</strong> más para envío GRATIS</span>
-                  <span className="font-bold">{freeShippingProgress}%</span>
-                </div>
-                <div className="w-full h-2 bg-[#D9D1B9] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-[#D17B24] transition-all duration-300 rounded-full"
-                    style={{ width: `${freeShippingProgress}%` }}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 text-emerald-800 font-bold justify-center">
-                <Truck className="w-4 h-4 text-emerald-600" />
-                <span>
-                  {wholesaleDiscountPercent > 0
-                    ? '¡Tu mayoreo incluye envío estándar GRATIS!'
-                    : hasFreeShippingPromotion
-                      ? '¡Tu carrito incluye una promoción de envío estándar GRATIS!'
-                    : '¡Felicidades! Tienes envío estándar GRATIS en tu pedido'}
-                </span>
-              </div>
-            )}
           </div>
 
           {/* Items List */}
@@ -130,14 +111,15 @@ export const DrawerCart: React.FC = () => {
                 </div>
                 <h4 className="font-bold text-lg text-[#23312C] mb-1">Tu carrito está vacío</h4>
                 <p className="text-sm text-[#6F8F69] mb-6">
-                  Agrega presentaciones de Moronel Planta de la Vida para continuar.
+                  Agrega productos desde la tienda para comenzar tu compra.
                 </p>
-                <button
+                <Link
+                  href="/tienda"
                   onClick={() => setIsCartOpen(false)}
-                  className="px-6 py-2.5 bg-[#285F50] text-[#FAF7E8] font-bold rounded-xl shadow-md hover:bg-[#23312C] transition-colors"
+                  className="min-h-[44px] inline-flex items-center justify-center px-6 py-2.5 bg-[#285F50] text-[#FAF7E8] font-bold rounded-xl shadow-md hover:bg-[#23312C] transition-colors"
                 >
-                  Explorar Productos
-                </button>
+                  Ver productos
+                </Link>
               </div>
             ) : (
               cart.map((item) => (
@@ -150,28 +132,22 @@ export const DrawerCart: React.FC = () => {
                     alt={item.product.name}
                     className="w-20 h-20 object-cover rounded-lg border border-[#D9D1B9] shrink-0"
                   />
-                  <div className="flex-1 min-w-0 pr-6">
+                  <div className="flex-1 min-w-0 pr-12">
                     <span className="text-[10px] font-bold text-[#D17B24] uppercase tracking-wider block">
                       {getBrandBySlug(item.product.brandSlug)?.name ?? item.product.brandSlug}
                     </span>
-                    <h5 className="font-bold text-[#23312C] text-sm leading-tight truncate mb-1">
+                    <h5 className="font-bold text-[#23312C] text-sm leading-tight line-clamp-2 mb-1">
                       {item.product.name}
                     </h5>
                     <p className="text-xs text-[#6F8F69] font-medium mb-2">
                       Presentación: {item.variant.name}
                     </p>
-                    {wholesaleDiscountPercent === 0 && item.variant.freeShippingEligible && (
-                      <p className="text-[10px] font-bold text-emerald-700 mb-2">
-                        Promoción: envío estándar gratis para todo el pedido
-                      </p>
-                    )}
-
                     <div className="flex items-center justify-between">
                       <div className="flex items-center border border-[#D9D1B9] rounded-lg bg-[#F4EFD6]">
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="p-1 hover:bg-[#D9D1B9]/50 rounded-l-lg text-[#23312C]"
-                          aria-label="Disminuir cantidad"
+                          className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-[#D9D1B9]/50 rounded-l-lg text-[#23312C]"
+                          aria-label={`Disminuir cantidad de ${item.product.name}`}
                         >
                           <Minus className="w-3.5 h-3.5" />
                         </button>
@@ -180,8 +156,8 @@ export const DrawerCart: React.FC = () => {
                         </span>
                         <button
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="p-1 hover:bg-[#D9D1B9]/50 rounded-r-lg text-[#23312C]"
-                          aria-label="Aumentar cantidad"
+                          className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-[#D9D1B9]/50 rounded-r-lg text-[#23312C]"
+                          aria-label={`Aumentar cantidad de ${item.product.name}`}
                         >
                           <Plus className="w-3.5 h-3.5" />
                         </button>
@@ -197,91 +173,125 @@ export const DrawerCart: React.FC = () => {
 
                   <button
                     onClick={() => removeFromCart(item.id)}
-                    className="absolute top-3 right-3 text-[#98552B] hover:text-red-700 p-1"
+                    className="absolute top-2 right-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-[#98552B] hover:text-red-700 rounded-lg hover:bg-red-50"
                     title="Eliminar producto"
+                    aria-label={`Eliminar ${item.product.name} del carrito`}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               ))
             )}
+
+            {cart.length > 0 && (
+              <div className="space-y-3 pt-1">
+                {/* Shipping status */}
+                <div className="bg-[#FAF7E8] p-3 rounded-xl border border-[#D9D1B9] text-xs">
+                  {freeShippingRemainingCents > 0 ? (
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between gap-3 font-medium text-[#23312C]">
+                        <span>Agrega <strong className="text-[#285F50]">{formatCurrency(freeShippingRemainingCents)}</strong> para envío gratis</span>
+                        <span className="font-bold shrink-0">{freeShippingProgress}%</span>
+                      </div>
+                      <div className="w-full h-2 bg-[#D9D1B9] rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#D17B24] transition-all duration-300 rounded-full"
+                          style={{ width: `${freeShippingProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-emerald-800 font-bold">
+                      <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>
+                        {wholesaleDiscountPercent > 0
+                          ? 'Tu mayoreo incluye envío estándar gratis'
+                          : hasFreeShippingPromotion
+                            ? 'Tu carrito incluye envío estándar gratis por promoción'
+                            : 'Tu pedido tiene envío estándar gratis'}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Wholesale status */}
+                {wholesalePiecesUntilDiscount !== null && (
+                  <p className="rounded-xl border border-[#D17B24]/30 bg-[#D17B24]/10 p-3 text-[11px] font-bold text-[#7A3F22]">
+                    Agrega {wholesalePiecesUntilDiscount}{' '}
+                    {wholesalePiecesUntilDiscount === 1 ? 'pieza' : 'piezas'} más para obtener 35% de descuento de mayoreo.
+                  </p>
+                )}
+
+                {wholesaleDiscountPercent > 0 && (
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[11px] text-emerald-900">
+                    <p className="font-bold">Descuento de mayoreo aplicado: {wholesaleDiscountPercent}%</p>
+                    <p className="mt-0.5" id="drawer-wholesale-coupon-note">
+                      El descuento de mayoreo reemplaza cupones y otras promociones.
+                    </p>
+                  </div>
+                )}
+
+                {/* Promo Code Form */}
+                <div className="bg-[#FAF7E8] p-3 rounded-xl border border-[#D9D1B9] space-y-2">
+                  <form onSubmit={handleApplyCode} className="flex gap-2">
+                    <input
+                      aria-label="Código de cupón"
+                      aria-describedby={
+                        wholesaleDiscountPercent > 0
+                          ? 'drawer-wholesale-coupon-note'
+                          : undefined
+                      }
+                      disabled={wholesaleDiscountPercent > 0}
+                      type="text"
+                      placeholder="Código de cupón (ej. MORONEL15)"
+                      value={promoInput}
+                      onChange={(e) => setPromoInput(e.target.value)}
+                      className="min-h-[44px] min-w-0 flex-1 bg-[#F4EFD6] border border-[#D9D1B9] text-xs px-3 py-2 rounded-lg text-[#23312C] font-semibold focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-55"
+                    />
+                    <button
+                      disabled={wholesaleDiscountPercent > 0}
+                      type="submit"
+                      className="min-h-[44px] px-3 py-2 bg-[#285F50] text-white text-xs font-bold rounded-lg hover:bg-[#23312C] disabled:cursor-not-allowed disabled:bg-[#23312C]/45"
+                    >
+                      Aplicar
+                    </button>
+                  </form>
+
+                  {appliedPromo && (
+                    <div className="flex items-center justify-between gap-2 text-xs bg-emerald-50 text-emerald-900 border border-emerald-200 p-2 rounded-lg">
+                      <div className="flex items-center gap-1.5 font-bold min-w-0">
+                        <Tag className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>Cupón {appliedPromo.code} · se verificará al pagar</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          removePromoCode();
+                          setPromoFeedback(null);
+                        }}
+                        className="min-h-[44px] px-2 text-red-600 font-bold hover:underline text-[11px] shrink-0"
+                      >
+                        Quitar
+                      </button>
+                    </div>
+                  )}
+
+                  {promoFeedback && !appliedPromo && wholesaleDiscountPercent === 0 && (
+                    <p className={`text-[11px] font-medium ${
+                      promoFeedback.success ? 'text-emerald-700' : 'text-red-600'
+                    }`}>
+                      {promoFeedback.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Footer Controls & Checkout CTA */}
           {cart.length > 0 && (
-            <div className="shrink-0 p-4 bg-[#FAF7E8] border-t border-[#D9D1B9] space-y-3 shadow-lg">
-              {wholesalePiecesUntilDiscount !== null && (
-                <p className="rounded-lg border border-[#D17B24]/30 bg-[#D17B24]/10 p-2 text-[11px] font-bold text-[#7A3F22]">
-                  Agrega {wholesalePiecesUntilDiscount}{' '}
-                  {wholesalePiecesUntilDiscount === 1 ? 'pieza' : 'piezas'} más para obtener 35% de descuento de mayoreo.
-                </p>
-              )}
-
-              {wholesaleDiscountPercent > 0 && (
-                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-2 text-[11px] text-emerald-900">
-                  <p className="font-bold">
-                    Descuento de mayoreo aplicado: {wholesaleDiscountPercent}%
-                  </p>
-                  <p className="mt-0.5" id="drawer-wholesale-coupon-note">
-                    El descuento de mayoreo reemplaza cupones y otras promociones.
-                  </p>
-                </div>
-              )}
-
-              {/* Promo Code Form */}
-              <form onSubmit={handleApplyCode} className="flex gap-2">
-                <input
-                  aria-describedby={
-                    wholesaleDiscountPercent > 0
-                      ? 'drawer-wholesale-coupon-note'
-                      : undefined
-                  }
-                  disabled={wholesaleDiscountPercent > 0}
-                  type="text"
-                  placeholder="Código de cupón (ej. MORONEL15)"
-                  value={promoInput}
-                  onChange={(e) => setPromoInput(e.target.value)}
-                  className="flex-1 bg-[#F4EFD6] border border-[#D9D1B9] text-xs px-3 py-2 rounded-lg text-[#23312C] font-semibold focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-55"
-                />
-                <button
-                  disabled={wholesaleDiscountPercent > 0}
-                  type="submit"
-                  className="px-3 py-2 bg-[#285F50] text-white text-xs font-bold rounded-lg hover:bg-[#23312C] disabled:cursor-not-allowed disabled:bg-[#23312C]/45"
-                >
-                  Aplicar
-                </button>
-              </form>
-
-              {appliedPromo && (
-                <div className="flex items-center justify-between text-xs bg-emerald-50 text-emerald-900 border border-emerald-200 p-2 rounded-lg">
-                  <div className="flex items-center gap-1.5 font-bold">
-                    <Tag className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Cupón {appliedPromo.code} · se verificará al pagar</span>
-                  </div>
-                  <button
-                    onClick={() => {
-                      removePromoCode();
-                      setPromoFeedback(null);
-                    }}
-                    className="text-red-600 font-bold hover:underline text-[11px]"
-                  >
-                    Quitar
-                  </button>
-                </div>
-              )}
-
-              {promoFeedback && !appliedPromo && wholesaleDiscountPercent === 0 && (
-                <p
-                  className={`text-[11px] font-medium ${
-                    promoFeedback.success ? 'text-emerald-700' : 'text-red-600'
-                  }`}
-                >
-                  {promoFeedback.message}
-                </p>
-              )}
-
+            <div className="shrink-0 p-3 sm:p-4 bg-[#FAF7E8] border-t border-[#D9D1B9] space-y-2.5 shadow-lg">
               {/* Price Breakdown */}
-              <div className="space-y-1.5 text-xs text-[#23312C] border-t border-[#D9D1B9]/60 pt-2">
+              <div className="space-y-1.5 text-xs text-[#23312C]">
                 <div className="flex justify-between">
                   <span className="text-[#6F8F69]">Subtotal:</span>
                   <span className="font-semibold">{formatCurrency(subtotalCents)}</span>
@@ -314,27 +324,22 @@ export const DrawerCart: React.FC = () => {
               </div>
 
               {/* Checkout Actions */}
-              <div className="grid grid-cols-2 gap-2 pt-1">
-                <Link
-                  href="/carrito"
-                  onClick={() => setIsCartOpen(false)}
-                  className="w-full text-center py-2.5 px-3 border border-[#285F50] text-[#285F50] font-bold text-xs rounded-xl hover:bg-[#285F50]/10 transition-colors"
-                >
-                  Ver Carrito
-                </Link>
+              <div className="space-y-2 pt-1">
                 <Link
                   href="/checkout"
                   onClick={() => { handleBeginCheckout(); setIsCartOpen(false); }}
-                  className="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#D17B24] text-white font-extrabold text-xs rounded-xl shadow-md hover:bg-[#98552B] transition-colors"
+                  className="min-h-[48px] w-full flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#D17B24] text-white font-extrabold text-sm rounded-xl shadow-md hover:bg-[#98552B] transition-colors"
                 >
-                  <span>Proceder al Pago</span>
+                  <span>Proceder al pago</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
-              </div>
-
-              <div className="hidden flex items-center justify-center gap-1.5 text-[11px] text-[#6F8F69] pt-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#285F50]" />
-                <span>Compra garantizada con Mercado Pago</span>
+                <Link
+                  href="/carrito"
+                  onClick={() => setIsCartOpen(false)}
+                  className="min-h-[44px] w-full flex items-center justify-center text-center py-2.5 px-3 border border-[#285F50] text-[#285F50] font-bold text-xs rounded-xl hover:bg-[#285F50]/10 transition-colors"
+                >
+                  Ver carrito
+                </Link>
               </div>
             </div>
           )}
