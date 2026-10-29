@@ -2,15 +2,11 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Star, ShoppingBag, MessageCircle, ArrowRight, ShieldCheck } from 'lucide-react';
+import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { Product, ProductVariant } from '@/types';
 import { formatCurrency, calculateSavingsPercentage } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
-import { getWhatsAppHref } from '@/config/store';
-import { SHOW_MOCK_RATINGS } from '@/data/ratings';
 import { getBrandBySlug } from '@/data/brands';
-import { getCategoryBySlug } from '@/data/categories';
-import { trackWhatsAppClick } from '@/lib/analytics';
 import { StockStatusBadge } from './StockStatusBadge';
 
 interface ProductCardProps {
@@ -28,10 +24,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     selectedVariant.priceCents
   );
 
-  const whatsappHref = getWhatsAppHref();
   const brandName = getBrandBySlug(product.brandSlug)?.name ?? product.brandSlug;
-  const categoryName = getCategoryBySlug(product.categorySlug)?.name ?? product.categorySlug;
-  const visibleBadges: string[] = [];
+  const hasMultipleVariants = product.variants.length > 1;
 
   return (
     <div className="bg-[#FAF7E8] rounded-2xl border border-[#D9D1B9] overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group">
@@ -44,10 +38,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
 
-        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 z-10">
-          <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#285F50] text-[#FAF7E8] shadow-sm">
-            {brandName}
-          </span>
+        <div className="absolute top-2.5 right-2.5 flex flex-col items-end gap-1.5 z-10">
           {savings > 0 && (
             <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#D17B24] text-white shadow-sm">
               -{savings}% Ahorro
@@ -55,38 +46,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           )}
         </div>
 
-        {visibleBadges.length > 0 && (
-          <div className="absolute bottom-2.5 left-2.5 right-2.5 flex flex-wrap gap-1">
-            {visibleBadges.slice(0, 2).map((badge, idx) => (
-              <span
-                key={idx}
-                className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#FAF7E8]/90 text-[#23312C] border border-[#D9D1B9] backdrop-blur-xs"
-              >
-                {badge}
-              </span>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Content Body */}
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
-        <div>
-          {/* Rating */}
-          {SHOW_MOCK_RATINGS && <div className="flex items-center gap-1.5 text-amber-600 mb-1.5">
-            <div className="flex text-amber-500">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-3.5 h-3.5 fill-current ${
-                    i < Math.floor(product.rating) ? 'text-amber-500' : 'text-stone-300'
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="text-xs font-bold text-[#23312C]">{product.rating}</span>
-            <span className="text-[11px] text-[#6F8F69]">({product.reviewCount} opiniones)</span>
-          </div>}
+        <div className="space-y-1.5">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#6F8F69]">
+            {brandName}
+          </span>
 
           {/* Title */}
           <Link href={`/producto/${product.slug}`} className="block group-hover:text-[#285F50] transition-colors">
@@ -94,33 +61,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               {product.name}
             </h3>
           </Link>
-
-          <p className="text-xs text-[#6F8F69] line-clamp-2 mt-1.5 leading-relaxed">
-            Información de la presentación: {categoryName}.
-          </p>
-        </div>
-
-        {/* Variant Pills Selector */}
-        <div className="space-y-1.5 pt-1">
-          <span className="text-[11px] font-bold text-[#23312C] uppercase tracking-wider block">
-            Seleccionar presentación:
-          </span>
-          <div className="grid grid-cols-3 gap-1">
-            {product.variants.map((variant) => (
-              <button
-                key={variant.id}
-                type="button"
-                onClick={() => setSelectedVariant(variant)}
-                className={`min-h-[44px] px-1.5 py-1 rounded-lg text-[10px] font-bold text-center border transition-all leading-tight ${
-                  selectedVariant.id === variant.id
-                    ? 'bg-[#285F50] text-[#FAF7E8] border-[#285F50]'
-                    : 'bg-[#F4EFD6] text-[#23312C] border-[#D9D1B9] hover:border-[#285F50]'
-                }`}
-              >
-                {variant.unitsCount === 1 ? '1 unidad' : `${variant.unitsCount} unidades`}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Pricing */}
@@ -137,9 +77,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 </span>
               )}
             </div>
-            <span className="text-[10px] text-[#6F8F69] font-medium block">
-              Equivale a {formatCurrency(selectedVariant.unitPriceCents)} por unidad
-            </span>
+            {selectedVariant.unitsCount > 1 && (
+              <span className="text-[10px] text-[#6F8F69] font-medium block">
+                Equivale a {formatCurrency(selectedVariant.unitPriceCents)} por unidad
+              </span>
+            )}
             {selectedVariant.freeShippingEligible && (
               <span className="text-[10px] font-bold text-emerald-700 block">
                 Incluye envío estándar gratis
@@ -149,6 +91,31 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           <StockStatusBadge stockStatus={product.stockStatus} />
         </div>
+
+        {/* Variant Pills Selector */}
+        {hasMultipleVariants && (
+          <div className="space-y-1.5 pt-1">
+            <span className="text-[11px] font-bold text-[#23312C] uppercase tracking-wider block">
+              Seleccionar presentación:
+            </span>
+            <div className="grid grid-cols-3 gap-1">
+              {product.variants.map((variant) => (
+                <button
+                  key={variant.id}
+                  type="button"
+                  onClick={() => setSelectedVariant(variant)}
+                  className={`min-h-[44px] px-1.5 py-1 rounded-lg text-[10px] font-bold text-center border transition-all leading-tight ${
+                    selectedVariant.id === variant.id
+                      ? 'bg-[#285F50] text-[#FAF7E8] border-[#285F50]'
+                      : 'bg-[#F4EFD6] text-[#23312C] border-[#D9D1B9] hover:border-[#285F50]'
+                  }`}
+                >
+                  {variant.unitsCount === 1 ? '1 unidad' : `${variant.unitsCount} unidades`}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="space-y-2 pt-2">
@@ -163,28 +130,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </span>
           </button>
 
-          <div className={`grid gap-1.5 ${whatsappHref ? 'grid-cols-2' : 'grid-cols-1'}`}>
-            {whatsappHref && (
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackWhatsAppClick('product', { productSlug: product.slug, placement: 'product_card' })}
-                className="py-2 px-2 border border-emerald-600 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 font-bold text-[11px] rounded-lg text-center flex items-center justify-center gap-1 transition-colors min-h-[44px]"
-              >
-                <MessageCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Por WhatsApp</span>
-              </a>
-            )}
-
-            <Link
-              href={`/producto/${product.slug}`}
-              className="py-2 px-2 border border-[#D9D1B9] text-[#23312C] hover:bg-[#F4EFD6] font-bold text-[11px] rounded-lg text-center flex items-center justify-center gap-1 transition-colors min-h-[44px]"
-            >
-              <span>Ver Detalle</span>
-              <ArrowRight className="w-3.5 h-3.5 text-[#285F50]" />
-            </Link>
-          </div>
+          <Link
+            href={`/producto/${product.slug}`}
+            className="min-h-[44px] w-full py-2 px-3 border border-[#D9D1B9] text-[#23312C] hover:bg-[#F4EFD6] font-bold text-[11px] rounded-lg text-center flex items-center justify-center gap-1 transition-colors"
+          >
+            <span>Ver detalle</span>
+            <ArrowRight className="w-3.5 h-3.5 text-[#285F50]" />
+          </Link>
         </div>
 
       </div>
