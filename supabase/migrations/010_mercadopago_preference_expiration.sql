@@ -19,14 +19,12 @@ add constraint orders_order_purpose_check check (
   order_purpose is null or order_purpose in ('commercial', 'test')
 );
 
-drop function public.attach_preference_to_order(text, text);
-
-create function public.attach_preference_to_order(
+create function public.attach_preference_to_order_v2(
   p_external_reference text,
   p_preference_id text,
-  p_preference_expires_at timestamptz default null,
-  p_offline_expires_at timestamptz default null,
-  p_order_purpose text default null
+  p_preference_expires_at timestamptz,
+  p_offline_expires_at timestamptz,
+  p_order_purpose text
 )
 returns setof public.orders
 language plpgsql
@@ -103,7 +101,46 @@ begin
 end;
 $$;
 
-revoke execute on function public.attach_preference_to_order(
+create function public.claim_preference_creation(
+  p_external_reference text
+)
+returns setof public.orders
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  v_order public.orders%rowtype;
+begin
+  select * into v_order
+  from public.orders
+  where external_reference = p_external_reference
+  for update;
+
+  if v_order.id is null
+     or v_order.mercadopago_preference_id is not null then
+    return;
+  end if;
+
+  -- Only a first attempt or a provider failure known to be definitive may
+  -- start a new remote create. Ambiguous outcomes must be recovered instead.
+  if v_order.preference_error_code is not null
+     and v_order.preference_error_code <> 'preference_provider_failed' then
+    return;
+  end if;
+
+  update public.orders
+  set
+    preference_error_code = 'preference_creation_in_progress',
+    preference_attempted_at = now()
+  where id = v_order.id
+  returning * into v_order;
+
+  return next v_order;
+end;
+$$;
+
+revoke execute on function public.attach_preference_to_order_v2(
   text,
   text,
   timestamptz,
@@ -111,10 +148,18 @@ revoke execute on function public.attach_preference_to_order(
   text
 ) from public, anon, authenticated;
 
-grant execute on function public.attach_preference_to_order(
+grant execute on function public.attach_preference_to_order_v2(
   text,
   text,
   timestamptz,
   timestamptz,
   text
 ) to service_role;
+
+revoke execute on function public.claim_preference_creation(text)
+from public, anon, authenticated;
+
+grant execute on function public.claim_preference_creation(text)
+to service_role;
+
+notify pgrst, 'reload schema';

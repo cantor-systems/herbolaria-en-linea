@@ -27,6 +27,8 @@ interface OrderRow {
   mercadopago_offline_expires_at: string | null;
   mercadopago_payment_id: string | null;
   order_purpose: 'commercial' | 'test' | null;
+  preference_error_code: string | null;
+  preference_attempted_at: string | null;
   status: OrderStatus;
   provider_status: string | null;
   currency: 'MXN';
@@ -58,6 +60,8 @@ const ORDER_COLUMNS = [
   'mercadopago_offline_expires_at',
   'mercadopago_payment_id',
   'order_purpose',
+  'preference_error_code',
+  'preference_attempted_at',
   'status',
   'provider_status',
   'currency',
@@ -90,6 +94,8 @@ function toOrderRecord(row: OrderRow): OrderRecord {
     mercadoPagoOfflineExpiresAt: row.mercadopago_offline_expires_at,
     mercadoPagoPaymentId: row.mercadopago_payment_id,
     orderPurpose: row.order_purpose,
+    preferenceErrorCode: row.preference_error_code,
+    preferenceAttemptedAt: row.preference_attempted_at,
     status: row.status,
     providerStatus: row.provider_status,
     currency: row.currency,
@@ -173,7 +179,7 @@ export async function attachPreferenceToOrder(
 ) {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
-    .rpc('attach_preference_to_order', {
+    .rpc('attach_preference_to_order_v2', {
       p_external_reference: externalReference,
       p_preference_id: preferenceId,
       p_preference_expires_at: expiration.preferenceExpiresAt,
@@ -183,6 +189,18 @@ export async function attachPreferenceToOrder(
     .maybeSingle();
 
   if (error) throw persistenceFailure('el enlace de la preferencia', error);
+  return data ? toOrderRecord(data as OrderRow) : null;
+}
+
+export async function claimPreferenceCreation(externalReference: string) {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .rpc('claim_preference_creation', {
+      p_external_reference: externalReference,
+    })
+    .maybeSingle();
+
+  if (error) throw persistenceFailure('el inicio de la preferencia', error);
   return data ? toOrderRecord(data as OrderRow) : null;
 }
 
