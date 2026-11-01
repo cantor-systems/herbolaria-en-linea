@@ -23,7 +23,10 @@ interface OrderRow {
   external_reference: string;
   public_order_number: string;
   mercadopago_preference_id: string | null;
+  mercadopago_preference_expires_at: string | null;
+  mercadopago_offline_expires_at: string | null;
   mercadopago_payment_id: string | null;
+  order_purpose: 'commercial' | 'test' | null;
   status: OrderStatus;
   provider_status: string | null;
   currency: 'MXN';
@@ -51,7 +54,10 @@ const ORDER_COLUMNS = [
   'external_reference',
   'public_order_number',
   'mercadopago_preference_id',
+  'mercadopago_preference_expires_at',
+  'mercadopago_offline_expires_at',
   'mercadopago_payment_id',
+  'order_purpose',
   'status',
   'provider_status',
   'currency',
@@ -80,7 +86,10 @@ function toOrderRecord(row: OrderRow): OrderRecord {
     externalReference: row.external_reference,
     publicOrderNumber: row.public_order_number,
     mercadoPagoPreferenceId: row.mercadopago_preference_id,
+    mercadoPagoPreferenceExpiresAt: row.mercadopago_preference_expires_at,
+    mercadoPagoOfflineExpiresAt: row.mercadopago_offline_expires_at,
     mercadoPagoPaymentId: row.mercadopago_payment_id,
+    orderPurpose: row.order_purpose,
     status: row.status,
     providerStatus: row.provider_status,
     currency: row.currency,
@@ -153,12 +162,23 @@ export async function createPendingOrder(input: CreatePendingOrderInput) {
   return toOrderRecord(data as OrderRow);
 }
 
-export async function attachPreferenceToOrder(externalReference: string, preferenceId: string) {
+export async function attachPreferenceToOrder(
+  externalReference: string,
+  preferenceId: string,
+  expiration: {
+    preferenceExpiresAt: string | null;
+    offlineExpiresAt: string | null;
+    orderPurpose: 'commercial' | 'test' | null;
+  }
+) {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .rpc('attach_preference_to_order', {
       p_external_reference: externalReference,
       p_preference_id: preferenceId,
+      p_preference_expires_at: expiration.preferenceExpiresAt,
+      p_offline_expires_at: expiration.offlineExpiresAt,
+      p_order_purpose: expiration.orderPurpose,
     })
     .maybeSingle();
 

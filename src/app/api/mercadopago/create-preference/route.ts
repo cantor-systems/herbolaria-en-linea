@@ -12,6 +12,10 @@ import {
   MercadoPagoConfigurationError,
 } from '@/lib/mercadopago/client';
 import {
+  createPreferenceExpirationPolicy,
+  decidePreferenceAction,
+} from '@/lib/mercadopago/preferencePolicy';
+import {
   attachPreferenceToOrder,
   createPendingOrder,
   OrderPersistenceError,
@@ -259,10 +263,27 @@ export async function POST(request: Request) {
     });
     const externalReference = order.externalReference;
     const streetName = `${buyer.streetAddress}, ${buyer.colonia}`;
+    const expirationPolicy = createPreferenceExpirationPolicy(order.createdAt);
+    const preferenceAction = decidePreferenceAction({
+      preferenceId: order.mercadoPagoPreferenceId,
+      storedExpiresAt: order.mercadoPagoPreferenceExpiresAt,
+      prospectiveExpiresAt: expirationPolicy.expiresAt,
+    });
+
+    if (preferenceAction === 'expired') {
+      return json(
+        {
+          code: 'checkout_preference_expired',
+          error:
+            'La sesión de pago venció. Revisa el carrito actualizado antes de confirmar una nueva compra.',
+        },
+        409
+      );
+    }
 
     try {
       const preferenceClient = new Preference(createMercadoPagoClient());
-      const preference = order.mercadoPagoPreferenceId
+      const preference = preferenceAction !== 'create' && order.mercadoPagoPreferenceId
         ? await preferenceClient.get({ preferenceId: order.mercadoPagoPreferenceId })
         : await preferenceClient.create({
             body: {
@@ -302,6 +323,10 @@ export async function POST(request: Request) {
               notification_url: absoluteUrl(
                 '/api/mercadopago/webhook?source_news=webhooks'
               ),
+              expires: true,
+              expiration_date_from: expirationPolicy.validFrom,
+              expiration_date_to: expirationPolicy.expiresAt,
+              date_of_expiration: expirationPolicy.offlinePaymentExpiresAt,
             },
             requestOptions: { idempotencyKey: externalReference },
           });
@@ -321,7 +346,17 @@ export async function POST(request: Request) {
         throw new Error('invalid_mercadopago_checkout_url');
       }
 
-      const attachedOrder = await attachPreferenceToOrder(externalReference, preference.id);
+      const attachedOrder = await attachPreferenceToOrder(externalReference, preference.id, {
+        preferenceExpiresAt:
+          preferenceAction === 'create'
+            ? expirationPolicy.expiresAt
+            : order.mercadoPagoPreferenceExpiresAt,
+        offlineExpiresAt:
+          preferenceAction === 'create'
+            ? expirationPolicy.offlinePaymentExpiresAt
+            : order.mercadoPagoOfflineExpiresAt,
+        orderPurpose: preferenceAction === 'create' ? 'commercial' : order.orderPurpose,
+      });
       if (!attachedOrder) throw new OrderPersistenceError('El pedido durable no existe.');
 
       return json({

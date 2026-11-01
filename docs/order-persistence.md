@@ -50,6 +50,10 @@ Las tres tablas tienen RLS habilitado, no tienen políticas públicas y revocan 
 5. Adjunta `mercadopago_preference_id` al pedido.
 6. Si el proveedor falla, el pedido permanece sin aprobar y recibe únicamente el código técnico `preference_creation_failed`.
 
+Las preferencias nuevas tienen dos vencimientos independientes calculados a partir de `orders.created_at`: una vigencia de 30 minutos para iniciar Checkout Pro y un vencimiento offline tres días posterior al fin de esa vigencia. Las fechas se guardan al asociar la preferencia. Al derivarlas de un timestamp durable, un reintento envía el mismo cuerpo a Mercado Pago.
+
+Las preferencias históricas con fechas nulas se consideran heredadas. No reciben vencimientos retroactivos, no se reclasifican y pueden seguir recuperándose mediante la ruta existente. Si una preferencia nueva ya alcanzó su vencimiento, la API devuelve `checkout_preference_expired`; el navegador obliga a recargar y revisar el carrito antes de que el comprador confirme otro intento con precios actuales.
+
 El checkout manda un UUID opaco en `Idempotency-Key`. Ese UUID no decide precios, referencia, estado ni aprobación; sólo permite recuperar el mismo pedido cuando una respuesta se pierde y el usuario reintenta sin cambiar los datos ni recargar la página. Si cambia el carrito o comprador, el checkout crea otro UUID. La función PostgreSQL también rechaza reutilizar una clave con datos diferentes.
 
 En un reintento con el mismo `checkout_attempt_id`, `create_pending_order` no inserta otro pedido: bloquea y devuelve la fila existente. La nueva referencia solicitada no tiene que coincidir porque la ruta continúa con el `external_reference` durable devuelto por PostgreSQL. Carrito, comprador, dirección y totales sí deben coincidir; cualquier diferencia produce `checkout_idempotency_conflict`.
@@ -96,6 +100,23 @@ Los eventos `pending`, `rejected`, `cancelled`, `refunded` y `charged_back` nunc
 
 - No hay panel administrativo, autenticación de clientes, fulfillment ni emails.
 - No hay política automatizada de retención o eliminación de datos personales; debe definirse antes de producción según obligaciones operativas y legales.
-- Un reload completo del checkout genera un nuevo UUID de intento; podría dejar pedidos `pending_payment` abandonados. Hace falta una política de expiración/limpieza, pero nunca deben considerarse aprobados.
+- Un reload completo del checkout genera un nuevo UUID de intento; podría dejar pedidos `pending_payment` abandonados. H7 limita la vigencia del enlace, pero todavía hace falta una política de retención o limpieza; estos pedidos nunca deben considerarse aprobados.
 - La migración y las rutas necesitan una prueba de integración contra un proyecto Supabase real; el build sólo valida compilación y tipos.
 - Purchase analytics continúa fuera de este flujo y no debe activarse hasta validar la idempotencia durable en el entorno desplegado.
+
+## Validaciones pendientes en sandbox para H7
+
+- Confirmar que Checkout Pro acepta conjuntamente `expires`, `expiration_date_from`, `expiration_date_to` y `date_of_expiration` para una cuenta de México.
+- Probar qué sucede cuando el comprador abre el checkout antes del límite y lo concluye inmediatamente después.
+- Confirmar que una instrucción OXXO, Paycash o SPEI creada dentro de la vigencia conserva su propio vencimiento y puede aprobarse mediante un webhook tardío.
+- Verificar normalización y zona horaria de las fechas devueltas por Mercado Pago.
+- Confirmar el comportamiento de desafíos 3DS y pagos `in_process` que cruzan el límite de 30 minutos.
+
+El código no cancela, reembolsa ni bloquea automáticamente pagos tardíos. La verificación continúa comparándolos con el snapshot durable del pedido, no con el catálogo vigente.
+
+## Orden de despliegue y reversión de H7
+
+1. Aplicar `010_mercadopago_preference_expiration.sql`. La RPC conserva compatibilidad con el código anterior porque los parámetros nuevos tienen `default null`.
+2. Desplegar el código que consulta y escribe las columnas nuevas.
+3. Si hace falta revertir, volver primero al código anterior y conservar la migración aditiva. El código anterior puede seguir invocando la RPC con dos argumentos y no borra fechas ya registradas.
+4. No eliminar columnas ni restaurar la firma anterior mientras exista algún despliegue H7 activo.
