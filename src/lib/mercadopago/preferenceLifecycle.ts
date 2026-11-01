@@ -1,10 +1,10 @@
 import type { PreferenceAction } from './preferencePolicy';
 
 export interface CheckoutPreferenceItem {
-  id: string;
+  id?: string;
   title: string;
   quantity: number;
-  unit_price: number;
+  unit_price: number | string;
   currency_id?: string;
 }
 
@@ -78,9 +78,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function cents(value: unknown) {
-  if (typeof value !== 'number' || !Number.isFinite(value)) return null;
-  const amount = Math.round(value * 100);
-  return Math.abs(value * 100 - amount) < 1e-6 && Number.isSafeInteger(amount)
+  const numericValue =
+    typeof value === 'number'
+      ? value
+      : typeof value === 'string' && /^\d+(?:\.\d{1,2})?$/.test(value)
+        ? Number(value)
+        : NaN;
+  if (!Number.isFinite(numericValue)) return null;
+  const amount = Math.round(numericValue * 100);
+  return Math.abs(numericValue * 100 - amount) < 1e-6 && Number.isSafeInteger(amount)
     ? amount
     : null;
 }
@@ -95,18 +101,16 @@ function sameTimestamp(actual: unknown, expected: string) {
   return timestamp(actual) === timestamp(expected);
 }
 
-function canonicalItems(items: CheckoutPreferenceItem[]) {
+function canonicalItems(items: CheckoutPreferenceItem[], includeIds: boolean) {
   return items
     .map((item) => ({
-      id: item.id,
+      ...(includeIds ? { id: item.id ?? null } : {}),
       title: item.title,
       quantity: item.quantity,
       unitPriceCents: cents(item.unit_price),
       currency: item.currency_id,
     }))
-    .sort((left, right) =>
-      `${left.id}\u0000${left.title}`.localeCompare(`${right.id}\u0000${right.title}`)
-    );
+    .sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right)));
 }
 
 export function validatePreference(
@@ -137,8 +141,11 @@ export function validatePreference(
   }
 
   const actualItems = Array.isArray(preference.items) ? preference.items : [];
-  const normalizedActual = canonicalItems(actualItems);
-  const normalizedExpected = canonicalItems(expected.items);
+  const includeItemIds = actualItems.every(
+    (item) => typeof item.id === 'string' && item.id.length > 0
+  );
+  const normalizedActual = canonicalItems(actualItems, includeItemIds);
+  const normalizedExpected = canonicalItems(expected.items, includeItemIds);
   if (JSON.stringify(normalizedActual) !== JSON.stringify(normalizedExpected)) {
     issues.push('items');
   }
@@ -169,6 +176,18 @@ function validateLegacyPreference(
 ) {
   return (
     preference.id === preferenceId &&
+    (!preference.external_reference ||
+      preference.external_reference === externalReference)
+  );
+}
+
+function validateDirectPreference(
+  preference: ProviderPreference,
+  externalReference: string
+) {
+  return (
+    typeof preference.id === 'string' &&
+    preference.id.length > 0 &&
     (!preference.external_reference ||
       preference.external_reference === externalReference)
   );
@@ -327,7 +346,7 @@ export async function resolveCheckoutPreference({
     preference = await provider.get(preferenceId);
     const valid = action === 'reuse_legacy'
       ? validateLegacyPreference(preference, preferenceId, expected.externalReference)
-      : validatePreference(preference, expected).valid;
+      : validateDirectPreference(preference, expected.externalReference);
     if (!valid) {
       throw new CheckoutPreferenceRecoveryConflictError(
         'checkout_preference_recovery_conflict'
@@ -359,7 +378,10 @@ export async function resolveCheckoutPreference({
       throw new CheckoutPreferenceProviderError(code, { cause: error });
     }
 
-    if (!validatePreference(preference, expected).valid) {
+    // Mercado Pago may omit or normalize echoed request fields in the create
+    // response. Strict snapshot validation is reserved for search + get
+    // recovery, where it is the evidence used before associating an unknown ID.
+    if (!validateDirectPreference(preference, expected.externalReference)) {
       await safelyRecordFailure(persistence, 'preference_recovery_conflict');
       throw new CheckoutPreferenceRecoveryConflictError(
         'checkout_preference_recovery_conflict'

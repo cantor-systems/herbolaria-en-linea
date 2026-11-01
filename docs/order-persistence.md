@@ -46,9 +46,11 @@ Las tres tablas tienen RLS habilitado, no tienen políticas públicas y revocan 
 1. La ruta valida el payload, comprador y carrito.
 2. El servidor vuelve a obtener productos, variantes, precios y envío.
 3. Genera `external_reference` y crea en una transacción el pedido `pending_payment` y sus partidas.
-4. Crea la preferencia con la misma referencia como idempotency key de Mercado Pago.
-5. Adjunta `mercadopago_preference_id` al pedido.
-6. Si el proveedor falla, el pedido permanece sin aprobar y recibe únicamente el código técnico `preference_creation_failed`.
+4. Reclama atómicamente la creación con `claim_preference_creation`; una segunda solicitud concurrente no llama al proveedor.
+5. Crea la preferencia o, si existe un resultado incierto previo, busca por la referencia durable y obtiene el recurso completo.
+6. Una preferencia recuperada sólo se asocia cuando referencia, metadata, moneda, artículos, importes y fechas coinciden con el snapshot del pedido.
+7. Adjunta el ID y las fechas mediante `attach_preference_to_order_v2`.
+8. Distingue fallos definitivos del proveedor, resultados inciertos, fallos de persistencia y conflictos de recuperación. Un resultado inconcluso nunca autoriza automáticamente otra preferencia.
 
 Las preferencias nuevas tienen dos vencimientos independientes calculados a partir de `orders.created_at`: una vigencia de 30 minutos para iniciar Checkout Pro y un vencimiento offline tres días posterior al fin de esa vigencia. Las fechas se guardan al asociar la preferencia. Al derivarlas de un timestamp durable, un reintento envía el mismo cuerpo a Mercado Pago.
 
@@ -116,7 +118,11 @@ El código no cancela, reembolsa ni bloquea automáticamente pagos tardíos. La 
 
 ## Orden de despliegue y reversión de H7
 
-1. Aplicar `010_mercadopago_preference_expiration.sql`. La RPC conserva compatibilidad con el código anterior porque los parámetros nuevos tienen `default null`.
-2. Desplegar el código que consulta y escribe las columnas nuevas.
-3. Si hace falta revertir, volver primero al código anterior y conservar la migración aditiva. El código anterior puede seguir invocando la RPC con dos argumentos y no borra fechas ya registradas.
-4. No eliminar columnas ni restaurar la firma anterior mientras exista algún despliegue H7 activo.
+1. Aplicar `010_mercadopago_preference_expiration.sql`. La migración no elimina ni reemplaza `attach_preference_to_order(text,text)`; crea `attach_preference_to_order_v2(text,text,timestamptz,timestamptz,text)` y `claim_preference_creation(text)`.
+2. Confirmar que `NOTIFY pgrst, 'reload schema'` fue procesado y que PostgREST puede resolver ambas RPC.
+3. Verificar que `service_role` ejecuta las tres funciones y que `anon` y `authenticated` no pueden ejecutarlas.
+4. Desplegar exclusivamente el código H7.1/H7.2 que llama a la RPC v2. El backend productivo anterior continúa llamando a la función de dos argumentos durante la transición.
+5. Si hace falta revertir, volver primero al código anterior a H7 y conservar la migración aditiva. La RPC antigua sigue disponible y las fechas ya registradas no se borran.
+6. No eliminar la RPC antigua, las columnas ni las funciones H7 mientras exista algún deployment que pueda utilizarlas.
+
+El procedimiento reproducible para PostgreSQL/PostgREST y Mercado Pago sandbox está en `docs/h7-sandbox-validation.md`.

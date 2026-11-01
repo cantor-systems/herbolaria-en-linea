@@ -98,6 +98,49 @@ test('validates price, currency, items, reference, metadata and expiration dates
   for (const candidate of invalidCases) {
     assert.equal(validatePreference(candidate, snapshot).valid, false);
   }
+
+  assert.equal(
+    validatePreference(
+      preference({
+        items: [{ ...snapshot.items[0], id: undefined, unit_price: '849.00' }],
+      }),
+      snapshot
+    ).valid,
+    true
+  );
+});
+
+test('accepts a normalized create response before durable association', async () => {
+  let attached = false;
+  const normalizedCreateResponse = preference({
+    external_reference: undefined,
+    metadata: undefined,
+    items: undefined,
+    shipments: undefined,
+    expires: undefined,
+    expiration_date_from: undefined,
+    expiration_date_to: undefined,
+    date_of_expiration: undefined,
+  });
+  const store = persistence({
+    attach: async () => {
+      attached = true;
+      return true;
+    },
+  });
+
+  const result = await resolveCheckoutPreference({
+    action: 'create',
+    preferenceId: null,
+    preferenceErrorCode: null,
+    expected: snapshot,
+    provider: provider({ create: async () => normalizedCreateResponse }),
+    persistence: store.value,
+    now: () => new Date('2026-11-01T12:10:00.000Z'),
+  });
+
+  assert.equal(attached, true);
+  assert.equal(result.preferenceId, 'preference-1');
 });
 
 test('recovers a created preference after persistence fails without creating twice', async () => {
