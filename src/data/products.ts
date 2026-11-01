@@ -49,7 +49,7 @@ export const PRODUCTS: Product[] = [
         id: 'var-gotas-3',
         name: '3 Frascos (Paquete 3 Meses)',
         unitsCount: 3,
-        priceCents: 89900,
+        priceCents: 1000, // Precio temporal para prueba de pago; revertir después del test.
         compareAtPriceCents: 100500,
         unitPriceCents: 89900 / 3,
         freeShippingEligible: true,
