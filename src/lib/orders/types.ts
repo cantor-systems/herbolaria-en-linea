@@ -53,7 +53,12 @@ export interface OrderRecord {
   externalReference: string;
   publicOrderNumber: string;
   mercadoPagoPreferenceId: string | null;
+  mercadoPagoPreferenceExpiresAt: string | null;
+  mercadoPagoOfflineExpiresAt: string | null;
   mercadoPagoPaymentId: string | null;
+  orderPurpose: 'commercial' | 'test' | null;
+  preferenceErrorCode: string | null;
+  preferenceAttemptedAt: string | null;
   status: OrderStatus;
   providerStatus: string | null;
   currency: 'MXN';

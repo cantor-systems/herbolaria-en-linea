@@ -12,7 +12,19 @@ import {
   MercadoPagoConfigurationError,
 } from '@/lib/mercadopago/client';
 import {
+  createPreferenceExpirationPolicy,
+  decidePreferenceAction,
+} from '@/lib/mercadopago/preferencePolicy';
+import {
+  CheckoutPreferenceExpiredError,
+  CheckoutPreferenceProviderError,
+  CheckoutPreferenceRecoveryConflictError,
+  CheckoutPreferenceRecoveryPendingError,
+  resolveCheckoutPreference,
+} from '@/lib/mercadopago/preferenceLifecycle';
+import {
   attachPreferenceToOrder,
+  claimPreferenceCreation,
   createPendingOrder,
   OrderPersistenceError,
   recordPreferenceFailure,
@@ -91,22 +103,6 @@ function validateBuyer(input: unknown): CheckoutBuyer {
     state: cleanText(input.state, 2, 100),
     postalCode,
   };
-}
-
-function isMercadoPagoCheckoutUrl(value: string) {
-  try {
-    const url = new URL(value);
-    const hostname = url.hostname.toLowerCase();
-    return (
-      url.protocol === 'https:' &&
-      (hostname === 'mercadopago.com' ||
-        hostname.endsWith('.mercadopago.com') ||
-        hostname === 'mercadopago.com.mx' ||
-        hostname.endsWith('.mercadopago.com.mx'))
-    );
-  } catch {
-    return false;
-  }
 }
 
 function checkoutAttemptId(request: Request) {
@@ -259,14 +255,45 @@ export async function POST(request: Request) {
     });
     const externalReference = order.externalReference;
     const streetName = `${buyer.streetAddress}, ${buyer.colonia}`;
+    const preferenceItems = mercadoPagoItems(cart);
+    const expirationPolicy = createPreferenceExpirationPolicy(order.createdAt);
+    const preferenceAction = decidePreferenceAction({
+      preferenceId: order.mercadoPagoPreferenceId,
+      storedExpiresAt: order.mercadoPagoPreferenceExpiresAt,
+      prospectiveExpiresAt: expirationPolicy.expiresAt,
+    });
 
-    try {
-      const preferenceClient = new Preference(createMercadoPagoClient());
-      const preference = order.mercadoPagoPreferenceId
-        ? await preferenceClient.get({ preferenceId: order.mercadoPagoPreferenceId })
-        : await preferenceClient.create({
+    if (preferenceAction === 'expired') {
+      return json(
+        {
+          code: 'checkout_preference_expired',
+          error:
+            'La sesión de pago venció. Revisa el carrito actualizado antes de confirmar una nueva compra.',
+        },
+        409
+      );
+    }
+
+    const preferenceClient = new Preference(createMercadoPagoClient());
+    const preferenceResult = await resolveCheckoutPreference({
+      action: preferenceAction,
+      preferenceId: order.mercadoPagoPreferenceId,
+      preferenceErrorCode: order.preferenceErrorCode,
+      expected: {
+        externalReference,
+        currency: order.currency,
+        totalCents: order.totalCents,
+        items: preferenceItems,
+        shippingCents: order.shippingCents,
+        validFrom: expirationPolicy.validFrom,
+        expiresAt: expirationPolicy.expiresAt,
+        offlineExpiresAt: expirationPolicy.offlinePaymentExpiresAt,
+      },
+      provider: {
+        create: () =>
+          preferenceClient.create({
             body: {
-              items: mercadoPagoItems(cart),
+              items: preferenceItems,
               payer: {
                 email: buyer.email,
                 name: buyer.fullName,
@@ -302,41 +329,39 @@ export async function POST(request: Request) {
               notification_url: absoluteUrl(
                 '/api/mercadopago/webhook?source_news=webhooks'
               ),
+              expires: true,
+              expiration_date_from: expirationPolicy.validFrom,
+              expiration_date_to: expirationPolicy.expiresAt,
+              date_of_expiration: expirationPolicy.offlinePaymentExpiresAt,
             },
             requestOptions: { idempotencyKey: externalReference },
-          });
+          }),
+        get: (preferenceId) => preferenceClient.get({ preferenceId }),
+        searchByExternalReference: (reference) =>
+          preferenceClient.search({
+            options: { external_reference: reference, limit: 50, offset: 0 },
+          }),
+      },
+      persistence: {
+        claimCreation: async (reference) => Boolean(await claimPreferenceCreation(reference)),
+        attach: async (preferenceId) =>
+          Boolean(
+            await attachPreferenceToOrder(externalReference, preferenceId, {
+              preferenceExpiresAt: expirationPolicy.expiresAt,
+              offlineExpiresAt: expirationPolicy.offlinePaymentExpiresAt,
+              orderPurpose: 'commercial',
+            })
+          ),
+        recordFailure: (errorCode) =>
+          recordPreferenceFailure(externalReference, errorCode),
+      },
+    });
 
-      if (
-        (preference.external_reference && preference.external_reference !== externalReference) ||
-        typeof preference.id !== 'string' ||
-        !preference.id
-      ) {
-        throw new Error('invalid_mercadopago_preference');
-      }
-
-      // Current Checkout Pro documentation identifies init_point as the redirect
-      // URL. sandbox_init_point remains a safe fallback supplied by the API.
-      const checkoutUrl = preference.init_point ?? preference.sandbox_init_point;
-      if (!checkoutUrl || !isMercadoPagoCheckoutUrl(checkoutUrl)) {
-        throw new Error('invalid_mercadopago_checkout_url');
-      }
-
-      const attachedOrder = await attachPreferenceToOrder(externalReference, preference.id);
-      if (!attachedOrder) throw new OrderPersistenceError('El pedido durable no existe.');
-
-      return json({
-        preferenceId: preference.id,
-        externalReference,
-        checkoutUrl,
-      });
-    } catch (error) {
-      try {
-        await recordPreferenceFailure(externalReference, 'preference_creation_failed');
-      } catch {
-        // Do not mask the original provider or persistence failure.
-      }
-      throw error;
-    }
+    return json({
+      preferenceId: preferenceResult.preferenceId,
+      externalReference,
+      checkoutUrl: preferenceResult.checkoutUrl,
+    });
   } catch (error) {
     if (error instanceof CheckoutValidationError) return json({ error: error.message }, 400);
     if (error instanceof SupabaseConfigurationError) {
@@ -347,6 +372,44 @@ export async function POST(request: Request) {
     }
     if (error instanceof MercadoPagoConfigurationError) {
       return json({ error: 'Mercado Pago no está configurado.' }, 503);
+    }
+    if (error instanceof CheckoutPreferenceExpiredError) {
+      return json(
+        {
+          code: 'checkout_preference_expired',
+          error:
+            'La sesión de pago venció. Revisa el carrito actualizado antes de confirmar una nueva compra.',
+        },
+        409
+      );
+    }
+    if (error instanceof CheckoutPreferenceRecoveryPendingError) {
+      return json(
+        {
+          code: 'checkout_preference_recovery_pending',
+          error:
+            'No fue posible confirmar todavía la sesión de pago. Intenta nuevamente más tarde.',
+        },
+        503
+      );
+    }
+    if (error instanceof CheckoutPreferenceRecoveryConflictError) {
+      return json(
+        {
+          code: 'checkout_preference_recovery_conflict',
+          error: 'La sesión de pago requiere revisión antes de continuar.',
+        },
+        409
+      );
+    }
+    if (error instanceof CheckoutPreferenceProviderError) {
+      return json(
+        {
+          code: 'checkout_preference_provider_error',
+          error: 'Mercado Pago no pudo procesar la sesión de pago.',
+        },
+        502
+      );
     }
     if (error instanceof SyntaxError) return json({ error: 'El contenido de la solicitud no es válido.' }, 400);
     return json({ error: 'No fue posible crear la preferencia de pago.' }, 502);

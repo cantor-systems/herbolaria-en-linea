@@ -46,9 +46,15 @@ Las tres tablas tienen RLS habilitado, no tienen políticas públicas y revocan 
 1. La ruta valida el payload, comprador y carrito.
 2. El servidor vuelve a obtener productos, variantes, precios y envío.
 3. Genera `external_reference` y crea en una transacción el pedido `pending_payment` y sus partidas.
-4. Crea la preferencia con la misma referencia como idempotency key de Mercado Pago.
-5. Adjunta `mercadopago_preference_id` al pedido.
-6. Si el proveedor falla, el pedido permanece sin aprobar y recibe únicamente el código técnico `preference_creation_failed`.
+4. Reclama atómicamente la creación con `claim_preference_creation`; una segunda solicitud concurrente no llama al proveedor.
+5. Crea la preferencia o, si existe un resultado incierto previo, busca por la referencia durable y obtiene el recurso completo.
+6. Una preferencia recuperada sólo se asocia cuando referencia, metadata, moneda, artículos, importes y fechas coinciden con el snapshot del pedido.
+7. Adjunta el ID y las fechas mediante `attach_preference_to_order_v2`.
+8. Distingue fallos definitivos del proveedor, resultados inciertos, fallos de persistencia y conflictos de recuperación. Un resultado inconcluso nunca autoriza automáticamente otra preferencia.
+
+Las preferencias nuevas tienen dos vencimientos independientes calculados a partir de `orders.created_at`: una vigencia de 30 minutos para iniciar Checkout Pro y un vencimiento offline tres días posterior al fin de esa vigencia. Las fechas se guardan al asociar la preferencia. Al derivarlas de un timestamp durable, un reintento envía el mismo cuerpo a Mercado Pago.
+
+Las preferencias históricas con fechas nulas se consideran heredadas. No reciben vencimientos retroactivos, no se reclasifican y pueden seguir recuperándose mediante la ruta existente. Si una preferencia nueva ya alcanzó su vencimiento, la API devuelve `checkout_preference_expired`; el navegador obliga a recargar y revisar el carrito antes de que el comprador confirme otro intento con precios actuales.
 
 El checkout manda un UUID opaco en `Idempotency-Key`. Ese UUID no decide precios, referencia, estado ni aprobación; sólo permite recuperar el mismo pedido cuando una respuesta se pierde y el usuario reintenta sin cambiar los datos ni recargar la página. Si cambia el carrito o comprador, el checkout crea otro UUID. La función PostgreSQL también rechaza reutilizar una clave con datos diferentes.
 
@@ -96,6 +102,27 @@ Los eventos `pending`, `rejected`, `cancelled`, `refunded` y `charged_back` nunc
 
 - No hay panel administrativo, autenticación de clientes, fulfillment ni emails.
 - No hay política automatizada de retención o eliminación de datos personales; debe definirse antes de producción según obligaciones operativas y legales.
-- Un reload completo del checkout genera un nuevo UUID de intento; podría dejar pedidos `pending_payment` abandonados. Hace falta una política de expiración/limpieza, pero nunca deben considerarse aprobados.
+- Un reload completo del checkout genera un nuevo UUID de intento; podría dejar pedidos `pending_payment` abandonados. H7 limita la vigencia del enlace, pero todavía hace falta una política de retención o limpieza; estos pedidos nunca deben considerarse aprobados.
 - La migración y las rutas necesitan una prueba de integración contra un proyecto Supabase real; el build sólo valida compilación y tipos.
 - Purchase analytics continúa fuera de este flujo y no debe activarse hasta validar la idempotencia durable en el entorno desplegado.
+
+## Validaciones pendientes en sandbox para H7
+
+- Confirmar que Checkout Pro acepta conjuntamente `expires`, `expiration_date_from`, `expiration_date_to` y `date_of_expiration` para una cuenta de México.
+- Probar qué sucede cuando el comprador abre el checkout antes del límite y lo concluye inmediatamente después.
+- Confirmar que una instrucción OXXO, Paycash o SPEI creada dentro de la vigencia conserva su propio vencimiento y puede aprobarse mediante un webhook tardío.
+- Verificar normalización y zona horaria de las fechas devueltas por Mercado Pago.
+- Confirmar el comportamiento de desafíos 3DS y pagos `in_process` que cruzan el límite de 30 minutos.
+
+El código no cancela, reembolsa ni bloquea automáticamente pagos tardíos. La verificación continúa comparándolos con el snapshot durable del pedido, no con el catálogo vigente.
+
+## Orden de despliegue y reversión de H7
+
+1. Aplicar `010_mercadopago_preference_expiration.sql`. La migración no elimina ni reemplaza `attach_preference_to_order(text,text)`; crea `attach_preference_to_order_v2(text,text,timestamptz,timestamptz,text)` y `claim_preference_creation(text)`.
+2. Confirmar que `NOTIFY pgrst, 'reload schema'` fue procesado y que PostgREST puede resolver ambas RPC.
+3. Verificar que `service_role` ejecuta las tres funciones y que `anon` y `authenticated` no pueden ejecutarlas.
+4. Desplegar exclusivamente el código H7.1/H7.2 que llama a la RPC v2. El backend productivo anterior continúa llamando a la función de dos argumentos durante la transición.
+5. Si hace falta revertir, volver primero al código anterior a H7 y conservar la migración aditiva. La RPC antigua sigue disponible y las fechas ya registradas no se borran.
+6. No eliminar la RPC antigua, las columnas ni las funciones H7 mientras exista algún deployment que pueda utilizarlas.
+
+El procedimiento reproducible para PostgreSQL/PostgREST y Mercado Pago sandbox está en `docs/h7-sandbox-validation.md`.

@@ -50,6 +50,7 @@ function CheckoutContent() {
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('standard');
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [checkoutExpired, setCheckoutExpired] = useState(false);
   const checkoutAttempt = useRef<{ id: string; requestBody: string } | null>(null);
 
   // Form Fields
@@ -133,12 +134,26 @@ function CheckoutContent() {
         typeof (result as { error?: unknown }).error === 'string'
           ? (result as { error: string }).error
           : null;
+      const responseCode =
+        typeof result === 'object' &&
+        result !== null &&
+        'code' in result &&
+        typeof (result as { code?: unknown }).code === 'string'
+          ? (result as { code: string }).code
+          : null;
       const checkoutUrl =
         typeof result === 'object' && result !== null && 'checkoutUrl' in result
           ? (result as { checkoutUrl?: unknown }).checkoutUrl
           : undefined;
 
       if (!response.ok) {
+        if (responseCode === 'checkout_preference_expired') {
+          checkoutAttempt.current = null;
+          setCheckoutExpired(true);
+          setPaymentError(null);
+          setIsRedirecting(false);
+          return;
+        }
         setPaymentError(responseError ?? 'No pudimos iniciar el pago. Intenta nuevamente.');
         setIsRedirecting(false);
         return;
@@ -195,6 +210,22 @@ function CheckoutContent() {
       {(searchParams?.get('payment') === 'failed' || paymentError) && (
         <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-bold text-red-700">
           {paymentError ?? 'El pago no se completó. Puedes revisar tus datos e intentarlo nuevamente.'}
+        </div>
+      )}
+
+      {checkoutExpired && (
+        <div role="alert" className="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-amber-900 space-y-3">
+          <p className="text-sm font-extrabold">La sesión de pago venció</p>
+          <p className="text-xs leading-relaxed">
+            Los precios o promociones pueden haber cambiado. Revisa el carrito actualizado antes de confirmar una nueva compra.
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.assign('/carrito')}
+            className="inline-flex items-center justify-center rounded-xl bg-[#285F50] px-5 py-3 text-xs font-extrabold text-white"
+          >
+            Revisar carrito actualizado
+          </button>
         </div>
       )}
 
@@ -492,7 +523,7 @@ function CheckoutContent() {
                 </div>
               </div>
 
-              {paymentError && (
+              {paymentError && !checkoutExpired && (
                 <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-bold text-red-700">
                   {paymentError}
                 </p>
@@ -507,18 +538,28 @@ function CheckoutContent() {
                   Regresar
                 </button>
 
-                <button
-                  type="submit"
-                  disabled={isRedirecting}
-                  className="flex-1 py-4 px-6 bg-[#D17B24] hover:bg-[#98552B] disabled:cursor-wait disabled:opacity-70 text-white font-black text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 active:scale-98 min-h-[48px]"
-                >
-                  <span>
-                    {isRedirecting
-                      ? 'Conectando con Mercado Pago…'
-                      : `Pagar con Mercado Pago (${formatCurrency(totalCents)})`}
-                  </span>
-                  {!isRedirecting && <ArrowRight className="w-5 h-5" />}
-                </button>
+                {checkoutExpired ? (
+                  <button
+                    type="button"
+                    onClick={() => window.location.assign('/carrito')}
+                    className="flex-1 py-4 px-6 bg-[#285F50] hover:bg-[#1f4b3f] text-white font-black text-sm rounded-xl shadow-lg transition-all min-h-[48px]"
+                  >
+                    Revisar carrito actualizado
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={isRedirecting}
+                    className="flex-1 py-4 px-6 bg-[#D17B24] hover:bg-[#98552B] disabled:cursor-wait disabled:opacity-70 text-white font-black text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 active:scale-98 min-h-[48px]"
+                  >
+                    <span>
+                      {isRedirecting
+                        ? 'Conectando con Mercado Pago…'
+                        : `Pagar con Mercado Pago (${formatCurrency(totalCents)})`}
+                    </span>
+                    {!isRedirecting && <ArrowRight className="w-5 h-5" />}
+                  </button>
+                )}
               </div>
             </form>
           )}
