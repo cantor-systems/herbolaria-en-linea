@@ -26,6 +26,8 @@ import {
 } from '@/lib/dispatch/orders';
 import { buildWhatsAppShippingUrl } from '@/lib/dispatch/whatsapp';
 import { formatCurrency } from '@/lib/utils';
+import { ShippingLabelData } from '../_components/ShippingLabelData';
+import { buildShippingLabelRows } from '../_components/shipping-label';
 
 export const dynamic = 'force-dynamic';
 
@@ -69,13 +71,13 @@ function Panel({
 }) {
   return (
     <section
-      className={`rounded-2xl border border-[#D9D1B9] bg-[#FAF7E8] p-5 shadow-[0_10px_30px_rgba(35,49,44,0.05)] sm:p-6 ${className}`}
+      className={`rounded-2xl border border-[#3B4147] bg-[#1D2023] p-5 shadow-sm sm:p-6 ${className}`}
     >
-      <div className="mb-5 flex items-center gap-3 border-b border-[#D9D1B9] pb-4">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#285F50]/10 text-[#285F50]">
+      <div className="mb-5 flex items-center gap-3 border-b border-[#3B4147] pb-4">
+        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#292D31] text-[#B8BEC4]">
           {icon}
         </span>
-        <h2 className="text-base font-bold uppercase tracking-[0.08em] text-[#23312C]">
+        <h2 className="text-base font-bold uppercase tracking-[0.08em] text-[#F2F3F3]">
           {title}
         </h2>
       </div>
@@ -86,19 +88,19 @@ function Panel({
 
 function DataRow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="grid gap-1 border-b border-[#D9D1B9]/70 py-3 last:border-0 sm:grid-cols-[150px_1fr] sm:gap-4">
-      <dt className="text-sm font-semibold text-[#23312C]/60">{label}</dt>
-      <dd className="break-words text-base font-semibold text-[#23312C]">{children}</dd>
+    <div className="grid gap-1 border-b border-[#3B4147] py-3 last:border-0 sm:grid-cols-[150px_1fr] sm:gap-4">
+      <dt className="text-sm font-semibold text-[#B8BEC4]">{label}</dt>
+      <dd className="min-w-0 text-base font-semibold text-[#F2F3F3] [overflow-wrap:anywhere]">{children}</dd>
     </div>
   );
 }
 
 function StatusPill({ children, tone }: { children: ReactNode; tone: 'green' | 'orange' | 'red' | 'neutral' }) {
   const toneClass = {
-    green: 'bg-[#285F50]/12 text-[#285F50]',
-    orange: 'bg-[#D17B24]/15 text-[#98552B]',
-    red: 'bg-red-100 text-red-800',
-    neutral: 'bg-[#23312C]/8 text-[#23312C]/75',
+    green: 'bg-[#193D2E] text-[#9ED8B7]',
+    orange: 'bg-[#392D1C] text-[#F0C586]',
+    red: 'bg-[#402526] text-[#F2ACAD]',
+    neutral: 'bg-[#292D31] text-[#B8BEC4]',
   }[tone];
   return <span className={`inline-flex rounded-full px-3 py-1 text-sm font-bold ${toneClass}`}>{children}</span>;
 }
@@ -156,11 +158,11 @@ export default async function DispatchOrderDetailPage({
     order = await getApprovedDispatchOrder(orderId);
   } catch {
     return (
-      <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-[#285F50]" href="/operaciones/despacho">
+      <main className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
+        <Link className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-[#B8BEC4]" href="/operaciones/despacho">
           <ArrowLeft aria-hidden="true" size={17} /> Volver a pedidos
         </Link>
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-red-900" role="alert">
+        <div className="rounded-2xl border border-[#A65E62] bg-[#402526] p-5 text-[#F2ACAD]" role="alert">
           <h1 className="text-lg font-bold">No fue posible cargar el pedido</h1>
           <p className="mt-1 text-sm">Revisa la conexión del servidor e inténtalo nuevamente.</p>
         </div>
@@ -188,9 +190,9 @@ export default async function DispatchOrderDetailPage({
       : SHIPPING_CONFIG.standardEstimatedDays;
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
+    <main className="mx-auto w-full max-w-[1600px] px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
       <Link
-        className="mb-5 inline-flex min-h-10 items-center gap-2 rounded-lg text-sm font-bold text-[#285F50] focus:outline-none focus:ring-4 focus:ring-[#285F50]/15"
+        className="mb-5 inline-flex min-h-10 items-center gap-2 rounded-lg text-sm font-bold text-[#B8BEC4] focus:outline-none focus:ring-4 focus:ring-[#D2D8DD]/60"
         href="/operaciones/despacho"
       >
         <ArrowLeft aria-hidden="true" size={18} />
@@ -199,11 +201,11 @@ export default async function DispatchOrderDetailPage({
 
       <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#285F50]">Pedido</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#23312C] sm:text-3xl">
+          <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#B8BEC4]">Pedido</p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#F2F3F3] sm:text-3xl">
             Pedido #{order.publicOrderNumber}
           </h1>
-          <p className="mt-2 text-base text-[#23312C]/65">Creado {formatDateTime(order.createdAt)}</p>
+          <p className="mt-2 text-base text-[#B8BEC4]">Creado {formatDateTime(order.createdAt)}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <StatusPill tone="green">Pago aprobado</StatusPill>
@@ -217,8 +219,8 @@ export default async function DispatchOrderDetailPage({
         <div
           className={`mb-6 rounded-2xl border px-5 py-4 text-sm font-bold ${
             notice.success
-              ? 'border-[#285F50]/25 bg-[#285F50]/10 text-[#285F50]'
-              : 'border-[#D17B24]/35 bg-[#D17B24]/10 text-[#98552B]'
+              ? 'border-[#4B8E6D] bg-[#193D2E] text-[#9ED8B7]'
+              : 'border-[#9F7639] bg-[#392D1C] text-[#F0C586]'
           }`}
           role="status"
         >
@@ -226,7 +228,9 @@ export default async function DispatchOrderDetailPage({
         </div>
       )}
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <ShippingLabelData rows={buildShippingLabelRows(order)} />
+
+      <div className="grid gap-5 lg:grid-cols-2 [&>section]:min-w-0">
         <Panel icon={<PackageCheck aria-hidden="true" size={20} />} title="Pedido">
           <dl>
             <DataRow label="Número de pedido">#{order.publicOrderNumber}</DataRow>
@@ -259,7 +263,7 @@ export default async function DispatchOrderDetailPage({
               <DataRow label="País">{order.shippingAddress.country}</DataRow>
             </dl>
           ) : (
-            <p className="text-base text-[#23312C]/65">Dirección no disponible.</p>
+            <p className="text-base text-[#B8BEC4]">Dirección no disponible.</p>
           )}
         </Panel>
 
@@ -276,19 +280,19 @@ export default async function DispatchOrderDetailPage({
         <Panel className="lg:col-span-2" icon={<PackageCheck aria-hidden="true" size={20} />} title="Productos">
           {order.items.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[560px] text-left">
-                <thead className="text-sm text-[#23312C]/60">
+              <table className="w-full text-left">
+                <thead className="text-sm text-[#B8BEC4]">
                   <tr>
-                    <th className="border-b border-[#D9D1B9] pb-3 font-semibold">Producto</th>
-                    <th className="border-b border-[#D9D1B9] pb-3 font-semibold">Variante</th>
-                    <th className="border-b border-[#D9D1B9] pb-3 text-right font-semibold">Cantidad</th>
+                    <th className="border-b border-[#3B4147] pb-3 font-semibold">Producto</th>
+                    <th className="border-b border-[#3B4147] pb-3 font-semibold">Variante</th>
+                    <th className="border-b border-[#3B4147] pb-3 text-right font-semibold">Cantidad</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#D9D1B9]/70">
+                <tbody className="divide-y divide-[#3B4147]">
                   {order.items.map((item) => (
                     <tr key={item.id}>
-                      <td className="py-4 pr-4 text-base font-bold">{item.productName}</td>
-                      <td className="py-4 pr-4 text-base text-[#23312C]/75">{item.variantLabel}</td>
+                      <td className="py-4 pr-3 text-sm font-semibold [overflow-wrap:anywhere] sm:text-base">{item.productName}</td>
+                      <td className="py-4 pr-3 text-sm text-[#B8BEC4] [overflow-wrap:anywhere] sm:text-base">{item.variantLabel}</td>
                       <td className="py-4 text-right text-base font-bold">{item.quantity}</td>
                     </tr>
                   ))}
@@ -296,7 +300,7 @@ export default async function DispatchOrderDetailPage({
               </table>
             </div>
           ) : (
-            <p className="text-base text-[#23312C]/65">No hay productos registrados.</p>
+            <p className="text-base text-[#B8BEC4]">No hay productos registrados.</p>
           )}
         </Panel>
 
@@ -307,7 +311,7 @@ export default async function DispatchOrderDetailPage({
               <div>
                 <label className="mb-2 block text-sm font-bold" htmlFor="shipping-carrier">Paquetería</label>
                 <input
-                  className="min-h-12 w-full rounded-xl border border-[#D9D1B9] bg-white px-4 py-3 text-base outline-none focus:border-[#285F50] focus:ring-4 focus:ring-[#285F50]/10"
+                  className="min-h-12 w-full rounded-xl border border-[#77818B] bg-[#111315] px-4 py-3 text-base placeholder:text-[#9CA6AF] outline-none focus:border-[#D2D8DD] focus:ring-4 focus:ring-[#D2D8DD]/60"
                   id="shipping-carrier"
                   list="shipping-carriers"
                   maxLength={100}
@@ -321,7 +325,7 @@ export default async function DispatchOrderDetailPage({
               <div>
                 <label className="mb-2 block text-sm font-bold" htmlFor="tracking-number">Número de guía</label>
                 <input
-                  className="min-h-12 w-full rounded-xl border border-[#D9D1B9] bg-white px-4 py-3 text-base outline-none focus:border-[#285F50] focus:ring-4 focus:ring-[#285F50]/10"
+                  className="min-h-12 w-full rounded-xl border border-[#77818B] bg-[#111315] px-4 py-3 text-base placeholder:text-[#9CA6AF] outline-none focus:border-[#D2D8DD] focus:ring-4 focus:ring-[#D2D8DD]/60"
                   id="tracking-number"
                   maxLength={120}
                   name="trackingNumber"
@@ -331,7 +335,7 @@ export default async function DispatchOrderDetailPage({
               <div className="lg:col-span-2">
                 <label className="mb-2 block text-sm font-bold" htmlFor="tracking-url">URL de rastreo</label>
                 <input
-                  className="min-h-12 w-full rounded-xl border border-[#D9D1B9] bg-white px-4 py-3 text-base outline-none focus:border-[#285F50] focus:ring-4 focus:ring-[#285F50]/10"
+                  className="min-h-12 w-full rounded-xl border border-[#77818B] bg-[#111315] px-4 py-3 text-base placeholder:text-[#9CA6AF] outline-none focus:border-[#D2D8DD] focus:ring-4 focus:ring-[#D2D8DD]/60"
                   id="tracking-url"
                   maxLength={2048}
                   name="trackingUrl"
@@ -341,36 +345,36 @@ export default async function DispatchOrderDetailPage({
                 />
               </div>
               <div className="lg:col-span-2">
-                <button className="min-h-12 rounded-xl bg-[#D17B24] px-6 py-3 text-base font-bold text-white transition hover:bg-[#98552B] focus:outline-none focus:ring-4 focus:ring-[#D17B24]/20" type="submit">
+                <button className="min-h-12 w-full rounded-xl border border-[#6D9B87] bg-[#276B55] px-6 py-3 text-base font-semibold text-[#F2F3F3] transition hover:bg-[#2A735B] focus:outline-none focus:ring-4 focus:ring-[#D2D8DD]/60 sm:w-auto" type="submit">
                   Marcar como enviado
                 </button>
               </div>
             </form>
           ) : (
-            <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
               <dl>
                 <DataRow label="Paquetería">{order.shippingCarrier ?? '—'}</DataRow>
                 <DataRow label="Número de guía">{order.trackingNumber ?? '—'}</DataRow>
                 <DataRow label="Fecha de envío">{formatDateTime(order.shippedAt)}</DataRow>
                 <DataRow label="Rastreo">
                   {trackingUrl ? (
-                    <a className="inline-flex items-center gap-2 text-[#285F50] underline decoration-[#285F50]/35 underline-offset-4" href={trackingUrl} rel="noopener noreferrer" target="_blank">
+                    <a className="inline-flex items-center gap-2 text-[#B8BEC4] underline decoration-[#276B55]/35 underline-offset-4" href={trackingUrl} rel="noopener noreferrer" target="_blank">
                       Abrir rastreo <ExternalLink aria-hidden="true" size={16} />
                     </a>
                   ) : '—'}
                 </DataRow>
               </dl>
-              <div className="rounded-2xl border border-[#D9D1B9] bg-white p-5 lg:min-w-64">
+              <div className="rounded-2xl border border-[#3B4147] bg-[#111315] p-5 lg:min-w-64">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm font-bold text-[#23312C]/65">Notificación</span>
+                  <span className="text-sm font-bold text-[#B8BEC4]">Notificación</span>
                   <StatusPill tone={emailStatus.tone}>{emailStatus.label}</StatusPill>
                 </div>
                 {order.shippingEmailNotification?.sentAt && (
-                  <p className="mt-3 text-sm text-[#23312C]/65">{formatDateTime(order.shippingEmailNotification.sentAt)}</p>
+                  <p className="mt-3 text-sm text-[#B8BEC4]">{formatDateTime(order.shippingEmailNotification.sentAt)}</p>
                 )}
                 <form action={retryShippingEmailAction} className="mt-4">
                   <input name="orderId" type="hidden" value={order.id} />
-                  <button className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#285F50] px-4 py-2 text-sm font-bold text-[#285F50] transition hover:bg-[#285F50]/8 focus:outline-none focus:ring-4 focus:ring-[#285F50]/15" type="submit">
+                  <button className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#77818B] px-4 py-2 text-sm font-bold text-[#B8BEC4] transition hover:bg-[#353B41] focus:outline-none focus:ring-4 focus:ring-[#D2D8DD]/60" type="submit">
                     <RotateCcw aria-hidden="true" size={16} /> Reintentar email de envío
                   </button>
                 </form>
@@ -381,41 +385,41 @@ export default async function DispatchOrderDetailPage({
 
         <Panel className="lg:col-span-2" icon={<MessageCircle aria-hidden="true" size={20} />} title="WhatsApp">
           {!order.whatsappNotificationsOptIn ? (
-            <div className="rounded-2xl border border-[#D9D1B9] bg-[#23312C]/5 p-5">
+            <div className="rounded-2xl border border-[#3B4147] bg-[#292D31] p-5">
               <StatusPill tone="neutral">No autorizado por el cliente</StatusPill>
-              <p className="mt-3 text-sm leading-6 text-[#23312C]/65">No aceptó notificaciones por WhatsApp. No se puede generar un enlace para este pedido.</p>
+              <p className="mt-3 text-sm leading-6 text-[#B8BEC4]">No aceptó notificaciones por WhatsApp. No se puede generar un enlace para este pedido.</p>
             </div>
           ) : order.whatsappShippingNotifiedAt ? (
-            <div className="rounded-2xl border border-[#285F50]/25 bg-[#285F50]/10 p-5">
-              <div className="flex items-center gap-2 font-bold text-[#285F50]">
+            <div className="rounded-2xl border border-[#3B4147] bg-[#292D31] p-5">
+              <div className="flex items-center gap-2 font-bold text-[#B8BEC4]">
                 <CheckCircle2 aria-hidden="true" size={20} /> WhatsApp notificado
               </div>
-              <p className="mt-2 text-sm text-[#23312C]/70">Aceptó notificaciones por WhatsApp · {formatDateTime(order.whatsappShippingNotifiedAt)}</p>
+              <p className="mt-2 text-sm text-[#B8BEC4]">Aceptó notificaciones por WhatsApp · {formatDateTime(order.whatsappShippingNotifiedAt)}</p>
             </div>
           ) : !isShipped ? (
-            <div className="rounded-2xl border border-[#285F50]/25 bg-[#285F50]/10 p-5">
+            <div className="rounded-2xl border border-[#3B4147] bg-[#292D31] p-5">
               <StatusPill tone="green">Aceptó notificaciones por WhatsApp</StatusPill>
-              <p className="mt-3 text-sm leading-6 text-[#23312C]/70">El enlace se habilitará cuando el pedido esté enviado.</p>
+              <p className="mt-3 text-sm leading-6 text-[#B8BEC4]">El enlace se habilitará cuando el pedido esté enviado.</p>
             </div>
           ) : !whatsappUrl ? (
-            <div className="rounded-2xl border border-[#D17B24]/35 bg-[#D17B24]/10 p-5">
+            <div className="rounded-2xl border border-[#9F7639] bg-[#292D31] p-5">
               <StatusPill tone="orange">Aceptó notificaciones por WhatsApp</StatusPill>
-              <p className="mt-3 text-sm leading-6 text-[#23312C]/70">El teléfono no se puede normalizar de forma segura para México. No se generó un enlace.</p>
+              <p className="mt-3 text-sm leading-6 text-[#B8BEC4]">El teléfono no se puede normalizar de forma segura para México. No se generó un enlace.</p>
             </div>
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">
-              <div className="rounded-2xl border border-[#285F50]/25 bg-[#285F50]/10 p-5">
+              <div className="rounded-2xl border border-[#3B4147] bg-[#292D31] p-5">
                 <StatusPill tone="green">Aceptó notificaciones por WhatsApp</StatusPill>
-                <p className="mt-3 text-sm leading-6 text-[#23312C]/70">Abre el mensaje prellenado y envíalo manualmente. Abrir WhatsApp no cambia el estado del pedido.</p>
-                <a className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#285F50] px-5 py-3 text-base font-bold text-white transition hover:bg-[#23312C] focus:outline-none focus:ring-4 focus:ring-[#285F50]/20" href={whatsappUrl} rel="noopener noreferrer" target="_blank">
+                <p className="mt-3 text-sm leading-6 text-[#B8BEC4]">Abre el mensaje prellenado y envíalo manualmente. Abrir WhatsApp no cambia el estado del pedido.</p>
+                <a className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#276B55] px-5 py-3 text-base font-bold text-white transition hover:bg-[#2A735B] focus:outline-none focus:ring-4 focus:ring-[#D2D8DD]/60" href={whatsappUrl} rel="noopener noreferrer" target="_blank">
                   <MessageCircle aria-hidden="true" size={19} /> Notificar por WhatsApp
                 </a>
               </div>
-              <div className="rounded-2xl border border-[#D9D1B9] bg-white p-5">
-                <p className="text-sm leading-6 text-[#23312C]/70">Después de enviar el mensaje en WhatsApp Web, confirma aquí el paso manual.</p>
+              <div className="rounded-2xl border border-[#3B4147] bg-[#111315] p-5">
+                <p className="text-sm leading-6 text-[#B8BEC4]">Después de enviar el mensaje en WhatsApp Web, confirma aquí el paso manual.</p>
                 <form action={confirmWhatsAppSentAction} className="mt-4">
                   <input name="orderId" type="hidden" value={order.id} />
-                  <button className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#285F50] px-5 py-3 text-base font-bold text-[#285F50] transition hover:bg-[#285F50]/8 focus:outline-none focus:ring-4 focus:ring-[#285F50]/15" type="submit">
+                  <button className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#77818B] px-5 py-3 text-base font-bold text-[#B8BEC4] transition hover:bg-[#353B41] focus:outline-none focus:ring-4 focus:ring-[#D2D8DD]/60" type="submit">
                     <CheckCircle2 aria-hidden="true" size={19} /> Confirmar que ya envié el WhatsApp
                   </button>
                 </form>
