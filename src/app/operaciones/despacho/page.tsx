@@ -100,14 +100,14 @@ function whatsappPresentation(order: DispatchOrderListItem): {
 
 function StatusBadge({ label, tone }: { label: string; tone: StatusTone }) {
   const toneClass = {
-    green: 'border-[#285F50]/20 bg-[#285F50]/10 text-[#285F50]',
-    orange: 'border-[#D17B24]/25 bg-[#D17B24]/10 text-[#98552B]',
-    red: 'border-[#98552B]/25 bg-[#98552B]/10 text-[#7A3F22]',
-    neutral: 'border-[#23312C]/15 bg-[#23312C]/5 text-[#23312C]/70',
+    green: 'border-[#4B8E6D] bg-[#193D2E] text-[#9ED8B7]',
+    orange: 'border-[#9F7639] bg-[#392D1C] text-[#F0C586]',
+    red: 'border-[#A65E62] bg-[#402526] text-[#F2ACAD]',
+    neutral: 'border-[#3B4147] bg-[#292D31] text-[#B8BEC4]',
   }[tone];
 
   return (
-    <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${toneClass}`}>
+    <span className={`inline-flex max-w-full rounded-md border px-2 py-1 text-xs font-semibold leading-5 ${toneClass}`}>
       {label}
     </span>
   );
@@ -127,39 +127,39 @@ function SummaryCard({
   tone: 'green' | 'orange' | 'red' | 'neutral';
 }) {
   const toneClass = {
-    green: 'bg-[#285F50]/10 text-[#285F50]',
-    orange: 'bg-[#D17B24]/10 text-[#98552B]',
-    red: 'bg-[#98552B]/10 text-[#7A3F22]',
-    neutral: 'bg-[#23312C]/7 text-[#23312C]/70',
+    green: 'bg-[#193D2E] text-[#9ED8B7]',
+    orange: 'bg-[#392D1C] text-[#F0C586]',
+    red: 'bg-[#402526] text-[#F2ACAD]',
+    neutral: 'bg-[#292D31] text-[#B8BEC4]',
   }[tone];
 
   return (
-    <section className="rounded-2xl border border-[#D9D1B9] bg-[#FAF7E8] p-5 shadow-[0_10px_25px_rgba(35,49,44,0.04)]">
+    <section className="rounded-2xl border border-[#3B4147] bg-[#1D2023] p-5 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-bold text-[#23312C]/65">{label}</p>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-[#23312C]">{count}</p>
+          <p className="text-sm font-bold text-[#B8BEC4]">{label}</p>
+          <p className="mt-3 text-4xl font-semibold tracking-tight text-[#F2F3F3] tabular-nums">{count}</p>
         </div>
         <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${toneClass}`}>
           {icon}
         </span>
       </div>
-      <p className="mt-3 text-sm leading-5 text-[#23312C]/60">{description}</p>
+      <p className="mt-3 text-sm leading-5 text-[#B8BEC4]">{description}</p>
     </section>
   );
 }
 
 function orderAccent(order: DispatchOrderListItem) {
   if (order.shippingEmailNotification?.status === 'failed') {
-    return 'border-l-[#98552B] bg-[#98552B]/5';
+    return 'border-l-[#BD7779] bg-[#1D2023]';
   }
   if (order.fulfillmentStatus === 'pending') {
-    return 'border-l-[#D17B24] bg-[#D17B24]/5';
+    return 'border-l-[#C49B5D] bg-[#1D2023]';
   }
   if (isWhatsAppPending(order)) {
-    return 'border-l-[#6F8F69] bg-[#6F8F69]/5';
+    return 'border-l-[#C49B5D] bg-[#1D2023]';
   }
-  return 'border-l-transparent bg-[#FAF7E8]';
+  return 'border-l-transparent bg-[#1D2023]';
 }
 
 function OrderMobileCard({ order }: { order: DispatchOrderListItem }) {
@@ -169,14 +169,14 @@ function OrderMobileCard({ order }: { order: DispatchOrderListItem }) {
 
   return (
     <article
-      className={`rounded-2xl border border-l-4 border-[#D9D1B9] p-5 shadow-[0_8px_24px_rgba(35,49,44,0.04)] ${orderAccent(order)}`}
+      className={`rounded-2xl border border-l-4 border-[#3B4147] p-5 shadow-sm ${orderAccent(order)}`}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-base font-bold text-[#23312C]">
+          <p className="text-base font-bold text-[#F2F3F3]">
             Pedido #{order.publicOrderNumber}
           </p>
-          <p className="mt-1 text-sm text-[#23312C]/60">{formatDate(order.createdAt)}</p>
+          <p className="mt-1 text-sm text-[#B8BEC4]">{formatDate(order.createdAt)}</p>
         </div>
         <StatusBadge
           label={isShipped ? 'Enviado' : 'Pendiente de despacho'}
@@ -184,26 +184,26 @@ function OrderMobileCard({ order }: { order: DispatchOrderListItem }) {
         />
       </div>
 
-      <div className="mt-4 border-t border-[#D9D1B9] pt-4">
-        <p className="text-base font-bold text-[#23312C]">{order.customerName ?? 'Sin nombre'}</p>
-        <p className="mt-1 break-all text-sm text-[#23312C]/70">
+      <div className="mt-4 border-t border-[#3B4147] pt-4">
+        <p className="text-base font-bold text-[#F2F3F3]">{order.customerName ?? 'Sin nombre'}</p>
+        <p className="mt-1 break-all text-sm text-[#B8BEC4]">
           {order.customerEmail ?? 'Sin email'}
         </p>
-        <p className="mt-1 text-sm text-[#23312C]/70">
+        <p className="mt-1 text-sm text-[#B8BEC4]">
           {order.customerPhone ?? 'Sin teléfono'}
         </p>
       </div>
 
       <dl className="mt-4 grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-white/70 p-3">
-          <dt className="text-xs font-bold uppercase tracking-wide text-[#23312C]/50">Total</dt>
-          <dd className="mt-1 text-sm font-bold text-[#23312C]">
+        <div className="rounded-xl bg-[#111315] p-3">
+          <dt className="text-xs font-bold uppercase tracking-wide text-[#B8BEC4]">Total</dt>
+          <dd className="mt-1 text-sm font-bold text-[#F2F3F3]">
             {formatCurrency(order.totalCents)}
           </dd>
         </div>
-        <div className="rounded-xl bg-white/70 p-3">
-          <dt className="text-xs font-bold uppercase tracking-wide text-[#23312C]/50">Método</dt>
-          <dd className="mt-1 text-sm font-bold capitalize text-[#23312C]">
+        <div className="rounded-xl bg-[#111315] p-3">
+          <dt className="text-xs font-bold uppercase tracking-wide text-[#B8BEC4]">Método</dt>
+          <dd className="mt-1 text-sm font-bold capitalize text-[#F2F3F3]">
             {order.shippingMethod}
           </dd>
         </div>
@@ -211,17 +211,17 @@ function OrderMobileCard({ order }: { order: DispatchOrderListItem }) {
 
       <div className="mt-4 grid grid-cols-2 gap-3">
         <div>
-          <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-[#23312C]/50">Email</p>
+          <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-[#B8BEC4]">Email</p>
           <StatusBadge label={email.label} tone={email.tone} />
         </div>
         <div>
-          <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-[#23312C]/50">WhatsApp</p>
+          <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-[#B8BEC4]">WhatsApp</p>
           <StatusBadge label={whatsapp.label} tone={whatsapp.tone} />
         </div>
       </div>
 
       <Link
-        className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-1 rounded-xl bg-[#23312C] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#285F50] focus:outline-none focus:ring-4 focus:ring-[#285F50]/20"
+        className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-1 rounded-xl border border-[#6D9B87] bg-[#276B55] px-4 py-2 text-sm font-semibold text-[#F2F3F3] transition hover:bg-[#2A735B] focus:outline-none focus:ring-4 focus:ring-[#D2D8DD]/60"
         href={`/operaciones/despacho/${order.id}`}
       >
         {isShipped ? 'Ver envío' : 'Preparar envío'}
@@ -266,8 +266,8 @@ export default async function DispatchOrdersPage({ searchParams }: DispatchOrder
     }
   } catch {
     return (
-      <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-red-900" role="alert">
+      <main className="mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
+        <div className="rounded-2xl border border-[#A65E62] bg-[#402526] p-5 text-[#F2ACAD]" role="alert">
           <h1 className="text-lg font-bold">No fue posible cargar los pedidos</h1>
           <p className="mt-1 text-sm">Revisa la conexión del servidor e inténtalo nuevamente.</p>
         </div>
@@ -290,15 +290,15 @@ export default async function DispatchOrdersPage({ searchParams }: DispatchOrder
       : 'No se encontraron pedidos con estos filtros.';
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-7 sm:px-6 sm:py-8 lg:px-8">
+    <main className="mx-auto w-full max-w-[1600px] px-4 py-7 sm:px-6 sm:py-8 lg:px-8">
       <div className="mb-6">
-        <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#285F50]">
+        <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#B8BEC4]">
           Cola operativa
         </p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight text-[#23312C]">
+        <h1 className="mt-1 text-3xl font-bold tracking-tight text-[#F2F3F3]">
           Pedidos aprobados
         </h1>
-        <p className="mt-2 text-base text-[#23312C]/70">
+        <p className="mt-2 text-base text-[#B8BEC4]">
           Filtra la cola operativa y ordénala por la fecha real de cada pedido.
         </p>
       </div>
@@ -344,21 +344,21 @@ export default async function DispatchOrdersPage({ searchParams }: DispatchOrder
 
       <form
         action="/operaciones/despacho#resultados"
-        className="mt-6 grid gap-4 rounded-2xl border border-[#D9D1B9] bg-[#FAF7E8] p-4 shadow-[0_8px_25px_rgba(35,49,44,0.04)] sm:grid-cols-2 sm:items-end xl:grid-cols-[minmax(220px,1fr)_150px_150px_190px_auto]"
+        className="mt-7 grid gap-4 rounded-2xl border border-[#59636D] bg-[#292D31] p-4 sm:grid-cols-2 sm:items-end sm:p-5 xl:grid-cols-[minmax(220px,1fr)_130px_130px_200px_auto]"
         method="get"
       >
         <div>
-          <label className="mb-2 block text-sm font-bold text-[#23312C]" htmlFor="dispatch-search">
+          <label className="mb-2 block text-sm font-bold text-[#F2F3F3]" htmlFor="dispatch-search">
             Buscar pedido
           </label>
           <div className="relative">
             <Search
               aria-hidden="true"
-              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#285F50]"
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B8BEC4]"
               size={18}
             />
             <input
-              className="min-h-11 w-full rounded-xl border border-[#D9D1B9] bg-white py-2.5 pl-11 pr-4 text-base text-[#23312C] outline-none focus:border-[#285F50] focus:ring-4 focus:ring-[#285F50]/10"
+              className="min-h-11 w-full rounded-xl border border-[#77818B] bg-[#111315] py-2.5 pl-11 pr-4 text-base text-[#F2F3F3] placeholder:text-[#9CA6AF] outline-none focus:border-[#D2D8DD] focus:ring-4 focus:ring-[#D2D8DD]/60"
               defaultValue={searchValue}
               id="dispatch-search"
               maxLength={100}
@@ -370,11 +370,11 @@ export default async function DispatchOrdersPage({ searchParams }: DispatchOrder
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-bold text-[#23312C]" htmlFor="status-filter">
+          <label className="mb-2 block text-sm font-bold text-[#F2F3F3]" htmlFor="status-filter">
             Estado
           </label>
           <select
-            className="min-h-11 w-full rounded-xl border border-[#D9D1B9] bg-white px-3 py-2.5 text-base text-[#23312C] outline-none focus:border-[#285F50] focus:ring-4 focus:ring-[#285F50]/10"
+            className="min-h-11 w-full rounded-xl border border-[#77818B] bg-[#111315] px-3 py-2.5 text-base text-[#F2F3F3] placeholder:text-[#9CA6AF] outline-none focus:border-[#D2D8DD] focus:ring-4 focus:ring-[#D2D8DD]/60"
             defaultValue={statusFilter}
             id="status-filter"
             name="status"
@@ -386,11 +386,11 @@ export default async function DispatchOrdersPage({ searchParams }: DispatchOrder
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-bold text-[#23312C]" htmlFor="shipping-filter">
+          <label className="mb-2 block text-sm font-bold text-[#F2F3F3]" htmlFor="shipping-filter">
             Método
           </label>
           <select
-            className="min-h-11 w-full rounded-xl border border-[#D9D1B9] bg-white px-3 py-2.5 text-base text-[#23312C] outline-none focus:border-[#285F50] focus:ring-4 focus:ring-[#285F50]/10"
+            className="min-h-11 w-full rounded-xl border border-[#77818B] bg-[#111315] px-3 py-2.5 text-base text-[#F2F3F3] placeholder:text-[#9CA6AF] outline-none focus:border-[#D2D8DD] focus:ring-4 focus:ring-[#D2D8DD]/60"
             defaultValue={shippingFilter}
             id="shipping-filter"
             name="shipping"
@@ -402,11 +402,11 @@ export default async function DispatchOrdersPage({ searchParams }: DispatchOrder
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-bold text-[#23312C]" htmlFor="order-filter">
+          <label className="mb-2 block text-sm font-bold text-[#F2F3F3]" htmlFor="order-filter">
             Orden
           </label>
           <select
-            className="min-h-11 w-full rounded-xl border border-[#D9D1B9] bg-white px-3 py-2.5 text-base text-[#23312C] outline-none focus:border-[#285F50] focus:ring-4 focus:ring-[#285F50]/10"
+            className="min-h-11 w-full rounded-xl border border-[#77818B] bg-[#111315] px-3 py-2.5 text-base text-[#F2F3F3] placeholder:text-[#9CA6AF] outline-none focus:border-[#D2D8DD] focus:ring-4 focus:ring-[#D2D8DD]/60"
             defaultValue={orderSort}
             id="order-filter"
             name="order"
@@ -418,13 +418,13 @@ export default async function DispatchOrdersPage({ searchParams }: DispatchOrder
 
         <div className="flex flex-wrap gap-2 sm:col-span-2 xl:col-span-1 xl:flex-nowrap">
           <button
-            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-[#285F50] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#23312C] focus:outline-none focus:ring-4 focus:ring-[#285F50]/20 md:flex-none"
+            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-[#276B55] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#2A735B] focus:outline-none focus:ring-4 focus:ring-[#D2D8DD]/60 md:flex-none"
             type="submit"
           >
             <SlidersHorizontal aria-hidden="true" size={17} /> Aplicar
           </button>
           <Link
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#D9D1B9] bg-white px-4 py-2.5 text-sm font-bold text-[#23312C] transition hover:border-[#285F50] focus:outline-none focus:ring-4 focus:ring-[#285F50]/10"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#77818B] bg-[#111315] px-4 py-2.5 text-sm font-bold text-[#F2F3F3] transition hover:border-[#D2D8DD] focus:outline-none focus:ring-4 focus:ring-[#D2D8DD]/60"
             href="/operaciones/despacho#resultados"
           >
             Limpiar
@@ -436,43 +436,54 @@ export default async function DispatchOrdersPage({ searchParams }: DispatchOrder
         className="mt-5 flex scroll-mt-24 items-center justify-between gap-4"
         id="resultados"
       >
-        <p className="text-sm font-semibold text-[#23312C]/65">
+        <p className="text-sm font-semibold text-[#B8BEC4]">
           {orders.length} {orders.length === 1 ? 'pedido encontrado' : 'pedidos encontrados'}
         </p>
-        <p className="hidden text-sm text-[#23312C]/55 sm:block">
+        <p className="hidden text-sm text-[#B8BEC4] sm:block">
           Máximo 100 pedidos aprobados
         </p>
       </div>
 
       {orders.length === 0 && !hasActiveFilters ? (
-        <div className="mt-5 flex flex-col items-center rounded-3xl border border-dashed border-[#285F50]/30 bg-[#FAF7E8] px-6 py-14 text-center">
-          <PackageOpen aria-hidden="true" className="text-[#285F50]" size={36} />
+        <div className="mt-5 flex flex-col items-center rounded-3xl border border-dashed border-[#59636D] bg-[#1D2023] px-6 py-14 text-center">
+          <PackageOpen aria-hidden="true" className="text-[#B8BEC4]" size={36} />
           <h2 className="mt-4 text-xl font-bold">No hay pedidos pendientes de despacho.</h2>
-          <p className="mt-1 text-base text-[#23312C]/65">Tampoco hay pedidos aprobados recientes.</p>
+          <p className="mt-1 text-base text-[#B8BEC4]">Tampoco hay pedidos aprobados recientes.</p>
         </div>
       ) : orders.length === 0 ? (
-        <div className="mt-5 flex flex-col items-center rounded-3xl border border-dashed border-[#285F50]/30 bg-[#FAF7E8] px-6 py-14 text-center">
-          <Search aria-hidden="true" className="text-[#285F50]" size={34} />
+        <div className="mt-5 flex flex-col items-center rounded-3xl border border-dashed border-[#59636D] bg-[#1D2023] px-6 py-14 text-center">
+          <Search aria-hidden="true" className="text-[#B8BEC4]" size={34} />
           <h2 className="mt-4 text-xl font-bold">{emptyMessage}</h2>
-          <Link className="mt-4 text-sm font-bold text-[#285F50] underline underline-offset-4" href="/operaciones/despacho#resultados">
+          <Link className="mt-4 text-sm font-bold text-[#B8BEC4] underline underline-offset-4" href="/operaciones/despacho#resultados">
             Limpiar búsqueda y filtros
           </Link>
         </div>
       ) : (
         <>
-          <div className="mt-5 grid gap-4 lg:hidden">
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:hidden">
             {orders.map((order) => (
               <OrderMobileCard key={order.id} order={order} />
             ))}
           </div>
 
-          <div className="mt-5 hidden overflow-x-auto rounded-2xl border border-[#D9D1B9] bg-[#FAF7E8] shadow-[0_12px_35px_rgba(35,49,44,0.06)] lg:block">
-            <table className="w-full min-w-[1180px] border-collapse text-left">
-              <thead className="bg-[#285F50] text-sm text-white">
+          <div className="mt-5 hidden overflow-x-auto rounded-2xl border border-[#3B4147] bg-[#1D2023] xl:block">
+            <table className="w-full min-w-[980px] table-fixed border-collapse text-left">
+              <colgroup>
+                <col className="w-[12%]" />
+                <col className="w-[8%]" />
+                <col className="w-[22%]" />
+                <col className="w-[9%]" />
+                <col className="w-[9%]" />
+                <col className="w-[10%]" />
+                <col className="w-[8%]" />
+                <col className="w-[10%]" />
+                <col className="w-[12%]" />
+              </colgroup>
+              <thead className="border-b border-[#59636D] bg-[#292D31] text-xs text-[#B8BEC4]">
                 <tr>
                   <th className="px-3.5 py-3.5 font-bold">Fecha</th>
-                  <th className="w-[190px] px-4 py-3.5 font-bold">Pedido</th>
-                  <th className="w-[270px] px-4 py-3.5 font-bold">Cliente</th>
+                  <th className="px-3 py-3.5 font-semibold">Pedido</th>
+                  <th className="px-3 py-3.5 font-semibold">Cliente</th>
                   <th className="px-3.5 py-3.5 font-bold">Total</th>
                   <th className="px-3.5 py-3.5 font-bold">Método</th>
                   <th className="px-3.5 py-3.5 font-bold">Fulfillment</th>
@@ -481,35 +492,35 @@ export default async function DispatchOrdersPage({ searchParams }: DispatchOrder
                   <th className="px-3.5 py-3.5"><span className="sr-only">Acción</span></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#D9D1B9]">
+              <tbody className="divide-y divide-[#4E565F]">
                 {orders.map((order) => {
                   const isShipped = order.fulfillmentStatus === 'shipped';
                   const email = emailPresentation(order);
                   const whatsapp = whatsappPresentation(order);
                   return (
                     <tr
-                      className={`border-l-4 align-top transition hover:bg-white/70 ${orderAccent(order)}`}
+                      className={`border-l-4 align-top transition even:bg-[#23272B] hover:bg-[#353B41] ${orderAccent(order)}`}
                       key={order.id}
                     >
-                      <td className="whitespace-nowrap px-3.5 py-4 text-sm text-[#23312C]/70">
+                      <td className="px-3 py-5 text-sm leading-6 text-[#B8BEC4] tabular-nums">
                         {formatDate(order.createdAt)}
                       </td>
-                      <td className="w-[190px] min-w-[190px] max-w-[220px] break-words px-4 py-4 text-sm font-bold text-[#23312C]">
+                      <td className="break-words px-3 py-5 text-sm font-semibold text-[#F2F3F3]">
                         #{order.publicOrderNumber}
                       </td>
-                      <td className="w-[270px] min-w-[250px] max-w-[300px] px-4 py-4 text-sm text-[#23312C]">
+                      <td className="px-3 py-5 text-sm text-[#F2F3F3] [overflow-wrap:anywhere]">
                         <span className="block font-bold">{order.customerName ?? 'Sin nombre'}</span>
-                        <span className="mt-1 block break-words text-[#23312C]/65">
+                        <span className="mt-1 block break-words text-[#B8BEC4]">
                           {order.customerEmail ?? 'Sin email'}
                         </span>
-                        <span className="mt-1 block text-[#23312C]/65">
+                        <span className="mt-1 block text-[#B8BEC4]">
                           {order.customerPhone ?? 'Sin teléfono'}
                         </span>
                       </td>
-                      <td className="whitespace-nowrap px-3.5 py-4 text-sm font-bold text-[#23312C]">
+                      <td className="px-3 py-5 text-sm font-semibold text-[#F2F3F3] tabular-nums">
                         {formatCurrency(order.totalCents)}
                       </td>
-                      <td className="px-3.5 py-4 text-sm text-[#23312C]/75">
+                      <td className="px-3.5 py-4 text-sm text-[#B8BEC4]">
                         <span className="block capitalize">{order.shippingMethod}</span>
                         {order.shippingCarrier && (
                           <span className="mt-1 block text-xs">{order.shippingCarrier}</span>
@@ -529,7 +540,7 @@ export default async function DispatchOrdersPage({ searchParams }: DispatchOrder
                       </td>
                       <td className="px-3.5 py-4 text-right">
                         <Link
-                          className="inline-flex min-h-9 items-center gap-0.5 rounded-lg bg-[#23312C] px-3.5 py-1.5 text-sm font-bold text-white transition hover:bg-[#285F50] focus:outline-none focus:ring-4 focus:ring-[#285F50]/20"
+                          className="inline-flex min-h-11 items-center justify-center gap-1 rounded-lg border border-[#6D9B87] bg-[#276B55] px-3 py-2 text-center text-xs font-semibold text-[#F2F3F3] transition hover:bg-[#2A735B] focus:outline-none focus:ring-4 focus:ring-[#D2D8DD]/60"
                           href={`/operaciones/despacho/${order.id}`}
                         >
                           {isShipped ? 'Ver envío' : 'Preparar envío'}
