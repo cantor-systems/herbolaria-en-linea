@@ -17,10 +17,11 @@ import {
   type DispatchOrderSort,
 } from '@/lib/dispatch/orders';
 import { formatCurrency } from '@/lib/utils';
+import { hasOrderShipment } from '@/lib/orders/types';
 
 export const dynamic = 'force-dynamic';
 
-type FulfillmentFilter = 'all' | 'pending' | 'shipped';
+type FulfillmentFilter = 'all' | 'pending' | 'shipped' | 'delivered';
 type ShippingFilter = 'all' | 'standard' | 'express';
 type StatusTone = 'green' | 'orange' | 'red' | 'neutral';
 
@@ -38,7 +39,7 @@ function firstParam(value: string | string[] | undefined) {
 }
 
 function validFulfillmentFilter(value: string | undefined): FulfillmentFilter {
-  return value === 'pending' || value === 'shipped' ? value : 'all';
+  return value === 'pending' || value === 'shipped' || value === 'delivered' ? value : 'all';
 }
 
 function validShippingFilter(value: string | undefined): ShippingFilter {
@@ -61,7 +62,7 @@ function formatDate(value: string) {
 
 function isWhatsAppPending(order: DispatchOrderListItem) {
   return (
-    order.fulfillmentStatus === 'shipped' &&
+    hasOrderShipment(order.fulfillmentStatus) &&
     order.whatsappNotificationsOptIn &&
     !order.whatsappShippingNotifiedAt
   );
@@ -163,7 +164,7 @@ function orderAccent(order: DispatchOrderListItem) {
 }
 
 function OrderMobileCard({ order }: { order: DispatchOrderListItem }) {
-  const isShipped = order.fulfillmentStatus === 'shipped';
+  const isShipped = hasOrderShipment(order.fulfillmentStatus);
   const email = emailPresentation(order);
   const whatsapp = whatsappPresentation(order);
 
@@ -179,7 +180,7 @@ function OrderMobileCard({ order }: { order: DispatchOrderListItem }) {
           <p className="mt-1 text-sm text-[#B8BEC4]">{formatDate(order.createdAt)}</p>
         </div>
         <StatusBadge
-          label={isShipped ? 'Enviado' : 'Pendiente de despacho'}
+          label={order.fulfillmentStatus === 'delivered' ? 'Entregado' : isShipped ? 'Enviado' : 'Pendiente de despacho'}
           tone={isShipped ? 'green' : 'orange'}
         />
       </div>
@@ -277,7 +278,7 @@ export default async function DispatchOrdersPage({ searchParams }: DispatchOrder
 
   const metrics = {
     pending: metricOrders.filter((order) => order.fulfillmentStatus === 'pending').length,
-    shipped: metricOrders.filter((order) => order.fulfillmentStatus === 'shipped').length,
+    shipped: metricOrders.filter((order) => hasOrderShipment(order.fulfillmentStatus)).length,
     emailFailed: metricOrders.filter(
       (order) => order.shippingEmailNotification?.status === 'failed'
     ).length,
@@ -317,7 +318,7 @@ export default async function DispatchOrdersPage({ searchParams }: DispatchOrder
         />
         <SummaryCard
           count={metrics.shipped}
-          description="Pedidos enviados dentro de la muestra reciente."
+          description="Enviados y entregados dentro de la muestra reciente."
           icon={<PackageCheck aria-hidden="true" size={20} />}
           label="Enviados"
           tone="green"
@@ -382,6 +383,7 @@ export default async function DispatchOrdersPage({ searchParams }: DispatchOrder
             <option value="all">Todos</option>
             <option value="pending">Pendientes</option>
             <option value="shipped">Enviados</option>
+            <option value="delivered">Entregados</option>
           </select>
         </div>
 
@@ -494,7 +496,7 @@ export default async function DispatchOrdersPage({ searchParams }: DispatchOrder
               </thead>
               <tbody className="divide-y divide-[#4E565F]">
                 {orders.map((order) => {
-                  const isShipped = order.fulfillmentStatus === 'shipped';
+                  const isShipped = hasOrderShipment(order.fulfillmentStatus);
                   const email = emailPresentation(order);
                   const whatsapp = whatsappPresentation(order);
                   return (
@@ -528,7 +530,7 @@ export default async function DispatchOrdersPage({ searchParams }: DispatchOrder
                       </td>
                       <td className="px-3.5 py-4">
                         <StatusBadge
-                          label={isShipped ? 'Enviado' : 'Pendiente'}
+                          label={order.fulfillmentStatus === 'delivered' ? 'Entregado' : isShipped ? 'Enviado' : 'Pendiente'}
                           tone={isShipped ? 'green' : 'orange'}
                         />
                       </td>

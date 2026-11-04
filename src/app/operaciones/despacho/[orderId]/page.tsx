@@ -20,12 +20,15 @@ import {
 } from '@/app/operaciones/actions';
 import { SHIPPING_CONFIG } from '@/config/shipping';
 import { requireDispatchAdminSession } from '@/lib/dispatch/auth';
+import { isDeliveryConfirmationEnabled } from '@/lib/dispatch/delivery';
 import {
   getApprovedDispatchOrder,
   type ShippingEmailNotificationStatus,
 } from '@/lib/dispatch/orders';
 import { buildWhatsAppShippingUrl } from '@/lib/dispatch/whatsapp';
 import { formatCurrency } from '@/lib/utils';
+import { hasOrderShipment } from '@/lib/orders/types';
+import { ConfirmDeliveryForm } from '../_components/ConfirmDeliveryForm';
 import { ShippingLabelData } from '../_components/ShippingLabelData';
 import { buildShippingLabelRows } from '../_components/shipping-label';
 
@@ -40,6 +43,7 @@ interface DispatchOrderDetailPageProps {
     shipment?: string | string[];
     email?: string | string[];
     whatsapp?: string | string[];
+    delivery?: string | string[];
   }>;
 }
 
@@ -116,11 +120,17 @@ function actionNotice({
   shipment,
   email,
   whatsapp,
+  delivery,
 }: {
   shipment?: string;
   email?: string;
   whatsapp?: string;
+  delivery?: string;
 }) {
+  if (delivery === 'disabled') return { text: 'La confirmación de entrega está deshabilitada.', success: false };
+  if (delivery === 'confirmed') return { text: 'Entrega confirmada manualmente.', success: true };
+  if (delivery === 'invalid') return { text: 'Confirma que comprobaste la entrega en la paquetería.', success: false };
+  if (delivery === 'failed' || delivery === 'unavailable') return { text: 'No fue posible confirmar la entrega. Revisa el estado del pedido e inténtalo nuevamente.', success: false };
   if (shipment === 'sent') return { text: 'Pedido marcado como enviado.', success: true };
   if (shipment === 'invalid') return { text: 'Revisa la paquetería, la guía y la URL HTTPS de rastreo.', success: false };
   if (shipment === 'conflict') return { text: 'El pedido ya fue enviado con datos de rastreo diferentes.', success: false };
@@ -128,7 +138,7 @@ function actionNotice({
   if (email === 'sent') return { text: 'El email de envío fue enviado.', success: true };
   if (email === 'already-sent') return { text: 'El email ya estaba enviado; no se generó un duplicado.', success: true };
   if (email === 'pending') return { text: 'El email sigue pendiente de procesamiento.', success: false };
-  if (email === 'failed') return { text: 'El reintento del email falló. El pedido permanece enviado.', success: false };
+  if (email === 'failed') return { text: 'El reintento del email falló. El estado logístico del pedido se conserva.', success: false };
   if (email === 'unavailable') return { text: 'El email de envío sólo puede procesarse para pedidos enviados.', success: false };
   if (whatsapp === 'confirmed') return { text: 'WhatsApp marcado como notificado.', success: true };
   if (whatsapp === 'failed') return { text: 'No fue posible confirmar la notificación por WhatsApp.', success: false };
@@ -176,8 +186,10 @@ export default async function DispatchOrderDetailPage({
     shipment: firstParam(query.shipment),
     email: firstParam(query.email),
     whatsapp: firstParam(query.whatsapp),
+    delivery: firstParam(query.delivery),
   });
-  const isShipped = order.fulfillmentStatus === 'shipped';
+  const isShipped = hasOrderShipment(order.fulfillmentStatus);
+  const isDelivered = order.fulfillmentStatus === 'delivered';
   const emailStatus = emailStatusPresentation(order.shippingEmailNotification?.status);
   const trackingUrl = safeTrackingUrl(order.trackingUrl);
   const whatsappUrl =
@@ -210,7 +222,7 @@ export default async function DispatchOrderDetailPage({
         <div className="flex flex-wrap gap-2">
           <StatusPill tone="green">Pago aprobado</StatusPill>
           <StatusPill tone={isShipped ? 'green' : 'orange'}>
-            {isShipped ? 'Enviado' : 'Pendiente de despacho'}
+            {isDelivered ? 'Entregado' : isShipped ? 'Enviado' : 'Pendiente de despacho'}
           </StatusPill>
         </div>
       </div>
@@ -238,7 +250,7 @@ export default async function DispatchOrderDetailPage({
             <DataRow label="Fecha">{formatDateTime(order.createdAt)}</DataRow>
             <DataRow label="Estado de pago"><StatusPill tone="green">Aprobado</StatusPill></DataRow>
             <DataRow label="Estado fulfillment">
-              <StatusPill tone={isShipped ? 'green' : 'orange'}>{isShipped ? 'Enviado' : 'Pendiente'}</StatusPill>
+              <StatusPill tone={isShipped ? 'green' : 'orange'}>{isDelivered ? 'Entregado' : isShipped ? 'Enviado' : 'Pendiente'}</StatusPill>
             </DataRow>
             <DataRow label="Total">{formatCurrency(order.totalCents, order.currency)}</DataRow>
           </dl>
@@ -382,6 +394,21 @@ export default async function DispatchOrderDetailPage({
             </div>
           )}
         </Panel>
+
+        {isDeliveryConfirmationEnabled() && order.status === 'approved' && order.fulfillmentStatus === 'shipped' && (
+          <Panel className="lg:col-span-2" icon={<PackageCheck aria-hidden="true" size={20} />} title="Entrega">
+            <ConfirmDeliveryForm orderId={order.id} />
+          </Panel>
+        )}
+        {isDelivered && (
+          <Panel className="lg:col-span-2" icon={<CheckCircle2 aria-hidden="true" size={20} />} title="Entrega">
+            <dl>
+              <DataRow label="Estado">Entregado</DataRow>
+              <DataRow label="Fecha de confirmación">{formatDateTime(order.deliveredAt)}</DataRow>
+              <DataRow label="Origen">{order.deliveryConfirmationSource === 'admin_manual' ? 'Confirmación manual' : '—'}</DataRow>
+            </dl>
+          </Panel>
+        )}
 
         <Panel className="lg:col-span-2" icon={<MessageCircle aria-hidden="true" size={20} />} title="WhatsApp">
           {!order.whatsappNotificationsOptIn ? (

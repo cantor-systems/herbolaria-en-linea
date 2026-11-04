@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import {
   findPublicOrderTracking,
   OrderTrackingLookupError,
+  trackingForVersion,
 } from '@/lib/orders/tracking';
 import { SupabaseConfigurationError } from '@/lib/supabase/admin';
 
@@ -122,7 +123,7 @@ export async function POST(request: Request) {
       return json({ error: 'No encontramos un pedido con esos datos.' }, 404);
     }
 
-    return json(tracking);
+    return json(trackingForVersion(tracking, request.headers.get('X-Order-Tracking-Version')));
   } catch (error) {
     if (error instanceof TrackingBodyTooLargeError) {
       return json({ error: 'La solicitud es demasiado grande.' }, 413);
