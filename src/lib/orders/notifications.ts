@@ -4,6 +4,7 @@ import { Resend } from 'resend';
 import { SHIPPING_CONFIG } from '@/config/shipping';
 import { SITE_NAME } from '@/lib/site';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
+import { hasOrderShipment, type OrderFulfillmentStatus } from '@/lib/orders/types';
 
 type NotificationResult = 'sent' | 'skipped' | 'failed';
 type NotificationClaimRpc =
@@ -48,7 +49,7 @@ interface OrderNotificationRow {
   shipping_method: string;
   shipping_cents: number;
   total_cents: number;
-  fulfillment_status: 'pending' | 'shipped';
+  fulfillment_status: OrderFulfillmentStatus;
   shipping_carrier: string | null;
   tracking_number: string | null;
   tracking_url: string | null;
@@ -166,7 +167,7 @@ function normalizeOrder(value: unknown): OrderNotificationRow {
     status !== 'approved' ||
     currency !== 'MXN' ||
     !['standard', 'express'].includes(shippingMethod) ||
-    !['pending', 'shipped'].includes(fulfillmentStatus) ||
+    !['pending', 'shipped', 'delivered'].includes(fulfillmentStatus) ||
     !createdAt
   ) {
     throw new NotificationProcessingError('invalid_order_notification_data');
@@ -188,7 +189,7 @@ function normalizeOrder(value: unknown): OrderNotificationRow {
     shipping_method: shippingMethod,
     shipping_cents: centsValue(value.shipping_cents),
     total_cents: centsValue(value.total_cents),
-    fulfillment_status: fulfillmentStatus as 'pending' | 'shipped',
+    fulfillment_status: fulfillmentStatus as OrderFulfillmentStatus,
     shipping_carrier:
       typeof value.shipping_carrier === 'string' && value.shipping_carrier.trim()
         ? value.shipping_carrier.trim()
@@ -555,7 +556,7 @@ Conserva este correo como referencia de tu compra.`;
 
 function shippedOrderDetails(order: OrderNotificationRow) {
   if (
-    order.fulfillment_status !== 'shipped' ||
+    !hasOrderShipment(order.fulfillment_status) ||
     !order.shipping_carrier ||
     !order.tracking_number ||
     !order.tracking_url ||

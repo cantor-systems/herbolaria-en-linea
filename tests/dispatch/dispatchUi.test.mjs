@@ -101,6 +101,9 @@ test('administrative detail requires authorization before reading or rendering c
     '@/lib/dispatch/auth': { async requireDispatchAdminSession() { throw guardFailure; } },
     '@/lib/dispatch/orders': { async getApprovedDispatchOrder() { reads++; return synthetic; } },
     '@/lib/dispatch/whatsapp': {}, '@/lib/utils': {},
+    '@/lib/orders/types': {},
+    '@/lib/dispatch/delivery': {},
+    '../_components/ConfirmDeliveryForm': {},
     '../_components/shipping-label': label,
     '../_components/ShippingLabelData': { ShippingLabelData() { throw new Error('must not render'); } },
   }).default;

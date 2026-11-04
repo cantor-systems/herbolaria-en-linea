@@ -8,7 +8,18 @@ export type OrderStatus =
   | 'charged_back';
 
 export type OrderShippingMethod = 'standard' | 'express';
-export type OrderFulfillmentStatus = 'pending' | 'shipped';
+export type OrderFulfillmentStatus = 'pending' | 'shipped' | 'delivered';
+export type DeliveryConfirmationSource = 'admin_manual';
+
+export function hasOrderShipment(status: OrderFulfillmentStatus) {
+  return status === 'shipped' || status === 'delivered';
+}
+
+export function optionalOrderTimestamp(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() && Number.isFinite(Date.parse(value))
+    ? new Date(value).toISOString()
+    : null;
+}
 
 export interface OrderShippingAddress {
   streetAddress: string;
@@ -75,6 +86,8 @@ export interface OrderRecord {
   trackingNumber: string | null;
   trackingUrl: string | null;
   shippedAt: string | null;
+  deliveredAt: string | null;
+  deliveryConfirmationSource: DeliveryConfirmationSource | null;
   paidAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -85,6 +98,10 @@ export interface MarkOrderShippedInput {
   shippingCarrier: string;
   trackingNumber: string;
   trackingUrl: string;
+}
+
+export interface MarkOrderDeliveredInput {
+  orderId: string;
 }
 
 export type PaymentEventSource = 'payment_status' | 'payment_webhook';

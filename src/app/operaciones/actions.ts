@@ -15,7 +15,9 @@ import {
   markWhatsAppShippingNotified,
 } from '@/lib/dispatch/orders';
 import { buildWhatsAppShippingUrl } from '@/lib/dispatch/whatsapp';
-import { markOrderShipped } from '@/lib/orders/fulfillment';
+import { isDeliveryConfirmationEnabled } from '@/lib/dispatch/delivery';
+import { markOrderShipped, markOrderDelivered } from '@/lib/orders/fulfillment';
+import { hasOrderShipment } from '@/lib/orders/types';
 import { processCustomerOrderShippedEmailNotification } from '@/lib/orders/notifications';
 
 const UUID_PATTERN =
@@ -110,7 +112,7 @@ export async function markOrderShippedAction(formData: FormData) {
   if (!order) redirect(detailPath(orderId, 'shipment=unavailable'));
 
   if (
-    order.fulfillmentStatus === 'shipped' &&
+    hasOrderShipment(order.fulfillmentStatus) &&
     (order.shippingCarrier !== shippingCarrier ||
       order.trackingNumber !== trackingNumber ||
       order.trackingUrl !== trackingUrl)
@@ -148,7 +150,7 @@ export async function retryShippingEmailAction(formData: FormData) {
     console.error('Dispatch operation failed.', { orderId, operation: 'load_for_email' });
     redirect(detailPath(orderId, 'email=failed'));
   }
-  if (!order || order.fulfillmentStatus !== 'shipped') {
+  if (!order || !hasOrderShipment(order.fulfillmentStatus)) {
     redirect(detailPath(orderId, 'email=unavailable'));
   }
 
@@ -190,7 +192,7 @@ export async function confirmWhatsAppSentAction(formData: FormData) {
   }
   if (
     !order ||
-    order.fulfillmentStatus !== 'shipped' ||
+    !hasOrderShipment(order.fulfillmentStatus) ||
     !order.whatsappNotificationsOptIn ||
     !buildWhatsAppShippingUrl(order)
   ) {
@@ -209,4 +211,36 @@ export async function confirmWhatsAppSentAction(formData: FormData) {
 
   revalidatePath(`/operaciones/despacho/${orderId}`);
   redirect(detailPath(orderId, 'whatsapp=confirmed'));
+}
+
+export async function markOrderDeliveredAction(formData: FormData) {
+  await requireDispatchAdminSession();
+  const orderId = validOrderId(formData);
+  if (!orderId) redirect('/operaciones/despacho?error=invalid-order');
+  if (!isDeliveryConfirmationEnabled()) {
+    redirect(detailPath(orderId, 'delivery=disabled'));
+  }
+  if (formData.get('confirmDelivery') !== 'on') {
+    redirect(detailPath(orderId, 'delivery=invalid'));
+  }
+
+  let order;
+  try {
+    order = await getApprovedDispatchOrder(orderId);
+  } catch {
+    redirect(detailPath(orderId, 'delivery=failed'));
+  }
+  if (!order || order.status !== 'approved' || !hasOrderShipment(order.fulfillmentStatus)) {
+    redirect(detailPath(orderId, 'delivery=unavailable'));
+  }
+
+  try {
+    await markOrderDelivered({ orderId });
+  } catch {
+    console.error('Dispatch operation failed.', { orderId, operation: 'mark_delivered' });
+    redirect(detailPath(orderId, 'delivery=failed'));
+  }
+  revalidatePath('/operaciones/despacho');
+  revalidatePath(`/operaciones/despacho/${orderId}`);
+  redirect(detailPath(orderId, 'delivery=confirmed'));
 }

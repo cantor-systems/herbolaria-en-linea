@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
+import { optionalOrderTimestamp } from '@/lib/orders/types';
 import type {
   OrderFulfillmentStatus,
   OrderShippingMethod,
@@ -11,6 +12,7 @@ export type PublicOrderState =
   | 'payment_pending'
   | 'confirmed'
   | 'shipped'
+  | 'delivered'
   | 'unavailable';
 
 export interface PublicOrderTracking {
@@ -21,6 +23,7 @@ export interface PublicOrderTracking {
   trackingNumber: string | null;
   trackingUrl: string | null;
   shippedAt: string | null;
+  deliveredAt: string | null;
 }
 
 interface TrackingOrderRow {
@@ -32,6 +35,7 @@ interface TrackingOrderRow {
   tracking_number: string | null;
   tracking_url: string | null;
   shipped_at: string | null;
+  delivered_at: string | null;
 }
 
 const TRACKING_COLUMNS = [
@@ -43,6 +47,7 @@ const TRACKING_COLUMNS = [
   'tracking_number',
   'tracking_url',
   'shipped_at',
+  'delivered_at',
 ].join(',');
 
 export class OrderTrackingLookupError extends Error {}
@@ -58,6 +63,9 @@ function publicState(row: TrackingOrderRow): PublicOrderState {
 
   if (row.status === 'approved' && row.fulfillment_status === 'shipped') {
     return 'shipped';
+  }
+  if (row.status === 'approved' && row.fulfillment_status === 'delivered') {
+    return 'delivered';
   }
 
   return 'unavailable';
@@ -81,7 +89,7 @@ function cleanOptionalText(value: string | null) {
 
 function toPublicTracking(row: TrackingOrderRow): PublicOrderTracking {
   const state = publicState(row);
-  const canShowShipment = state === 'shipped';
+  const canShowShipment = state === 'shipped' || state === 'delivered';
 
   return {
     orderNumber: row.public_order_number,
@@ -91,7 +99,15 @@ function toPublicTracking(row: TrackingOrderRow): PublicOrderTracking {
     trackingNumber: canShowShipment ? cleanOptionalText(row.tracking_number) : null,
     trackingUrl: canShowShipment ? httpsTrackingUrl(row.tracking_url) : null,
     shippedAt: canShowShipment ? row.shipped_at : null,
+    deliveredAt: state === 'delivered' ? optionalOrderTimestamp(row.delivered_at) : null,
   };
+}
+
+// Clients without an explicit V2 header retain the original response contract.
+export function trackingForVersion(tracking: PublicOrderTracking, version: string | null) {
+  if (version === '2') return tracking;
+  const { deliveredAt: _deliveredAt, ...legacy } = tracking;
+  return { ...legacy, state: legacy.state === 'delivered' ? 'shipped' : legacy.state };
 }
 
 export async function findPublicOrderTracking(orderNumber: string, email: string) {

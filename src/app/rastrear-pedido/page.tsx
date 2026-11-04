@@ -13,7 +13,7 @@ import { getWhatsAppHref } from '@/config/store';
 import { trackWhatsAppClick } from '@/lib/analytics';
 
 type ViewState = 'idle' | 'loading' | 'success' | 'not-found' | 'error';
-type PublicOrderState = 'payment_pending' | 'confirmed' | 'shipped' | 'unavailable';
+type PublicOrderState = 'payment_pending' | 'confirmed' | 'shipped' | 'delivered' | 'unavailable';
 
 interface OrderTrackingResult {
   orderNumber: string;
@@ -23,6 +23,7 @@ interface OrderTrackingResult {
   trackingNumber: string | null;
   trackingUrl: string | null;
   shippedAt: string | null;
+  deliveredAt: string | null;
 }
 
 const STATE_COPY: Record<
@@ -41,6 +42,10 @@ const STATE_COPY: Record<
   shipped: {
     label: 'Pedido enviado',
     description: 'Tu pedido ya fue entregado a la paquetería.',
+  },
+  delivered: {
+    label: 'Pedido entregado',
+    description: 'La entrega de tu pedido fue confirmada manualmente.',
   },
   unavailable: {
     label: 'Información no disponible',
@@ -84,11 +89,12 @@ function TimelineStep({
   );
 }
 
-function OrderTimeline({ state }: { state: 'confirmed' | 'shipped' }) {
-  const shipped = state === 'shipped';
+function OrderTimeline({ state }: { state: 'confirmed' | 'shipped' | 'delivered' }) {
+  const shipped = state === 'shipped' || state === 'delivered';
+  const delivered = state === 'delivered';
 
   return (
-    <div className="grid grid-cols-1 gap-4 text-xs font-semibold md:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 text-xs font-semibold sm:grid-cols-2 md:grid-cols-4">
       <TimelineStep
         title="1. Pedido confirmado"
         detail="Pago confirmado"
@@ -104,8 +110,14 @@ function OrderTimeline({ state }: { state: 'confirmed' | 'shipped' }) {
       <TimelineStep
         title="3. Pedido enviado"
         detail={shipped ? 'Entregado a paquetería' : 'Pendiente'}
-        state={shipped ? 'active' : 'pending'}
+        state={delivered ? 'completed' : shipped ? 'active' : 'pending'}
         icon={<Truck className="mb-2 h-5 w-5" />}
+      />
+      <TimelineStep
+        title="4. Pedido entregado"
+        detail={delivered ? 'Entrega confirmada' : 'Pendiente de confirmación'}
+        state={delivered ? 'completed' : 'pending'}
+        icon={<CheckCircle2 className="mb-2 h-5 w-5" />}
       />
     </div>
   );
@@ -130,7 +142,7 @@ export default function OrderTrackingPage() {
     try {
       const response = await fetch('/api/orders/tracking', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Order-Tracking-Version': '2' },
         body: JSON.stringify({ orderNumber, email }),
         cache: 'no-store',
       });
@@ -246,11 +258,11 @@ export default function OrderTrackingPage() {
             {STATE_COPY[result.state].description}
           </p>
 
-          {(result.state === 'confirmed' || result.state === 'shipped') && (
+          {(result.state === 'confirmed' || result.state === 'shipped' || result.state === 'delivered') && (
             <OrderTimeline state={result.state} />
           )}
 
-          {result.state === 'shipped' && (
+          {(result.state === 'shipped' || result.state === 'delivered') && (
             <div className="grid gap-4 rounded-2xl border border-[#D9D1B9] bg-white/50 p-5 text-sm text-[#23312C] sm:grid-cols-3">
               <div>
                 <span className="block text-[10px] font-extrabold uppercase text-[#6F8F69]">
@@ -270,6 +282,12 @@ export default function OrderTrackingPage() {
                 </span>
                 <strong>{formatShippedAt(result.shippedAt)}</strong>
               </div>
+              {result.state === 'delivered' && (
+                <div className="sm:col-span-3">
+                  <span className="block text-[10px] font-extrabold uppercase text-[#6F8F69]">Fecha de confirmación de entrega</span>
+                  <strong>{formatShippedAt(result.deliveredAt)}</strong>
+                </div>
+              )}
               {result.trackingUrl && (
                 <a
                   href={result.trackingUrl}

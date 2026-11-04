@@ -1,4 +1,5 @@
 import 'server-only';
+import { optionalOrderTimestamp, type DeliveryConfirmationSource } from '@/lib/orders/types';
 
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import type {
@@ -64,6 +65,8 @@ export interface DispatchOrderDetail extends DispatchOrderListItem {
   whatsappOptInAt: string | null;
   trackingUrl: string | null;
   shippedAt: string | null;
+  deliveredAt: string | null;
+  deliveryConfirmationSource: DeliveryConfirmationSource | null;
   paidAt: string | null;
   items: DispatchOrderItem[];
   shippingEmailNotification: ShippingEmailNotification | null;
@@ -90,6 +93,8 @@ interface DispatchOrderRow {
   tracking_number?: string | null;
   tracking_url?: string | null;
   shipped_at?: string | null;
+  delivered_at?: string | null;
+  delivery_confirmation_source?: string | null;
   paid_at?: string | null;
   created_at: string;
 }
@@ -136,6 +141,8 @@ const DETAIL_COLUMNS = [
   'whatsapp_opt_in_at',
   'tracking_url',
   'shipped_at',
+  'delivered_at',
+  'delivery_confirmation_source',
   'paid_at',
 ].join(',');
 
@@ -356,6 +363,9 @@ export async function getApprovedDispatchOrder(orderId: string) {
     whatsappOptInAt: textOrNull(row.whatsapp_opt_in_at),
     trackingUrl: textOrNull(row.tracking_url),
     shippedAt: textOrNull(row.shipped_at),
+    deliveredAt: optionalOrderTimestamp(row.delivered_at),
+    deliveryConfirmationSource:
+      row.delivery_confirmation_source === 'admin_manual' ? 'admin_manual' : null,
     paidAt: textOrNull(row.paid_at),
     items,
   } satisfies DispatchOrderDetail;

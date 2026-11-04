@@ -1,8 +1,12 @@
 import 'server-only';
 
 import { processCustomerOrderShippedEmailNotification } from '@/lib/orders/notifications';
-import { persistOrderShipment } from '@/lib/orders/repository';
-import type { MarkOrderShippedInput } from '@/lib/orders/types';
+import { persistOrderShipment, persistOrderDeliveryConfirmation } from '@/lib/orders/repository';
+import type { MarkOrderShippedInput, MarkOrderDeliveredInput } from '@/lib/orders/types';
+
+export async function markOrderDelivered(input: MarkOrderDeliveredInput) {
+  return persistOrderDeliveryConfirmation(input);
+}
 
 export async function markOrderShipped(input: MarkOrderShippedInput) {
   const order = await persistOrderShipment(input);

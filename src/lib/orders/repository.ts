@@ -3,9 +3,12 @@ import 'server-only';
 import { createHash } from 'node:crypto';
 import type { VerifiedPaymentSnapshot } from '@/lib/mercadopago/paymentVerification';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
+import { optionalOrderTimestamp } from '@/lib/orders/types';
 import type {
   CreatePendingOrderInput,
   MarkOrderShippedInput,
+  MarkOrderDeliveredInput,
+  DeliveryConfirmationSource,
   OrderFulfillmentStatus,
   OrderRecord,
   OrderShippingMethod,
@@ -45,6 +48,8 @@ interface OrderRow {
   tracking_number: string | null;
   tracking_url: string | null;
   shipped_at: string | null;
+  delivered_at: string | null;
+  delivery_confirmation_source: DeliveryConfirmationSource | null;
   paid_at: string | null;
   created_at: string;
   updated_at: string;
@@ -78,6 +83,8 @@ const ORDER_COLUMNS = [
   'tracking_number',
   'tracking_url',
   'shipped_at',
+  'delivered_at',
+  'delivery_confirmation_source',
   'paid_at',
   'created_at',
   'updated_at',
@@ -112,6 +119,9 @@ function toOrderRecord(row: OrderRow): OrderRecord {
     trackingNumber: row.tracking_number,
     trackingUrl: row.tracking_url,
     shippedAt: row.shipped_at,
+    deliveredAt: optionalOrderTimestamp(row.delivered_at),
+    deliveryConfirmationSource:
+      row.delivery_confirmation_source === 'admin_manual' ? 'admin_manual' : null,
     paidAt: row.paid_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -294,5 +304,15 @@ export async function persistOrderShipment(input: MarkOrderShippedInput) {
     );
   }
   if (error || !data) throw persistenceFailure('el registro del envío', error);
+  return toOrderRecord(data as OrderRow);
+}
+
+export async function persistOrderDeliveryConfirmation(input: MarkOrderDeliveredInput) {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .rpc('mark_order_delivered', { p_order_id: input.orderId })
+    .maybeSingle();
+
+  if (error || !data) throw persistenceFailure('la confirmación de entrega', error);
   return toOrderRecord(data as OrderRow);
 }
