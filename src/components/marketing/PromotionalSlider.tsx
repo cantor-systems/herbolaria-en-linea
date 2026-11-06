@@ -77,7 +77,7 @@ export function PromotionalSlider({ slides }: { slides: readonly PromotionalSlid
           {slides.map((slide, position) => (
             <article
               key={slide.id}
-              className={styles.slide}
+              className={`${styles.slide}${slide.copyPosition === 'right' ? ` ${styles.copyRight}` : ''}`}
               hidden={position !== current}
               role="group"
               aria-roledescription="diapositiva"

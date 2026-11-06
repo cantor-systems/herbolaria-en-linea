@@ -5,6 +5,7 @@ export type PromotionalSlide = {
   mobileImage?: string;
   imagePosition?: string;
   mobileImagePosition?: string;
+  copyPosition?: 'left' | 'right';
   alt: string;
   eyebrow: string;
   headline: string;
@@ -18,34 +19,34 @@ export type PromotionalSlide = {
   previewOnly: boolean;
 };
 
-// Existing catalogue artwork is authorized only as a Preview reference.
-// Replace it with approved panoramic/mobile photography before production use.
+// Owner-supplied panoramic candidates. Keep Preview-only until final visual
+// approval of photography and desktop/mobile framing.
 export const PROMOTIONAL_SLIDES: readonly PromotionalSlide[] = [
   {
     id: 'moronel-featured', campaign: 'featured-product',
-    desktopImage: '/images/products/moronel-gotas-50ml.webp',
-    mobileImage: '/images/products/moronel-gotas-50ml.webp',
-    imagePosition: '50% 66%', mobileImagePosition: '50% 50%',
-    alt: 'Imagen de referencia del catálogo: presentación de gotas Moronel.',
+    desktopImage: '/images/banners/featured-product.webp',
+    mobileImage: '/images/banners/featured-product.webp',
+    imagePosition: '50% 55%', mobileImagePosition: '0% 50%', copyPosition: 'right',
+    alt: 'Frasco ámbar con gotero junto a flores sobre una superficie de madera.',
     eyebrow: 'Producto destacado', headline: 'Descubre Moronel en línea',
     ctaText: 'Ver productos', href: '/tienda', order: 1, active: true, previewOnly: true,
   },
   {
     id: 'moronel-packages', campaign: 'promotion',
-    desktopImage: '/images/products/moronel-paquete-integral.webp',
-    mobileImage: '/images/products/moronel-paquete-integral.webp',
-    imagePosition: '50% 64%', mobileImagePosition: '50% 50%',
-    alt: 'Imagen de referencia del catálogo: conjunto de presentaciones Moronel.',
+    desktopImage: '/images/banners/packages.webp',
+    mobileImage: '/images/banners/packages.webp',
+    imagePosition: '50% 50%', mobileImagePosition: '50% 50%',
+    alt: 'Frascos ámbar, hierbas secas, una taza de infusión y un paquete sobre una mesa.',
     eyebrow: 'Promociones', headline: 'Descubre nuestros paquetes',
     ctaText: 'Ver promociones', href: '/categoria/paquetes-y-promociones',
     order: 2, active: true, previewOnly: true,
   },
   {
     id: 'herbal-world', campaign: 'editorial',
-    desktopImage: '/images/blog/moronel-usos-tradicionales.webp',
-    mobileImage: '/images/blog/moronel-usos-tradicionales.webp',
-    imagePosition: '50% 45%', mobileImagePosition: '50% 35%',
-    alt: 'Imagen de referencia editorial: una rama de hojas verdes.',
+    desktopImage: '/images/banners/herbal-editorial.webp',
+    mobileImage: '/images/banners/herbal-editorial.webp',
+    imagePosition: '50% 50%', mobileImagePosition: '15% 50%', copyPosition: 'right',
+    alt: 'Detalle de hojas de una planta con un fondo natural desenfocado.',
     eyebrow: 'Conoce más', headline: 'Explora el mundo de la herbolaria',
     ctaText: 'Leer artículos', href: '/blog', order: 3, active: true, previewOnly: true,
   },

@@ -35,6 +35,11 @@
   padding: 3.5rem 1.25rem 4rem 5.5rem;
   gap: 1.35rem;
 }
+.copyRight .copy { inset-inline: auto 0; padding-inline: 2.5rem 5.5rem; }
+.copyRight .shade {
+  background: linear-gradient(270deg, rgb(12 25 19 / 91%) 0%, rgb(12 25 19 / 82%) 27%, rgb(12 25 19 / 48%) 50%, rgb(12 25 19 / 5%) 78%),
+    linear-gradient(0deg, rgb(12 25 19 / 55%), transparent 25%);
+}
 .eyebrow {
   border-radius: 999px;
   padding: .55rem 1.1rem;
@@ -90,14 +95,15 @@
 @media (min-width: 1024px) { .container { padding-inline: 2rem; } }
 @media (max-width: 767px) {
   .copy { width: 75%; padding-left: 4.5rem; }
+  .copyRight .copy { padding-inline: 2rem 4.5rem; }
   .headline { font-size: 2.6rem; }
 }
 @media (max-width: 639px) {
   .slider { border-radius: 1.25rem; }
   .slides { height: 38rem; }
   .image { object-position: var(--mobile-image-position); }
-  .shade { background: linear-gradient(0deg, rgb(12 25 19 / 97%) 0%, rgb(12 25 19 / 88%) 25%, rgb(12 25 19 / 15%) 65%, rgb(12 25 19 / 12%)); }
-  .copy { inset: auto 0 0; width: 100%; padding: 1.5rem 1.5rem 5rem; gap: 1rem; }
+  .shade, .copyRight .shade { background: linear-gradient(0deg, rgb(12 25 19 / 97%) 0%, rgb(12 25 19 / 88%) 25%, rgb(12 25 19 / 15%) 65%, rgb(12 25 19 / 12%)); }
+  .copy, .copyRight .copy { inset: auto 0 0; width: 100%; padding: 1.5rem 1.5rem 5rem; gap: 1rem; }
   .headline { font-size: clamp(2rem, 8.2vw, 2.75rem); max-width: 18ch; }
   .eyebrow { font-size: .65rem; padding: .5rem .8rem; }
   .cta { min-height: 3rem; font-size: .95rem; padding: .7rem 1.3rem; }
