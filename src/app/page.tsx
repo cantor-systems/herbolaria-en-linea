@@ -5,6 +5,7 @@ import { PROMOTIONAL_SLIDES, allowPromotionalPreview, selectPromotionalSlides } 
 import { ProductGrid } from '@/components/product/ProductGrid';
 import { getActiveCategories } from '@/data/categories';
 import { HOME_CATEGORY_CARDS, HOME_CATEGORY_SECTION } from '@/content/home-categories';
+import { HOMEPAGE_CONTENT } from '@/content/homepage';
 import { HowToBuySteps } from '@/components/marketing/HowToBuySteps';
 import { TrustBar } from '@/components/store/TrustBar';
 import { EducationalSection } from '@/components/marketing/EducationalSection';
@@ -92,13 +93,13 @@ export default function HomePage() {
       <section className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
           <span className="text-xs font-extrabold text-[#D17B24] uppercase tracking-wider block mb-1">
-            Selección del catálogo
+            {HOMEPAGE_CONTENT.featuredProducts.eyebrow}
           </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#23312C]">
-            Productos destacados
+            {HOMEPAGE_CONTENT.featuredProducts.title}
           </h2>
           <p className="text-sm text-[#6F8F69] font-medium">
-            Conoce una selección de productos disponibles para comprar en línea.
+            {HOMEPAGE_CONTENT.featuredProducts.subtitle}
           </p>
         </div>
 
@@ -109,7 +110,7 @@ export default function HomePage() {
             href="/tienda"
             className="min-h-[44px] text-sm font-extrabold text-[#285F50] hover:text-[#23312C] inline-flex items-center justify-center gap-2 bg-[#F4EFD6] px-5 py-3 rounded-xl border border-[#D9D1B9] transition-colors"
           >
-            <span>Ver todo el catálogo</span>
+            <span>{HOMEPAGE_CONTENT.featuredProducts.ctaText}</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
