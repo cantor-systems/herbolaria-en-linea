@@ -4,6 +4,7 @@ import { PromotionalSlider } from '@/components/marketing/PromotionalSlider';
 import { PROMOTIONAL_SLIDES, allowPromotionalPreview, selectPromotionalSlides } from '@/content/promotional-slides';
 import { ProductGrid } from '@/components/product/ProductGrid';
 import { getActiveCategories } from '@/data/categories';
+import { HOME_CATEGORY_CARDS, HOME_CATEGORY_SECTION } from '@/content/home-categories';
 import { HowToBuySteps } from '@/components/marketing/HowToBuySteps';
 import { TrustBar } from '@/components/store/TrustBar';
 import { EducationalSection } from '@/components/marketing/EducationalSection';
@@ -39,13 +40,13 @@ export default function HomePage() {
       <section id="categorias" className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
           <span className="text-xs font-extrabold text-[#D17B24] uppercase tracking-wider block">
-            Explora el catálogo
+            {HOME_CATEGORY_SECTION.eyebrow}
           </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#23312C]">
-            Compra por categoría
+            {HOME_CATEGORY_SECTION.title}
           </h2>
           <p className="text-sm text-[#6F8F69] font-medium">
-            Encuentra productos según su presentación.
+            {HOME_CATEGORY_SECTION.subtitle}
           </p>
         </div>
 
@@ -62,28 +63,23 @@ export default function HomePage() {
                   alt={cat.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                {cat.badge && (
-                  <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#D17B24] text-white shadow-sm">
-                    {cat.badge}
-                  </span>
-                )}
               </div>
 
               <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
                 <div>
                   <span className="text-[10px] font-bold text-[#6F8F69] uppercase tracking-wider block mb-1">
-                    {cat.subtitle}
+                    {HOME_CATEGORY_CARDS[cat.id].microLabel}
                   </span>
                   <h3 className="font-extrabold text-[#23312C] text-lg group-hover:text-[#285F50] transition-colors leading-snug">
                     {cat.name}
                   </h3>
-                  <p className="text-xs text-[#6F8F69] line-clamp-2 mt-1.5 leading-relaxed">
-                    {cat.description}
+                  <p className="text-xs text-[#6F8F69] mt-1.5 leading-relaxed">
+                    {HOME_CATEGORY_CARDS[cat.id].description}
                   </p>
                 </div>
 
                 <div className="pt-2 border-t border-[#D9D1B9]/60 flex items-center justify-between text-xs font-bold text-[#285F50]">
-                  <span>Ver categoría</span>
+                  <span>{HOME_CATEGORY_CARDS[cat.id].ctaText}</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
