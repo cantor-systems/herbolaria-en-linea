@@ -4,9 +4,9 @@ import { STORE_CONFIG } from '@/config/store';
 export const HOMEPAGE_CONTENT = {
   hero: {
     eyebrow: 'Herbolaria en Línea',
-    h1: 'Productos herbolarios para comprar en línea',
+    h1: 'Lo mejor de la herbolaria, en un solo lugar.',
     subtitle:
-      'Explora extractos, cápsulas, hierbas y paquetes seleccionados en un solo lugar.',
+      'Plantas medicinales, extractos y suplementos herbolarios cuidadosamente seleccionados. Compra fácilmente y recibe en todo México.',
     ctaPrimary: {
       text: 'Ver productos',
       href: '/tienda',
