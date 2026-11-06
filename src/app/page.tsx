@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { HeroBanner } from '@/components/marketing/HeroBanner';
+import { PromotionalSlider } from '@/components/marketing/PromotionalSlider';
+import { PROMOTIONAL_SLIDES, allowPromotionalPreview, selectPromotionalSlides } from '@/content/promotional-slides';
 import { ProductGrid } from '@/components/product/ProductGrid';
 import { getActiveCategories } from '@/data/categories';
 import { HowToBuySteps } from '@/components/marketing/HowToBuySteps';
@@ -14,13 +16,19 @@ import { canonicalAlternates } from '@/lib/site';
 import { getFeaturedProducts } from '@/lib/catalog';
 
 export const metadata: Metadata = { ...canonicalAlternates('/') };
+// Re-evaluate optional campaign windows without changing other pages.
+export const revalidate = 60;
 
 export default function HomePage() {
   const activeCategories = getActiveCategories();
   const featuredProducts = getFeaturedProducts(4);
+  const promotionalSlides = selectPromotionalSlides(PROMOTIONAL_SLIDES, {
+    allowPreview: allowPromotionalPreview(process.env.NODE_ENV, process.env.VERCEL_ENV),
+  });
 
   return (
     <div className="space-y-6 sm:space-y-12">
+      {promotionalSlides.length > 0 && <PromotionalSlider slides={promotionalSlides} />}
       {/* 1. Hero Section */}
       <HeroBanner />
 
