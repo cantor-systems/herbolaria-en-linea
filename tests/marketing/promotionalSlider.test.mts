@@ -13,13 +13,22 @@ vm.runInNewContext(ts.transpileModule(readFileSync(new URL('../../src/data/categ
 const { getActiveCategories } = categoriesModule.exports;
 
 test('unapproved reference artwork is excluded from production by default', () => {
-  assert.equal(selectPromotionalSlides(PROMOTIONAL_SLIDES).length, 0);
-  assert.equal(selectPromotionalSlides(PROMOTIONAL_SLIDES, { allowPreview: true }).length, 3);
+  const unapproved = [sample({ previewOnly: true })];
+  assert.equal(selectPromotionalSlides(unapproved).length, 0);
+  assert.equal(selectPromotionalSlides(unapproved, { allowPreview: true }).length, 1);
   assert.equal(allowPromotionalPreview('production', 'production'), false);
   assert.equal(allowPromotionalPreview('development', 'production'), false);
   assert.equal(allowPromotionalPreview('production', undefined), false);
   assert.equal(allowPromotionalPreview('production', 'preview'), true);
   assert.equal(allowPromotionalPreview('development', undefined), true);
+});
+
+test('the three owner-approved provisional banners are available in production', () => {
+  const slides = selectPromotionalSlides(PROMOTIONAL_SLIDES, {
+    allowPreview: allowPromotionalPreview('production', 'production'),
+  });
+  assert.deepEqual(slides.map((slide) => slide.id), ['moronel-featured', 'moronel-packages', 'herbal-world']);
+  assert.ok(slides.every((slide) => slide.previewOnly === false));
 });
 
 test('campaign windows include the start, exclude the end and fail closed on invalid dates', () => {

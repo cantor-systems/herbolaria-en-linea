@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Pause, Play } from 'lucide-react';
 import type { PromotionalSlide } from '@/content/promotional-slides';
@@ -10,6 +10,7 @@ export const PROMOTIONAL_AUTOPLAY_MS = 6000;
 
 export function PromotionalSlider({ slides }: { slides: readonly PromotionalSlide[] }) {
   const regionId = useId();
+  const playbackRef = useRef<HTMLButtonElement>(null);
   const [index, setIndex] = useState(0);
   const [ready, setReady] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -47,6 +48,24 @@ export function PromotionalSlider({ slides }: { slides: readonly PromotionalSlid
     setIndex((next + slides.length) % slides.length);
   }
 
+  function trackHover(event: PointerEvent<HTMLElement>) {
+    // Touch-generated compatibility mouse events must not leave hover stuck.
+    // The rotation control itself must remain usable while retaining focus.
+    if (event.pointerType === 'mouse' && !playbackRef.current?.contains(event.target as Node)) setHovered(true);
+  }
+
+  function togglePlayback() {
+    if (rotating) {
+      setPaused(true);
+    } else {
+      // Explicit Play acknowledges the current interaction, without blurring.
+      // New content hover/focus/navigation still pauses rotation normally.
+      setPaused(false);
+      setFocused(false);
+      setHovered(false);
+    }
+  }
+
   function onKeyDown(event: KeyboardEvent<HTMLElement>) {
     if (!multiple || event.altKey || event.ctrlKey || event.metaKey) return;
     const destination = { ArrowLeft: current - 1, ArrowRight: current + 1, Home: 0, End: slides.length - 1 }[event.key];
@@ -66,9 +85,10 @@ export function PromotionalSlider({ slides }: { slides: readonly PromotionalSlid
         aria-roledescription="carrusel"
         aria-label="Destacados de Herbolaria en Línea"
         onKeyDown={onKeyDown}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        onFocusCapture={() => setFocused(true)}
+        onPointerEnter={trackHover}
+        onPointerMove={trackHover}
+        onPointerLeave={() => setHovered(false)}
+        onFocusCapture={(event) => { if (!playbackRef.current?.contains(event.target as Node)) setFocused(true); }}
         onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}
         onPointerDown={(event) => { if (!(event.target as HTMLElement).closest('button')) setPaused(true); }}
         data-promotional-slider
@@ -131,8 +151,8 @@ export function PromotionalSlider({ slides }: { slides: readonly PromotionalSlid
                 ))}
               </div>
               {!reducedMotion && (
-                <button type="button" className={styles.playback} aria-label={paused ? 'Reanudar cambio automático' : 'Pausar cambio automático'} onClick={() => setPaused((value) => !value)}>
-                  {paused ? <Play size={16} aria-hidden="true" /> : <Pause size={16} aria-hidden="true" />}
+                <button ref={playbackRef} type="button" className={styles.playback} aria-label={rotating ? 'Pausar cambio automático' : 'Reanudar cambio automático'} onClick={togglePlayback}>
+                  {rotating ? <Pause size={16} aria-hidden="true" /> : <Play size={16} aria-hidden="true" />}
                 </button>
               )}
             </div>

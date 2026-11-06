@@ -12,24 +12,26 @@ the end is exclusive. Invalid or inverted dates omit the slide. Home revalidates
 every 60 seconds; campaign boundaries therefore have cache/revalidation latency
 and are unsuitable for enforcing commercial prices or eligibility.
 
-The banners now use the three panoramic candidates supplied by the owner, without
-embedded promotional copy. Final visual approval is still pending; their
-unbranded bottles are contextual imagery, not exact Moronel packaging. Each slide
-remains `previewOnly: true`, visibly labelled
-“Preview · Imagen de referencia”. The server includes those slides only in Vercel
-Preview or local `next dev`. Production and local production builds omit them.
-No client flag, public environment variable or query parameter enables them there.
-`VERCEL_ENV` must be exposed by Vercel's system environment variables setting;
-if absent, reference slides are omitted. See the [official environment reference](https://vercel.com/docs/environment-variables/system-environment-variables#vercel_env).
-Never promote a Preview artifact directly to Production: it was built with Preview
-content. A future production publication requires its own production build.
+The owner approved the three current panoramic images for **provisional use in
+Production on 2026-11-06**, including their current desktop/mobile presentation,
+and authorized the release through PR #22 after successful validation.
+All three slides now have `previewOnly: false`: they are included in production
+builds and do not display “Preview · Imagen de referencia”. No promotional copy
+is embedded in the images. The unbranded bottles remain contextual imagery,
+not exact Moronel packaging. The images are provisional, not a claim of final
+commercial photography.
 
-Before production publication, obtain explicit approval for the photographs,
-review desktop/mobile framing and alt text, then change the
-corresponding `previewOnly` flag under a separate publication authorization.
+The `previewOnly` protection remains available for future unapproved images.
+Those slides are included only in Vercel Preview or local `next dev`; production
+omits them. If `VERCEL_ENV` is unavailable, unapproved reference slides remain
+excluded. Approved slides do not depend on that variable. See the [official
+environment reference](https://vercel.com/docs/environment-variables/system-environment-variables#vercel_env).
+Production must receive its own build from `main`, rather than promotion of a
+Preview artifact built with different content eligibility.
+
 The mockup itself is not shipped. The existing catalogue images and Hero are unchanged.
 
-## Panoramic candidates
+## Provisional panoramas authorized for Production
 
 The supplied WebP files are copied byte-for-byte into `public/images/banners/`:
 
@@ -49,17 +51,26 @@ mobile focal point (left for the dropper, centre for the package scene, left-sid
 leaves for the editorial image); copy retains the existing bottom placement.
 These are reviewed crops of the supplied images, not independent mobile artwork.
 Dedicated mobile photography can replace `mobileImage` later without redesigning
-the slider. Mobile crops and the use of contextual unbranded bottles require
-visual approval before production eligibility changes.
+the slider. The current mobile crops and contextual unbranded imagery are included
+in the owner's provisional Production approval. Future replacements must undergo
+their own review and retain `previewOnly: true` until approved.
 
 The packages destination is `/categoria/paquetes-y-promociones`. No percentage,
 gift, launch, price or expired coupon is advertised by the new component.
 
 ## Interaction and accessibility
 
-Six-second autoplay runs only with multiple slides, visible document, no hover/focus,
-and no reduced-motion preference. Manual navigation pauses it until the user
-resumes. Arrows, indicators and pause/resume have accessible names and touch
+Six-second autoplay runs only with multiple slides, visible document, no active
+content-hover/focus pause and no reduced-motion preference. Manual navigation
+pauses it until the user resumes. Explicit Play acknowledges current interaction
+pause reasons while keeping DOM focus on the playback control. New content hover,
+focus, pointer interaction or slide navigation pauses it again. Merely focusing
+Play from paused content does not resume it. Only mouse pointers create hover
+pause; touch compatibility events do not. The playback label/icon reflect actual
+rotation, including automatic pauses. Reduced motion and page visibility always
+take precedence over Play. This follows the explicit-start principle in the
+[WAI carousel example](https://www.w3.org/WAI/ARIA/apg/patterns/carousel/examples/carousel-1-prev-next/).
+Arrows, indicators and pause/resume have accessible names and touch
 targets of at least 44px. Arrow keys, Home and End work within the region.
 Reduced motion disables autoplay. Without JavaScript the first slide, image and
 CTA remain available, and interactive controls are omitted. Only the current
@@ -86,7 +97,8 @@ absence of horizontal overflow. Do not exercise checkout or external providers.
 - Arrows/indicators/keyboard wrapping, six-second autoplay, focus/hover/manual pause,
   reduced motion, stable slide height and three local HTTP 200 CTA destinations passed.
 - A browser with JavaScript disabled retained the first banner and CTA.
-- A local production build omitted the reference slider and retained the original H1.
+- Before release approval, a local production build omitted the then-unapproved
+  reference slider and retained the original H1.
 - No browser runtime errors or attempted external requests in local validation.
 - Local server bound to `127.0.0.1`; environment files hidden from Next's loader,
   provider credentials removed, HTTP access restricted by a validation preload,
@@ -100,4 +112,53 @@ absence of horizontal overflow. Do not exercise checkout or external providers.
 - Actual decoded banner dimensions, local image paths, explicit mobile focal points,
   one visible slide, one H1, contained CTA, separation from controls and no horizontal
   overflow verified for all six captures.
-- Source and repository asset hashes match. All three slides remain Preview-only.
+- Source and repository asset hashes match. During this review all three slides
+  remained Preview-only; the later release authorization below supersedes that status.
+
+### Production release authorization (2026-11-06)
+
+- The release request approved the three `previewOnly` flags changing to `false`.
+  Its validation exposed the playback blocker described below; the subsequent
+  correction is separately authorized. Copy, CTA, photos, positions, responsive
+  styles and Hero remain unchanged.
+- Regression coverage checks both production inclusion of the three approved
+  banners and continued exclusion of future unapproved Preview-only imagery.
+- Release requires passing tests, typecheck, production build, local production
+  browser verification of all three banners without the Preview label, CI, merge
+  of PR #22 and a Ready production deployment from that merge.
+- Public verification is limited to Home, its static banner resources and slider
+  interactions on desktop/mobile, without checkout or other commercial operations.
+
+### Mobile playback correction — merge remains on hold
+
+The owner authorized diagnosis/correction and an update to PR #22, with a new
+confirmation required before merge. No Production publication is part of this step.
+The three provisionally approved banners retain `previewOnly: false`.
+
+Reproduction at 390 × 950 (mouse and touch), using the real component and native
+time, confirmed `paused=false`, `focused=true`, `hovered=true`,
+`reducedMotion=false`, `visible=true`, `rotating=false` after Play. Moving the mouse
+outside removed `hovered`, but `focused=true` still prevented rotation. Touch also
+left compatibility hover active. The button wrongly said Pause because its label
+only considered `paused`.
+
+Play now clears the current logical interaction-pause reasons without blurring
+the button. A ref distinguishes the playback control from content. Pointer events
+track mouse hover only, and new content movement/focus still pauses. No added
+timers, forced focus loss, style changes or interval changes are used.
+
+Permanent regression tests execute the real component handlers and interval with
+Node's deterministic clock: pause → resume without blur → tick beyond 6000ms →
+advance. Mouse, touch, keyboard, renewed interaction, reduced motion and hidden
+page scenarios are covered. Browser diagnostics use a temporary read-only React
+state inspector outside the repository; no debug attributes/logging ship in the app.
+
+Validation completed on the local production build: 33 automated tests, typecheck,
+build and diff checks passed. Native-time Chromium checks passed at 390 × 950 and
+320 × 950 with touch emulation, 768 × 1024 tablet, 1440 × 1060 desktop and the
+original 390 × 950 mouse viewport. Every viewport remained paused for 6300ms,
+then advanced after explicit Play and 6600ms with focus still on the button.
+Renewed content focus, keyboard navigation and reduced motion paused as expected;
+mouse viewports also checked renewed content hover. No browser runtime errors or
+horizontal overflow occurred. Page visibility is covered by the automated handler
+test. CSS, images, copy, CTA and Hero match the approved revision.

@@ -19,8 +19,9 @@ export type PromotionalSlide = {
   previewOnly: boolean;
 };
 
-// Owner-supplied panoramic candidates. Keep Preview-only until final visual
-// approval of photography and desktop/mobile framing.
+// Owner-supplied provisional panoramas, approved for Production on 2026-11-06.
+// Preserve the approved desktop/mobile framing; future unapproved imagery must
+// remain Preview-only.
 export const PROMOTIONAL_SLIDES: readonly PromotionalSlide[] = [
   {
     id: 'moronel-featured', campaign: 'featured-product',
@@ -29,7 +30,7 @@ export const PROMOTIONAL_SLIDES: readonly PromotionalSlide[] = [
     imagePosition: '50% 55%', mobileImagePosition: '0% 50%', copyPosition: 'right',
     alt: 'Frasco ámbar con gotero junto a flores sobre una superficie de madera.',
     eyebrow: 'Producto destacado', headline: 'Descubre Moronel en línea',
-    ctaText: 'Ver productos', href: '/tienda', order: 1, active: true, previewOnly: true,
+    ctaText: 'Ver productos', href: '/tienda', order: 1, active: true, previewOnly: false,
   },
   {
     id: 'moronel-packages', campaign: 'promotion',
@@ -39,7 +40,7 @@ export const PROMOTIONAL_SLIDES: readonly PromotionalSlide[] = [
     alt: 'Frascos ámbar, hierbas secas, una taza de infusión y un paquete sobre una mesa.',
     eyebrow: 'Promociones', headline: 'Descubre nuestros paquetes',
     ctaText: 'Ver promociones', href: '/categoria/paquetes-y-promociones',
-    order: 2, active: true, previewOnly: true,
+    order: 2, active: true, previewOnly: false,
   },
   {
     id: 'herbal-world', campaign: 'editorial',
@@ -48,7 +49,7 @@ export const PROMOTIONAL_SLIDES: readonly PromotionalSlide[] = [
     imagePosition: '50% 50%', mobileImagePosition: '15% 50%', copyPosition: 'right',
     alt: 'Detalle de hojas de una planta con un fondo natural desenfocado.',
     eyebrow: 'Conoce más', headline: 'Explora el mundo de la herbolaria',
-    ctaText: 'Leer artículos', href: '/blog', order: 3, active: true, previewOnly: true,
+    ctaText: 'Leer artículos', href: '/blog', order: 3, active: true, previewOnly: false,
   },
 ];
 
