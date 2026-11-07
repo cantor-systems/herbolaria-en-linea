@@ -47,13 +47,20 @@ export const HOMEPAGE_CONTENT = {
     },
   ],
   educational: {
-    title: 'Conoce más sobre Moronel',
-    subtitle: 'Historia, presentaciones y tradición herbolaria',
-    content: [
-      'Conocida popularmente como Planta de la Vida o Moronel (Lonicera subspicata var. denudata), esta especie forma parte de la tradición herbolaria mexicana.',
-      'Los productos Moronel están disponibles en extracto concentrado en gotas, cápsulas y hierba deshidratada.',
-      'Estas presentaciones ofrecen distintas opciones de preparación, almacenamiento y portabilidad.',
-    ],
+    eyebrow: 'Conocimiento herbolario',
+    title: 'Descubre el mundo de las plantas medicinales',
+    subtitle: 'Historia, tradición y conocimiento botánico.',
+    introduction:
+      'Explora el conocimiento tradicional de las plantas medicinales, sus características y las distintas formas en que han sido utilizadas a lo largo del tiempo.',
+    cta: { text: 'Leer artículos', href: '/blog' },
+    // Existing botanical panorama, provisionally authorized for Production in
+    // HERB-WEB-001. See docs/promotional-slider.md; not final photography.
+    image: {
+      src: '/images/banners/herbal-editorial.webp',
+      alt: 'Detalle de hojas verde grisáceas con un fondo natural desenfocado.',
+      width: 2245,
+      height: 1035,
+    },
   },
   howToBuySteps: [
     {
