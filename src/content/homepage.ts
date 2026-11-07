@@ -16,6 +16,12 @@ export const HOMEPAGE_CONTENT = {
       href: '#categorias',
     },
   },
+  featuredProducts: {
+    eyebrow: 'Nuestra selección',
+    title: 'Descubre nuestros productos destacados',
+    subtitle: 'Explora una selección de productos herbolarios y conoce las distintas opciones que tenemos para ti.',
+    ctaText: 'Explorar catálogo',
+  },
   benefits: [
     {
       icon: 'Truck',

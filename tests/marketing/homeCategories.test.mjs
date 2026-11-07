@@ -28,6 +28,10 @@ function load(relativePath, dependencies = {}) {
 
 const shared = load('../../src/data/categories.ts');
 const homeCopy = load('../../src/content/home-categories.ts');
+const homepage = load('../../src/content/homepage.ts', {
+  '@/config/shipping': { SHIPPING_CONFIG: { standardEstimatedDays: 'plazo sintético', expressEstimatedDays: 'plazo sintético' } },
+  '@/config/store': { STORE_CONFIG: { contact: { whatsapp: { enabled: false } } } },
+});
 const active = shared.getActiveCategories();
 const beforeShared = JSON.stringify(shared.CATEGORIES);
 const Link = { __esModule: true, default: ({ children, ...props }) => React.createElement('a', props, children) };
@@ -38,6 +42,7 @@ function renderCategories(categories = active) {
     'next/link': Link,
     '@/data/categories': { getActiveCategories: () => categories },
     '@/content/home-categories': homeCopy,
+    '@/content/homepage': homepage,
     '@/content/promotional-slides': { PROMOTIONAL_SLIDES: [], allowPromotionalPreview: () => false, selectPromotionalSlides: () => [] },
     '@/lib/site': { canonicalAlternates: () => ({}) },
     '@/lib/catalog': { getFeaturedProducts: () => [] },
