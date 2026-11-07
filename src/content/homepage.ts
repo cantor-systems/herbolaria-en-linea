@@ -58,23 +58,23 @@ export const HOMEPAGE_CONTENT = {
   howToBuySteps: [
     {
       step: '01',
-      title: 'Elige productos',
-      description: 'Explora el catálogo y agrega al carrito las presentaciones que prefieras.',
+      title: 'Elige tus productos',
+      description: 'Explora el catálogo y selecciona las presentaciones que mejor se adapten a tus necesidades.',
     },
     {
       step: '02',
-      title: 'Revisa tu carrito',
+      title: 'Revisa tu pedido',
       description: 'Confirma productos, cantidades y opciones disponibles antes de continuar.',
     },
     {
       step: '03',
-      title: 'Paga en línea',
-      description: 'Completa tus datos y realiza el pago mediante Mercado Pago.',
+      title: 'Paga de forma segura',
+      description: 'Completa tus datos y realiza tu pago en línea mediante Mercado Pago.',
     },
     {
       step: '04',
-      title: 'Recibe y rastrea tu pedido',
-      description: 'Consulta el estado de tu compra y la guía cuando el pedido sea enviado.',
+      title: 'Recibe y rastrea',
+      description: 'Da seguimiento a tu compra y consulta tu guía cuando tu pedido haya sido enviado.',
     },
   ],
   faq: [
