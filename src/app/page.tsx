@@ -126,7 +126,7 @@ export default function HomePage() {
       <EducationalSection />
 
       {/* 8. FAQ Section */}
-      <FAQSection />
+      <FAQSection variant="home" />
 
       {/* 9. Final CTA */}
       <FinalCTA />
