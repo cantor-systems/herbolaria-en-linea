@@ -27,11 +27,11 @@ export const FeaturedPromoPackage: React.FC = () => {
   ];
 
   return (
-    <section id="paquete-promocional" className="my-8 mx-4 sm:mx-6 lg:mx-8 rounded-3xl border border-[#D9D1B9] bg-[#FAF7E8] text-[#23312C] shadow-sm overflow-hidden">
-      <div className="max-w-7xl mx-auto px-5 py-8 sm:p-8 lg:p-10 xl:p-12">
-        <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-x-10 xl:gap-x-12">
+    <section id="paquete-promocional" className="my-8 mx-4 sm:mx-6 lg:mx-8 bg-[#FAF7E8] text-[#23312C]">
+      <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+        <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] lg:gap-x-10 lg:gap-y-5">
           {/* DOM order also provides the mobile reading order. */}
-          <div className="min-w-0 space-y-4 lg:col-start-1 lg:row-start-1 lg:self-end">
+          <div className="min-w-0 space-y-3 lg:col-start-1 lg:row-start-1 lg:self-end">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#D9D1B9] bg-[#F4EFD6] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-widest text-[#285F50]">
               <Gift className="w-3.5 h-3.5 text-[#D17B24]" aria-hidden="true" />
               <span>Paquete destacado</span>
@@ -39,35 +39,33 @@ export const FeaturedPromoPackage: React.FC = () => {
             <h2 className="text-2xl sm:text-3xl xl:text-4xl font-semibold text-[#23312C] leading-tight tracking-tight">
               {pkgProduct.name}
             </h2>
-          </div>
-
-          <figure className="min-w-0 w-full max-w-xl mx-auto lg:max-w-none lg:col-start-2 lg:row-start-1 lg:row-span-3 lg:self-center rounded-2xl border border-[#D9D1B9]/80 bg-[#F4EFD6] overflow-hidden shadow-sm">
-            <div className="aspect-[3/4] sm:aspect-[4/5]">
-              <img
-                src={pkgProduct.images[0]}
-                alt={pkgProduct.name}
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <figcaption className="border-t border-[#D9D1B9]/60 px-4 py-3 text-center text-xs leading-relaxed text-[#53645B]">
-              Paquete Herbazen · Envío Estándar Gratis
-            </figcaption>
-          </figure>
-
-          <div className="min-w-0 space-y-6 lg:col-start-1 lg:row-start-2">
             <p className="text-sm sm:text-base text-[#53645B] leading-relaxed">
               Prueba todas las alternativas tradicionales de la Planta de la Vida en un solo pedido especial
               {hasComparisonPrice && <>{' con '}<strong className="font-semibold text-[#285F50]">{formatCurrency(savingsCents)} MXN de ahorro directo</strong></>}
               {' y envío estándar incluido.'}
             </p>
+          </div>
+
+          <figure className="min-w-0 w-full max-w-lg mx-auto lg:max-w-none lg:col-start-2 lg:row-start-1 lg:row-span-3 lg:self-center overflow-hidden rounded-xl">
+            {/* Square framing removes background above and below the current products. */}
+            <div className="aspect-square">
+              <img
+                src={pkgProduct.images[0]}
+                alt={pkgProduct.name}
+                className="w-full h-full object-cover object-[center_55%]"
+              />
+            </div>
+          </figure>
+
+          <div className="min-w-0 lg:col-start-1 lg:row-start-2">
             <div>
-              <p className="mb-3 text-sm font-semibold text-[#23312C]">
+              <p className="mb-1.5 text-sm font-semibold text-[#23312C]">
                 ¿Qué incluye tu paquete?:
               </p>
-              <ul className="space-y-2.5 text-sm leading-relaxed">
+              <ul className="divide-y divide-[#D9D1B9]/55 text-sm leading-relaxed">
                 {packageIncludes.map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-3 rounded-xl border border-[#D9D1B9]/50 bg-[#F4EFD6]/65 px-3.5 py-3">
-                    <CheckCircle2 className="mt-0.5 w-4 h-4 text-[#285F50] shrink-0" aria-hidden="true" />
+                  <li key={idx} className="flex items-start gap-2.5 py-2">
+                    <CheckCircle2 className="mt-1 w-3.5 h-3.5 text-[#285F50] shrink-0" aria-hidden="true" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -75,11 +73,11 @@ export const FeaturedPromoPackage: React.FC = () => {
             </div>
           </div>
 
-          <div className="min-w-0 space-y-5 border-t border-[#D9D1B9]/70 pt-5 lg:col-start-1 lg:row-start-3 lg:self-start">
+          <div className="min-w-0 space-y-3 border-t border-[#D9D1B9]/70 pt-4 lg:col-start-1 lg:row-start-3 lg:self-start">
             <div>
               <span className="block mb-1.5 text-xs font-medium text-[#53645B]">Precio Especial Paquete:</span>
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#285F50]">
+                <span className="text-4xl sm:text-5xl font-semibold tracking-tight text-[#285F50]">
                   {formatCurrency(pkgVariant.priceCents)}
                 </span>
                 {hasComparisonPrice && (
@@ -98,7 +96,7 @@ export const FeaturedPromoPackage: React.FC = () => {
                     addToCart(pkgProduct, pkgVariant);
                   }
                 }}
-                className="min-h-[48px] rounded-xl border border-[#285F50] bg-[#285F50] px-5 py-3 text-sm font-semibold text-[#FAF7E8] shadow-sm transition-colors hover:bg-[#23312C] hover:border-[#23312C] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#285F50] disabled:cursor-not-allowed disabled:border-[#CDD2C9] disabled:bg-[#E2E5DC] disabled:text-[#53645B] disabled:shadow-none"
+                className="min-h-[52px] rounded-xl border border-[#285F50] bg-[#285F50] px-5 py-3 text-base font-semibold text-[#FAF7E8] shadow-sm transition-colors hover:bg-[#23312C] hover:border-[#23312C] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#285F50] disabled:cursor-not-allowed disabled:border-[#CDD2C9] disabled:bg-[#E2E5DC] disabled:text-[#53645B] disabled:shadow-none"
               >
                 <span className="flex items-center justify-center gap-2">
                   <ShoppingBag className="w-4 h-4" aria-hidden="true" />

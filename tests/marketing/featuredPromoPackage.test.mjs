@@ -95,7 +95,8 @@ test('the real photo, alternative text and five inclusions remain in mobile read
   const image = ui.nodes.find((node) => node.type === 'img');
   assert.equal(image.props.src, product.images[0]);
   assert.equal(image.props.alt, product.name);
-  assert.match(image.props.className, /object-contain/);
+  assert.match(image.props.className, /object-cover/);
+  assert.doesNotMatch(ui.html, /<figcaption/);
   const items = ui.nodes.filter((node) => node.type === 'li');
   assert.deepEqual(items.map((node) => node.props.children[1].props.children), [
     '1x Frasco de Gotas Concentradas de Moronel (50 ml)',
@@ -104,7 +105,7 @@ test('the real photo, alternative text and five inclusions remain in mobile read
     '1x Guía de Uso Herbolario Tradicional en Físico',
     'Envío Estándar Incluido a Todo México',
   ]);
-  const positions = ['<h2', '<figure', 'Prueba todas', '<ul', 'Precio Especial Paquete:', 'Comprar Paquete'].map((text) => ui.html.indexOf(text));
+  const positions = ['Paquete destacado', '<h2', 'Prueba todas', '<figure', '<ul', 'Precio Especial Paquete:', 'Comprar Paquete'].map((text) => ui.html.indexOf(text));
   assert.ok(positions.every((position, index) => position >= 0 && (index === 0 || position > positions[index - 1])));
 });
 
