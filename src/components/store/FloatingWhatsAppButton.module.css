@@ -40,7 +40,7 @@
   max-width: calc(100vw - 98px);
   padding: 8px 12px;
   border-radius: 8px;
-  background: #23312C;
+  background: #12833F;
   color: #FFFFFF;
   font-size: 13px;
   font-weight: 500;
@@ -72,6 +72,15 @@
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+  }
+}
+
+/* Touch feedback only while pressed; native link navigation stays immediate. */
+@media (hover: none) and (pointer: coarse) {
+  .button:not([data-tooltip-dismissed]):active .tooltip {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: none;
   }
 }
 
