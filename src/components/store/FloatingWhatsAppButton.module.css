@@ -31,6 +31,50 @@
   outline-offset: 4px;
 }
 
+.tooltip {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: max-content;
+  max-width: calc(100vw - 98px);
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #23312C;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 12%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Bridge the gap so a pointer can reach the label without closing it. */
+.tooltip::after {
+  content: '';
+  position: absolute;
+  left: 100%;
+  top: 0;
+  width: 10px;
+  height: 100%;
+}
+
+.button:not([data-tooltip-dismissed]):focus-visible .tooltip {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:not([data-tooltip-dismissed]):hover .tooltip {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
+
 /* Respect the existing mobile menu without adding state to navigation. */
 :global(body:has(#mobile-navigation)) .button {
   display: none;
