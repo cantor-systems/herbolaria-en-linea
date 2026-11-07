@@ -56,7 +56,7 @@ export const FAQSection: React.FC<{ variant?: 'default' | 'home' }> = ({ variant
             <a
               href={whatsappHref}
               onClick={() => trackWhatsAppClick('faq', { placement: 'faq_section' })}
-              className={isHome ? 'min-h-[44px] inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-[#D9D1B9] text-[#285F50] text-sm font-medium rounded-xl hover:bg-[#F4EFD6]/50 transition-colors motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#285F50]' : 'inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors'}
+              className={isHome ? 'min-h-[44px] inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-[#12833F] bg-[#12833F] text-white text-sm font-medium rounded-xl hover:bg-[#0F7035] hover:border-[#0F7035] active:bg-[#0C5C2C] active:border-[#0C5C2C] transition-colors motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0F7035]' : 'inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors'}
             >
               <MessageCircle className="w-4 h-4" />
               <span>Preguntar directamente por WhatsApp</span>
