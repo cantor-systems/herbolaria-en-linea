@@ -6,6 +6,7 @@ import { TopAnnouncementBar } from '@/components/store/TopAnnouncementBar';
 import { Header } from '@/components/store/Header';
 import { Footer } from '@/components/store/Footer';
 import { DrawerCart } from '@/components/store/DrawerCart';
+import { FloatingWhatsAppButton } from '@/components/store/FloatingWhatsAppButton';
 import { STORE_CONFIG } from '@/config/store';
 import { metadataBase, SITE_NAME, SITE_URL } from '@/lib/site';
 import { Clarity } from '@/components/analytics/Clarity';
@@ -68,6 +69,7 @@ export default function RootLayout({
           </div>
           <DrawerCart />
           <Footer />
+          <FloatingWhatsAppButton />
         </CartProvider>
         {googleAnalyticsId && <GoogleAnalytics gaId={googleAnalyticsId} />}
         <Clarity projectId={clarityProjectId} />

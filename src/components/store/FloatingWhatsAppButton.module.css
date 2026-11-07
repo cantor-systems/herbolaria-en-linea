@@ -1,0 +1,49 @@
+.button {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid #12833F;
+  border-radius: 50%;
+  /* A deeper WhatsApp green keeps the white graphical icon above 3:1. */
+  background: #1B9B50;
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 16%);
+  transition: background-color 150ms, border-color 150ms;
+}
+
+.button:hover {
+  background: #12833F;
+}
+
+.button:active {
+  background: #0F7035;
+  border-color: #0F7035;
+}
+
+.button:focus-visible {
+  outline: 3px solid #0F7035;
+  outline-offset: 4px;
+}
+
+/* Respect the existing mobile menu without adding state to navigation. */
+:global(body:has(#mobile-navigation)) .button {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .button {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+}
