@@ -36,12 +36,6 @@
   display: none;
 }
 
-@media (min-width: 1024px) {
-  .button {
-    display: none;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .button {
     transition: none;
