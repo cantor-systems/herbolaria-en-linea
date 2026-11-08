@@ -5,10 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/mercadopago/preferencePolicy.test.mts tests/mercadopago/preferenceLifecycle.test.mts tests/migrations/preferenceExpirationMigration.test.mts tests/marketing/promotionalSlider.test.mts tests/marketing/promotionalSliderUi.test.mjs tests/marketing/homeCategories.test.mjs tests/marketing/featuredPromoPackage.test.mjs tests/marketing/howToBuySteps.test.mjs tests/marketing/educationalSection.test.mjs tests/marketing/homeFaq.test.mjs tests/marketing/whatsappContact.test.mjs tests/marketing/floatingWhatsApp.test.mjs tests/marketing/storeCatalog.test.mjs tests/checkout/shippingPricing.test.mjs tests/checkout/shippingPreference.test.mjs tests/manual-orders/pricing.test.mjs tests/manual-orders/catalogEligibility.test.mjs",
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/mercadopago/preferencePolicy.test.mts tests/mercadopago/preferenceLifecycle.test.mts tests/migrations/preferenceExpirationMigration.test.mts tests/marketing/promotionalSlider.test.mts tests/marketing/promotionalSliderUi.test.mjs tests/marketing/homeCategories.test.mjs tests/marketing/featuredPromoPackage.test.mjs tests/marketing/howToBuySteps.test.mjs tests/marketing/educationalSection.test.mjs tests/marketing/homeFaq.test.mjs tests/marketing/whatsappContact.test.mjs tests/marketing/floatingWhatsApp.test.mjs tests/marketing/storeCatalog.test.mjs tests/checkout/shippingPricing.test.mjs tests/checkout/shippingPreference.test.mjs tests/manual-orders/pricing.test.mjs tests/manual-orders/catalogEligibility.test.mjs tests/manual-orders/persistence.test.mjs",
     "test:db:h7": "supabase test db supabase/tests/database/h7_preference_expiration_test.sql",
     "test:postgrest:h7": "node tests/integration/postgrestPreferenceRpcs.mjs",
     "typecheck": "tsc --noEmit",
+    "test:db:manual": "node tests/integration/localManualOrders.mjs",
     "start": "next start"
   },
   "dependencies": {
