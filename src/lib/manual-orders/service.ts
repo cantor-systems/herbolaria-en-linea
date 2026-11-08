@@ -15,6 +15,14 @@ function text(value: unknown,min: number,max: number) {
  if (typeof value!=='string' || value.trim().length<min || value.trim().length>max || /[\u0000-\u001f\u007f<>]/.test(value)) throw new ManualPersistenceError('manual_invalid_input');
  return value.trim();
 }
+function paymentReference(value: unknown, optional: boolean): string | null {
+ if(optional && (value===null || value===undefined)) return null;
+ if(typeof value!=='string' || /[\u0000-\u001f\u007f<>]/.test(value)) throw new ManualPersistenceError('manual_invalid_input');
+ const normalized=value.trim().toUpperCase();
+ if(optional && normalized==='') return null;
+ if(normalized.length<1 || normalized.length>120) throw new ManualPersistenceError('manual_invalid_input');
+ return normalized;
+}
 function uuid(value: unknown) { const id=text(value,36,36).toLowerCase(); if(!UUID.test(id)) throw new ManualPersistenceError('manual_invalid_id'); return id; }
 function classification(value: unknown): CustomerClassification {
  const c=object(value,['relationship','frequency','segment']);
@@ -68,14 +76,17 @@ export async function createManualOrder(input: unknown) {
 async function mutate(operation: Exclude<ManualOperation,'create'>,input: unknown) {
  await authorize();
  const extra: Record<Exclude<ManualOperation,'create'>,string[]>={record_payment:['amountCents','method','reference','occurredAt'],void_payment:['receiptId','confirmedErroneousCapture'],cancel:[],hold:['onHold'],ship:['shippingCarrier','trackingNumber','trackingUrl']};
- const v=object(input,['commandId','orderId','expectedVersion','confirmed','reason',...extra[operation]]);
+ const optionalCashReference=operation==='record_payment' && input!==null && typeof input==='object' && !Array.isArray(input)
+  && 'method' in input && input.method==='cash' && !Object.hasOwn(input,'reference');
+ const keys=['commandId','orderId','expectedVersion','confirmed','reason',...extra[operation]];
+ const v=object(input,optionalCashReference?keys.filter(key=>key!=='reference'):keys);
  const commandId=uuid(v.commandId);
  const data: Record<string,unknown>={orderId:uuid(v.orderId),expectedVersion:version(v.expectedVersion),confirmed:confirmed(v.confirmed),reason:text(v.reason,10,500)};
  if(operation==='record_payment') {
   if(!Number.isSafeInteger(v.amountCents)||(v.amountCents as number)<=0||(v.method!=='bank_transfer'&&v.method!=='deposit'&&v.method!=='cash')) throw new ManualPersistenceError('manual_invalid_payment');
   const date=text(v.occurredAt,10,40), parsed=new Date(date);
   if(!Number.isFinite(parsed.getTime())||parsed.getTime()>Date.now()+300000) throw new ManualPersistenceError('manual_invalid_payment');
-  Object.assign(data,{amountCents:v.amountCents,method:v.method,reference:text(v.reference,1,120).toUpperCase(),occurredAt:parsed.toISOString()});
+  Object.assign(data,{amountCents:v.amountCents,method:v.method,reference:paymentReference(v.reference,v.method==='cash'),occurredAt:parsed.toISOString()});
  } else if(operation==='void_payment') {
   Object.assign(data,{receiptId:uuid(v.receiptId),confirmedErroneousCapture:confirmed(v.confirmedErroneousCapture)});
  } else if(operation==='hold') {

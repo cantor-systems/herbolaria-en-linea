@@ -57,11 +57,12 @@ CREATE TABLE public.manual_payment_entries (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),order_id uuid NOT NULL REFERENCES public.orders(id),
  entry_kind text NOT NULL CHECK(entry_kind IN ('receipt','void_receipt')),
  amount_cents bigint NOT NULL CHECK(amount_cents BETWEEN 1 AND 9007199254740991),currency text NOT NULL DEFAULT 'MXN' CHECK(currency='MXN'),
- method text NOT NULL CHECK(method IN ('bank_transfer','deposit','cash')),reference text NOT NULL CHECK(char_length(reference) BETWEEN 1 AND 120),
+ method text NOT NULL CHECK(method IN ('bank_transfer','deposit','cash')),reference text CHECK(reference IS NULL OR (char_length(reference) BETWEEN 1 AND 120 AND reference=upper(btrim(reference)) AND reference !~ '[[:cntrl:]<>]')),
+ CHECK(method='cash' OR reference IS NOT NULL),
  related_receipt_id uuid REFERENCES public.manual_payment_entries(id),occurred_at timestamptz NOT NULL,recorded_at timestamptz NOT NULL DEFAULT clock_timestamp(),
  actor text NOT NULL CHECK(actor='shared_admin'),reason text NOT NULL CHECK(char_length(btrim(reason)) BETWEEN 10 AND 500),command_id uuid NOT NULL UNIQUE,
  CHECK((entry_kind='receipt' AND related_receipt_id IS NULL) OR (entry_kind='void_receipt' AND related_receipt_id IS NOT NULL)));
-CREATE UNIQUE INDEX manual_receipt_reference_unique ON public.manual_payment_entries(reference) WHERE entry_kind='receipt';
+CREATE UNIQUE INDEX manual_receipt_reference_unique ON public.manual_payment_entries(reference) WHERE entry_kind='receipt' AND reference IS NOT NULL;
 CREATE UNIQUE INDEX manual_receipt_void_unique ON public.manual_payment_entries(related_receipt_id) WHERE entry_kind='void_receipt';
 CREATE INDEX manual_payment_order_idx ON public.manual_payment_entries(order_id);
 CREATE TABLE public.manual_order_adjustments (
@@ -236,9 +237,11 @@ BEGIN
   received:=manual_private.balance(o.id);
   IF p_operation='record_payment' THEN
    IF o.manual_state<>'active' THEN RAISE EXCEPTION 'manual_order_on_hold'; END IF;
-   amount:=(d->>'amountCents')::bigint; method:=d->>'method'; reference:=upper(btrim(d->>'reference')); occurred:=(d->>'occurredAt')::timestamptz;
+   amount:=(d->>'amountCents')::bigint; method:=d->>'method'; reference:=nullif(upper(btrim(d->>'reference')),''); occurred:=(d->>'occurredAt')::timestamptz;
    IF amount IS NULL OR amount<=0 OR amount>o.total_cents-received THEN RAISE EXCEPTION 'manual_invalid_payment_amount'; END IF;
-   IF reference IS NULL OR reference='' OR reference ~ '[[:cntrl:]<>]' OR occurred IS NULL OR occurred>clock_timestamp()+interval '5 minutes' THEN RAISE EXCEPTION 'manual_invalid_payment'; END IF;
+   IF (method<>'cash' AND reference IS NULL) OR (d->>'reference') ~ '[[:cntrl:]<>]' OR char_length(reference)>120
+    OR (d ? 'reference' AND d->'reference'<>'null'::jsonb AND jsonb_typeof(d->'reference')<>'string')
+    OR occurred IS NULL OR occurred>clock_timestamp()+interval '5 minutes' THEN RAISE EXCEPTION 'manual_invalid_payment'; END IF;
    INSERT INTO public.manual_payment_entries(order_id,entry_kind,amount_cents,method,reference,occurred_at,actor,reason,command_id)
    VALUES(o.id,'receipt',amount,method,reference,occurred,'shared_admin',motive,v_command_id) RETURNING id INTO entry_id;
    received:=received+amount;
@@ -249,7 +252,7 @@ BEGIN
    IF NOT FOUND OR EXISTS(SELECT 1 FROM public.manual_payment_entries WHERE related_receipt_id=payment.id) THEN RAISE EXCEPTION 'manual_payment_adjustment_conflict'; END IF;
    IF d->'confirmedErroneousCapture' IS DISTINCT FROM 'true'::jsonb THEN RAISE EXCEPTION 'manual_erroneous_capture_confirmation_required'; END IF;
    INSERT INTO public.manual_payment_entries(order_id,entry_kind,amount_cents,method,reference,related_receipt_id,occurred_at,actor,reason,command_id)
-   VALUES(o.id,'void_receipt',payment.amount_cents,payment.method,'VOID:'||payment.id::text,payment.id,clock_timestamp(),'shared_admin',motive,v_command_id) RETURNING id INTO entry_id;
+   VALUES(o.id,'void_receipt',payment.amount_cents,payment.method,payment.reference,payment.id,clock_timestamp(),'shared_admin',motive,v_command_id) RETURNING id INTO entry_id;
    UPDATE public.orders SET status='pending_payment',paid_at=null,manual_version=manual_version+1 WHERE id=o.id RETURNING * INTO o;
   ELSIF p_operation='cancel' THEN
    IF received<>0 THEN RAISE EXCEPTION 'manual_cancellation_requires_zero_balance'; END IF;

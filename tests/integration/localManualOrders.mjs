@@ -136,6 +136,37 @@ try {
  assert.equal(cancelled.manualState,'cancelled');expect(/manual_order_cancelled/,()=>invoke(receipt(cancelled,1)));pass('immutable correction ledger, no duplicate void, cancellation only at zero');
  expect(/permission denied/,()=>sql(`SET ROLE service_role;UPDATE public.manual_payment_entries SET amount_cents=1 WHERE order_id='${order.orderId}';`));
  expect(/manual_history_immutable/,()=>sql(`UPDATE public.order_activity_events SET reason='Changed synthetic reason' WHERE order_id='${order.orderId}';`));pass('effective ledger and audit immutability');
+ const cashOrder=invoke(ticket('create',data()));
+ const firstCashTicket=receipt(cashOrder,3000,null,'cash');const firstCash=invoke(firstCashTicket);
+ assert.ok(firstCash.entryId);assert.equal(firstCash.status,'pending_payment');assert.equal(invoke(firstCashTicket).entryId,firstCash.entryId);
+ const secondCash=invoke(receipt(firstCash,3000,'   ','cash'));
+ assert.notEqual(secondCash.entryId,firstCash.entryId);assert.equal(secondCash.receivedCents,6000);assert.equal(secondCash.status,'pending_payment');
+ const thirdCashTicket=ticket('record_payment',operation(secondCash,{amountCents:4000,method:'cash',occurredAt:'2026-01-01T12:00:00Z'}));
+ const thirdCash=invoke(thirdCashTicket);assert.equal(thirdCash.status,'approved');assert.equal(thirdCash.outstandingCents,0);assert.ok(thirdCash.paidAt);
+ assert.equal(sql(`SELECT count(*)||':'||count(DISTINCT id)||':'||count(DISTINCT command_id)||':'||count(*) FILTER(WHERE reference IS NULL) FROM public.manual_payment_entries WHERE order_id='${cashOrder.orderId}';`),'3:3:3:3');
+ invoke(firstCashTicket);assert.equal(sql(`SELECT manual_version FROM public.orders WHERE id='${cashOrder.orderId}';`),'4');
+ assert.equal(sql(`SELECT count(*) FROM public.order_activity_events WHERE order_id='${cashOrder.orderId}';`),'4');
+ expect(/manual_invalid_payment_amount/,()=>invoke(receipt(thirdCash,1,null,'cash')));
+ const cashVoid=invoke(ticket('void_payment',operation(thirdCash,{receiptId:firstCash.entryId,confirmedErroneousCapture:true})));
+ assert.equal(cashVoid.receivedCents,7000);assert.equal(cashVoid.status,'pending_payment');
+ assert.equal(sql(`SELECT reference IS NULL AND related_receipt_id='${firstCash.entryId}' FROM public.manual_payment_entries WHERE id='${cashVoid.entryId}';`),'t');
+ pass('cash null/blank/omitted references coexist with internal IDs; replay, coverage, overpay, audit and void remain correct');
+ const referenceOrder=invoke(ticket('create',data()));
+ for(const method of ['bank_transfer','deposit']) {
+  for(const reference of [null,'','   ']) expect(/manual_invalid_payment/,()=>invoke(receipt(referenceOrder,100,reference,method)));
+  expect(/manual_invalid_payment/,()=>invoke(ticket('record_payment',operation(referenceOrder,{amountCents:100,method,occurredAt:'2026-01-01T12:00:00Z'}))));
+  expect(/manual_receipt_reference_unique/,()=>invoke(receipt(referenceOrder,100,' synthetic-bank-reference ',method)));
+ }
+ const supplied=invoke(receipt(referenceOrder,2000,' optional cash note ','cash'));
+ assert.equal(sql(`SELECT reference FROM public.manual_payment_entries WHERE id='${supplied.entryId}';`),'OPTIONAL CASH NOTE');
+ expect(/manual_receipt_reference_unique/,()=>invoke(receipt(supplied,100,'OPTIONAL CASH NOTE','cash')));
+ expect(/manual_invalid_payment/,()=>invoke(receipt(supplied,100,123,'cash')));
+ pass('bank references remain mandatory and globally deduplicated; optional cash text stays normalized and validated');
+ const cashRaceOrder=invoke(ticket('create',data()));const cashRaceTicket=receipt(cashRaceOrder,4000,null,'cash');
+ const cashRace=await concurrent(cashRaceTicket,cashRaceTicket);assert.equal(cashRace.statusB,0,cashRace.errB);
+ assert.equal(JSON.parse(cashRace.outB.trim()).entryId,cashRace.a.entryId);
+ assert.equal(sql(`SELECT count(*)||':'||sum(amount_cents) FROM public.manual_payment_entries WHERE order_id='${cashRaceOrder.orderId}';`),'1:4000');
+ pass('two actual concurrent replays of one cash command without reference produce one receipt');
  const concurrentTicket=ticket('create',data());const same=await concurrent(concurrentTicket,concurrentTicket);
  assert.equal(same.statusB,0,same.errB);assert.equal(JSON.parse(same.outB.trim()).orderId,same.a.orderId);pass('two actual sessions wait on same key and create one order');
  const paymentOrder=invoke(ticket('create',data()));const race=await concurrent(receipt(paymentOrder,7000),receipt(paymentOrder,7000));

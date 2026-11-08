@@ -10,6 +10,7 @@
     "test:postgrest:h7": "node tests/integration/postgrestPreferenceRpcs.mjs",
     "typecheck": "tsc --noEmit",
     "test:db:manual": "node tests/integration/localManualOrders.mjs",
+    "test:db": "npm run test:db:manual",
     "start": "next start"
   },
   "dependencies": {

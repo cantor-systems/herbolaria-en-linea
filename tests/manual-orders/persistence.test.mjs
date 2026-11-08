@@ -120,3 +120,33 @@ test('repository uses signed RPCs, keeps replay results and sanitizes failures',
  failure={message:'manual_version_conflict'};await assert.rejects(repository.executeManualCommand('create',commandId,'hash',{}),code('manual_version_conflict'));
  failure={code:'23505',message:'duplicate key violates manual_receipt_reference_unique'};await assert.rejects(repository.executeManualCommand('record_payment',commandId,'hash',{}),code('manual_duplicate_payment_reference'));
 });
+
+test('cash accepts absent, null and blank external references without inventing a folio',async()=>{
+ let expectedHash;
+ for(const value of [undefined,null,'','   ']) {
+  const payment={...mutation,method:'cash',amountCents:100,occurredAt:'2026-01-01T00:00:00Z'};
+  if(value!==undefined) payment.reference=value;
+  const s=setup();await s.service.recordManualPayment(payment);
+  const saved=s.calls.find(c=>Array.isArray(c)&&c[0]==='persist');
+  assert.equal(saved[4].reference,null);assert.equal(saved[2],commandId);assert.equal(saved[4].expectedVersion,1);
+  expectedHash??=saved[3];assert.equal(saved[3],expectedHash,'blank forms represent the same command intent');
+ }
+});
+
+test('bank transfer and deposit still require a valid nonempty external reference',async()=>{
+ for(const method of ['bank_transfer','deposit']) for(const value of [undefined,null,'','   ']) {
+  const payment={...mutation,method,amountCents:100,occurredAt:'2026-01-01T00:00:00Z'};
+  if(value!==undefined) payment.reference=value;
+  const s=setup();await assert.rejects(s.service.recordManualPayment(payment),code('manual_invalid_input'));
+  assert.ok(!s.calls.some(c=>Array.isArray(c)&&c[0]==='persist'));
+ }
+});
+
+test('provided cash references are preserved normalized and invalid values are rejected',async()=>{
+ const base={...mutation,method:'cash',amountCents:100,occurredAt:'2026-01-01T00:00:00Z'};
+ const s=setup();await s.service.recordManualPayment({...base,reference:' customer note 42 '});
+ assert.equal(s.calls.find(c=>Array.isArray(c)&&c[0]==='persist')[4].reference,'CUSTOMER NOTE 42');
+ for(const reference of [123,{},'x'.repeat(121),'unsafe\nreference','<invalid>']) {
+  await assert.rejects(setup().service.recordManualPayment({...base,reference}),code('manual_invalid_input'));
+ }
+});
