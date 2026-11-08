@@ -111,4 +111,25 @@
   .previous { left: .65rem; }
   .next { right: .65rem; }
 }
+/* The approved three-product photo needs its own clear copy area. */
+@media (min-width: 640px) {
+  .slide[data-slide-id='moronel-featured'] .copy { width: 44%; }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .slide[data-slide-id='moronel-featured'] { background: #cbb89a; }
+  .slide[data-slide-id='moronel-featured'] .image {
+    height: auto;
+    /* Blend only the empty stone below the products into the remaining space. */
+    mask-image: linear-gradient(#000 95%, transparent);
+  }
+  .slide[data-slide-id='moronel-featured'] .copy { padding-inline: 1.5rem 4.5rem; }
+}
+@media (min-width: 640px) and (max-width: 767px) {
+  .slide[data-slide-id='moronel-featured'] .headline { font-size: 2rem; }
+}
+@media (max-width: 639px) {
+  .slide[data-slide-id='moronel-featured'] .image { height: auto; }
+  /* Keep navigation clear of the package labels, only while this slide is active. */
+  .slider:has(.slide[data-slide-id='moronel-featured']:not([hidden])) .control { top: 1rem; }
+}
 @media (prefers-reduced-motion: reduce) { .cta { transition: none; } }
