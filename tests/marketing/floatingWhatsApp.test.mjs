@@ -26,7 +26,7 @@ function load(relativePath, dependencies = {}, globals = {}) {
   return module.exports;
 }
 
-function harness({ pathname = '/', number = '525500000000', cartOpen = false, footerExists = true, observerSupported = true, contactRect = null, actionRects = [] } = {}) {
+function harness({ pathname = '/', number = '525500000000', cartOpen = false, footerExists = true, observerSupported = true, contactRect = null, actionRects = [], contentRects = null, viewportWidth = 390 } = {}) {
   const config = load('../../src/config/store.ts', {}, { process: { env: { NEXT_PUBLIC_WHATSAPP_NUMBER: number } } });
   const state = [];
   let hookIndex = 0;
@@ -43,6 +43,12 @@ function harness({ pathname = '/', number = '525500000000', cartOpen = false, fo
     observe(element) { observed = element; }
     disconnect() { disconnected = true; }
   }
+  const windowMock = {
+    ...(observerSupported ? { IntersectionObserver: Observer } : {}), ResizeObserver: ResizeObserverMock,
+    innerWidth: viewportWidth,
+    addEventListener: (type, fn) => listeners.set(type, fn), removeEventListener: type => listeners.delete(type),
+    requestAnimationFrame: fn => { frames.set(++frameId, fn); return frameId; }, cancelAnimationFrame: id => frames.delete(id),
+  };
   const { FloatingWhatsAppButton } = load('../../src/components/store/FloatingWhatsAppButton.tsx', {
     react: { ...React, useState: (initial) => {
       const index = hookIndex++;
@@ -56,13 +62,13 @@ function harness({ pathname = '/', number = '525500000000', cartOpen = false, fo
   }, {
     document: {
       querySelector: (selector) => { if (selector === 'main') return main; assert.equal(selector, 'footer'); return footerExists ? footer : null; },
-      querySelectorAll: (selector) => { assert.equal(selector, '[data-store-product-actions]'); return actionRects.map(rect => ({ getBoundingClientRect: () => rect })); },
+      querySelectorAll: (selector) => {
+        assert.ok(['[data-store-product-actions]', '[data-store-product-content]'].includes(selector));
+        const rects = selector === '[data-store-product-content]' ? contentRects ?? actionRects : actionRects;
+        return rects.map(rect => ({ getBoundingClientRect: () => rect }));
+      },
     },
-    window: {
-      ...(observerSupported ? { IntersectionObserver: Observer } : {}), ResizeObserver: ResizeObserverMock,
-      addEventListener: (type, fn) => listeners.set(type, fn), removeEventListener: type => listeners.delete(type),
-      requestAnimationFrame: fn => { frames.set(++frameId, fn); return frameId; }, cancelAnimationFrame: id => frames.delete(id),
-    },
+    window: windowMock,
     IntersectionObserver: Observer, ResizeObserver: ResizeObserverMock,
   });
   const tree = () => { hookIndex = 0; effectIndex = 0; return FloatingWhatsAppButton(); };
@@ -75,7 +81,9 @@ function harness({ pathname = '/', number = '525500000000', cartOpen = false, fo
     observe: () => effects[0](),
     observeOverlap: () => effects[1](),
     setActions: rects => { actionRects = rects; },
+    setContent: rects => { contentRects = rects; },
     scroll: () => { listeners.get('scroll')?.(); const pending = [...frames.values()]; frames.clear(); pending.forEach(fn => fn()); },
+    resize: width => { windowMock.innerWidth = width; listeners.get('resize')?.(); const pending = [...frames.values()]; frames.clear(); pending.forEach(fn => fn()); },
     get listenerCount() { return listeners.size; },
     intersect: (visible) => callback([{ isIntersecting: visible }]),
     get observedFooter() { return observed === footer; },
@@ -192,4 +200,36 @@ test('product-action collisions do not change floating contact outside Store', (
   ui.render(); ui.observe(); ui.intersect(false); ui.render();
   assert.equal(ui.observeOverlap(), undefined);
   assert.equal(ui.listenerCount, 0); assert.doesNotMatch(ui.render(), /data-store-actions-overlap/);
+});
+
+test('mobile Store protects continuous card information even when purchase actions are elsewhere', () => {
+  const rect = (left, top, width, height) => ({ left, top, width, height, right: left + width, bottom: top + height });
+  for (const width of [320, 390]) {
+    const ui = harness({ pathname: '/tienda', viewportWidth: width, contactRect: rect(width - 72, 878, 56, 56), actionRects: [rect(16, 1100, width - 32, 90)], contentRects: [rect(16, 820, width - 32, 370)] });
+    ui.render(); ui.observe(); ui.intersect(false); ui.render();
+    const cleanup = ui.observeOverlap();
+    assert.match(ui.render(), /data-store-actions-overlap="true"/);
+    // Name/price/selector share this continuous area; no reappearance in its internal gaps.
+    for (const top of [850, 750, 650]) {
+      ui.setContent([rect(16, top, width - 32, 370)]); ui.scroll();
+      assert.match(ui.render(), /data-store-actions-overlap="true"/);
+    }
+    ui.setContent([rect(16, 400, width - 32, 370)]); ui.scroll();
+    assert.doesNotMatch(ui.render(), /data-store-actions-overlap/);
+    assert.match(ui.render(), /aria-label="Contactar por WhatsApp"/);
+    cleanup(); assert.equal(ui.listenerCount, 0);
+  }
+});
+
+test('tablet and desktop retain action-only collision behavior, including after viewport changes', () => {
+  const rect = (top) => ({ left: 16, right: 500, top, bottom: top + 100, width: 484, height: 100 });
+  const ui = harness({ pathname: '/tienda', viewportWidth: 390, contactRect: rect(878), contentRects: [rect(850)], actionRects: [rect(1100)] });
+  ui.render(); ui.observe(); ui.intersect(false); ui.render(); ui.observeOverlap();
+  assert.match(ui.render(), /data-store-actions-overlap="true"/);
+  for (const width of [640, 768, 1440]) {
+    ui.resize(width); assert.doesNotMatch(ui.render(), /data-store-actions-overlap/);
+    ui.setActions([rect(850)]); ui.scroll(); assert.match(ui.render(), /data-store-actions-overlap="true"/);
+    ui.setActions([rect(1100)]); ui.scroll(); assert.doesNotMatch(ui.render(), /data-store-actions-overlap/);
+  }
+  ui.resize(639); assert.match(ui.render(), /data-store-actions-overlap="true"/);
 });

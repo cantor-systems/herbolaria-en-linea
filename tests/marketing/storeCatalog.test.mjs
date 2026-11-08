@@ -55,13 +55,14 @@ test('Store copy, stock semantics and sober accents stay isolated from default c
   const html = store.html();
   for (const text of [product.name, 'Elige tu presentación', 'Agregar al carrito', 'Ver detalles', 'Disponible', utils.formatCurrency(product.variants.find(v => v.unitsCount === 1).priceCents)]) assert.ok(html.includes(text));
   assert.doesNotMatch(html, /Precio por unidad:/);
+  assert.match(html, /data-store-product-content="true"/);
   assert.doesNotMatch(html, /Ahorro|line-through|#D17B24/);
   assert.match(html, /aria-pressed="true"[^>]*>1 unidad/);
   assert.match(html, /href="\/producto\/moronel-gotas-50ml"/);
   assert.match(html, /src="\/images\/products\/moronel-gotas-50ml.webp"/);
   const legacy = card(product).html();
   for (const text of ['Seleccionar presentación:', 'Agregar al Carrito', 'Ver detalle', 'En stock', 'Equivale a', '#D17B24']) assert.ok(legacy.includes(text));
-  assert.doesNotMatch(legacy, /Disponible|Precio por unidad:|aria-pressed/);
+  assert.doesNotMatch(legacy, /Disponible|Precio por unidad:|aria-pressed|data-store-product-content/);
   for (const status of ['in_stock', 'low_stock', 'out_of_stock']) {
     const original = renderToStaticMarkup(React.createElement(StockStatusBadge, { stockStatus: status }));
     const localized = renderToStaticMarkup(React.createElement(StockStatusBadge, { stockStatus: status, inStockLabel: 'Disponible' }));

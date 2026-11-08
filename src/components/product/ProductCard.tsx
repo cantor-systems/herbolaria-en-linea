@@ -63,7 +63,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, context = 'de
       </div>
 
       {/* Content Body */}
-      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3" data-store-product-content={isStore || undefined}>
         <div className="space-y-1.5">
           <span className={`text-xs font-bold uppercase tracking-wider ${isStore ? 'text-[#23312C]/80' : 'text-[#6F8F69]'}`}>
             {brandName}

@@ -42,8 +42,11 @@ export function FloatingWhatsAppButton() {
       const button = buttonRef.current;
       if (!button) return;
       const contact = button.getBoundingClientRect();
-      const overlapping = Array.from(document.querySelectorAll('[data-store-product-actions]')).some((actions) => {
-        const rect = actions.getBoundingClientRect();
+      // Mobile cards need clear names, prices and selectors as well as purchase actions.
+      // One continuous content area avoids toggling in the gaps between those elements.
+      const selector = window.innerWidth < 640 ? '[data-store-product-content]' : '[data-store-product-actions]';
+      const overlapping = Array.from(document.querySelectorAll(selector)).some((content) => {
+        const rect = content.getBoundingClientRect();
         return rect.width > 0 && rect.height > 0 &&
           contact.left < rect.right + 8 && contact.right > rect.left - 8 &&
           contact.top < rect.bottom + 8 && contact.bottom > rect.top - 8;
