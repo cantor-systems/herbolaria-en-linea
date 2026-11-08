@@ -83,3 +83,30 @@ test('a discounted synthetic preference uses pre-discount free shipping and exac
   assert.equal(body.items[0].quantity, 1); assert.equal(body.shipments.cost, 79);
   assert.equal(body.metadata.expected_total_cents, 63900); assert.deepEqual(h.failures, []);
 });
+
+test('approved Moronel prices and legacy tens reach order snapshots and simulated Mercado Pago unchanged', async () => {
+  for (const [slug, prefix, rows] of [
+    ['moronel-gotas-50ml', 'gotas', [[1, 33000], [3, 89100], [5, 140250], [20, 528000], [10, 268000]]],
+    ['moronel-capsulas-60-capsulas', 'caps', [[1, 33500], [3, 90450], [5, 142375], [20, 536000], [10, 271200]]],
+  ]) {
+    for (const [units, price] of rows) {
+      for (const method of ['standard', 'express']) {
+        const h = harness(), variantId = `var-${prefix}-${units}`;
+        const response = await h.post([{ slug, variantId, quantity: 1 }], method);
+        assert.equal(response.status, 200, `${variantId}/${method}`);
+        const body = h.created[0].body, snapshot = h.persisted[0];
+        const shipping = units === 1 ? (method === 'standard' ? 9900 : 18600) : (method === 'standard' ? 0 : 7900);
+        assert.equal(snapshot.subtotalCents, price); assert.equal(snapshot.discountCents, 0);
+        assert.equal(snapshot.items[0].variantId, variantId); assert.equal(snapshot.items[0].unitPriceCents, price);
+        assert.equal(snapshot.items[0].quantity, 1); assert.equal(snapshot.shippingCents, shipping);
+        assert.equal(snapshot.totalCents, price + shipping);
+        assert.equal(body.items[0].id, `${slug}:${variantId}`);
+        assert.equal(Math.round(body.items[0].unit_price * 100), price);
+        assert.equal(body.items[0].quantity, 1); assert.equal(body.shipments.cost * 100, shipping);
+        assert.equal(body.metadata.expected_total_cents, price + shipping);
+        assert.ok(snapshot.items[0].variantLabel.startsWith(`${units} Frasco`));
+        assert.deepEqual(h.failures, []);
+      }
+    }
+  }
+});

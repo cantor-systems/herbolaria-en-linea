@@ -70,12 +70,11 @@ test('Store copy, stock semantics and sober accents stay isolated from default c
   }
 });
 
-test('Selecting 3, 5 and 10 updates prices, comparison, unit equivalent, percentage and the exact cart variant', () => {
+test('Selecting available packages updates prices, comparison, unit equivalent, percentage and the exact cart variant', () => {
   for (const product of PRODUCTS.filter(p => p.variants.length > 1)) {
     const ui = card(product, 'store');
-    for (const units of [3, 5, 10]) {
-      const variant = product.variants.find(v => v.unitsCount === units);
-      if (!variant) continue;
+    for (const variant of product.variants.filter(v => v.unitsCount > 1 && !v.hiddenFromSelection)) {
+      const units = variant.unitsCount;
       ui.choose(units);
       const html = ui.html();
       const savings = utils.calculateSavingsPercentage(variant.compareAtPriceCents ?? 0, variant.priceCents);
@@ -91,6 +90,39 @@ test('Selecting 3, 5 and 10 updates prices, comparison, unit equivalent, percent
       ui.buy();
       const args = ui.cartCalls.at(-1);
       assert.equal(args[0], product); assert.equal(args[1], variant); assert.equal(args.length, 2);
+    }
+  }
+});
+
+test('Moronel offers 1/3/5/20 in cards and detail while legacy IDs remain in the catalog', () => {
+  const { VariantSelector } = loadSource('src/components/product/VariantSelector.tsx', { '@/lib/utils': utils });
+  for (const product of PRODUCTS.slice(0, 2)) {
+    assert.deepEqual(Array.from(product.variants.filter(v => !v.hiddenFromSelection), v => v.unitsCount), [1, 3, 5, 20]);
+    const legacy = product.variants.find(v => v.unitsCount === 10);
+    assert.equal(legacy.hiddenFromSelection, true);
+    const twenty = product.variants.find(v => v.unitsCount === 20);
+    assert.equal(twenty.image, product.images[0]);
+    for (const context of ['store', 'default']) {
+      const ui = card(product, context);
+      assert.doesNotMatch(ui.html(), />10 unidades</);
+      assert.match(ui.html(), />20 unidades</);
+      ui.choose(20); ui.buy();
+      assert.equal(ui.cartCalls.at(-1)[1].id, twenty.id);
+      assert.match(ui.html(), /20% Ahorro/);
+    }
+    // Even a formerly popular legacy reference must never become a fresh selection.
+    const reordered = { ...product, variants: [{ ...legacy, isPopular: true }, ...product.variants.filter(v => v !== legacy)] };
+    assert.notEqual(card(reordered).selected().id, legacy.id);
+    let chosen;
+    const selector = VariantSelector({ variants: product.variants, selectedVariant: twenty, onSelectVariant: v => { chosen = v; } });
+    const html = renderToStaticMarkup(selector);
+    assert.ok(!html.includes(legacy.name)); assert.ok(html.includes(twenty.name));
+    const buttons = selector.props.children[1].props.children;
+    buttons.at(-1).props.onClick(); assert.equal(chosen, twenty);
+    for (const [units, percentage] of [[3, 10], [5, 15], [20, 20]]) {
+      const variant = product.variants.find(v => v.unitsCount === units);
+      assert.equal(variant.badge, `${percentage}% Ahorro`);
+      assert.equal(utils.calculateSavingsPercentage(variant.compareAtPriceCents, variant.priceCents), percentage);
     }
   }
 });

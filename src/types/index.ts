@@ -28,6 +28,8 @@ export interface ProductVariant {
   image?: string;
   badge?: string;
   isPopular?: boolean;
+  // Keeps persisted cart/order references quotable without offering new selection.
+  hiddenFromSelection?: boolean;
   freeShippingEligible: boolean;
   wholesaleEligible: boolean;
 }

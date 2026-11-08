@@ -13,6 +13,78 @@ export function syntheticProduct(priceCents = 69900, overrides = {}) {
 const item = (quantity = 1) => [{ slug: 'synthetic-product', variantId: 'synthetic-variant', quantity }];
 const pricing = loadPricing();
 
+for (const [slug, prefix, single, rows] of [
+  ['moronel-gotas-50ml', 'gotas', 33000, [[1, 33000, 33000, 0], [3, 89100, 29700, 10], [5, 140250, 28050, 15], [20, 528000, 26400, 20]]],
+  ['moronel-capsulas-60-capsulas', 'caps', 33500, [[1, 33500, 33500, 0], [3, 90450, 30150, 10], [5, 142375, 28475, 15], [20, 536000, 26800, 20]]],
+]) {
+  for (const [units, price, unitPrice, discount] of rows) {
+    test(`approved server quote: ${prefix} x${units} at ${price} cents, ${discount}% saving`, () => {
+      const product = pricing.catalog.PRODUCTS.find(p => p.slug === slug);
+      const variant = product.variants.find(v => v.id === `var-${prefix}-${units}`);
+      assert.equal(product.priceCents, single); assert.equal(product.compareAtPriceCents, single);
+      assert.equal(variant.unitsCount, units); assert.equal(variant.priceCents, price);
+      assert.equal(variant.unitPriceCents, unitPrice); assert.equal(variant.compareAtPriceCents, single * units);
+      assert.equal(price * 100, single * units * (100 - discount));
+      for (const [method, shipping] of [['standard', units === 1 ? 9900 : 0], ['express', units === 1 ? 18600 : 7900]]) {
+        const cart = pricing.server.priceCheckoutCart([{ slug, variantId: variant.id, quantity: 1 }], method, null);
+        assert.equal(cart.items[0].variantId, variant.id); assert.equal(cart.items[0].unitPriceCents, price);
+        assert.equal(cart.subtotalCents, price); assert.equal(cart.discountCents, 0);
+        assert.equal(cart.wholesaleDiscountPercent, 0); assert.equal(cart.shippingCents, shipping);
+        assert.equal(cart.totalCents, price + shipping);
+      }
+    });
+  }
+}
+
+test('all other product prices and presentations remain unchanged and variant IDs are unique', () => {
+  const expected = {
+    'prod-moronel-hierba': [25500, 25500, 70500, 119900, 219000],
+    'prod-paquete-integral': [83600, 83600],
+    'prod-plantas-colesterol-trigliceridos': [33500, 33500],
+    'prod-plantas-higado': [33500, 33500],
+    'prod-plantas-rinones': [33500, 33500],
+    'prod-super-curcuma': [33500, 33500],
+    'prod-super-propoleo': [35000, 35000],
+  };
+  for (const product of pricing.catalog.PRODUCTS.slice(2)) {
+    assert.deepEqual([product.priceCents, ...Array.from(product.variants, v => v.priceCents)], expected[product.id]);
+    assert.ok(product.variants.every(v => !v.hiddenFromSelection));
+  }
+  const ids = Array.from(pricing.catalog.PRODUCTS).flatMap(p => Array.from(p.variants, v => v.id));
+  assert.equal(new Set(ids).size, ids.length);
+});
+
+test('saved ten-unit carts retain their identity, old price and quantity and stay quotable directly', () => {
+  const products = pricing.catalog.PRODUCTS.slice(0, 2);
+  const old = [['var-gotas-10', 268000, 335000, 26800], ['var-caps-10', 271200, 339000, 27120]];
+  const storage = new Map([['herbolaria_cart_items_v1', JSON.stringify(Array.from(products, (p, i) => ({ id: 'old-line-' + i, product: { id: p.id }, variant: { id: old[i][0], priceCents: old[i][1] }, quantity: 2 })))]]);
+  const states = [], effects = [];
+  let index = 0, effectIndex = 0;
+  const { CartProvider } = loadSource('src/context/CartContext.tsx', {
+    react: { ...React, useState(initial) { const i = index++; if (!(i in states)) states[i] = initial; return [states[i], next => { states[i] = typeof next === 'function' ? next(states[i]) : next; }]; }, useEffect(fn) { effects[effectIndex++] = fn; } },
+    '@/config/shipping': pricing.shippingConfig, '@/data/products': pricing.catalog,
+    '@/lib/analytics': { trackAddToCart: () => {} }, '@/lib/promotions': pricing.promotionRules,
+    '@/lib/shipping': pricing.shipping, '@/lib/wholesale': pricing.wholesale,
+  }, { localStorage: { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value), removeItem: key => storage.delete(key) } });
+  const render = () => { index = 0; effectIndex = 0; return CartProvider({ children: null }).props.value; };
+  render(); effects[0](); const client = render(); effects[1]();
+  assert.equal(client.cart.length, 2);
+  for (const [i, line] of client.cart.entries()) {
+    const [id, price, comparison, unit] = old[i];
+    assert.equal(line.variant.id, id); assert.equal(line.variant.unitsCount, 10); assert.equal(line.quantity, 2);
+    assert.equal(line.variant.priceCents, price); assert.equal(line.variant.compareAtPriceCents, comparison);
+    assert.equal(line.variant.unitPriceCents, unit); assert.equal(line.variant.hiddenFromSelection, true);
+    assert.ok(line.variant.name.startsWith('10 Frascos'));
+    const direct = pricing.server.priceCheckoutCart([{ slug: line.product.slug, variantId: id, quantity: 2 }], 'standard', null);
+    assert.equal(direct.subtotalCents, price * 2); assert.equal(direct.items[0].variantLabel, line.variant.name);
+  }
+  assert.equal(client.subtotalCents, 1078400); assert.equal(client.discountCents, 0);
+  const server = pricing.server.priceCheckoutCart(Array.from(client.cart, line => ({ slug: line.product.slug, variantId: line.variant.id, quantity: line.quantity })), 'standard', null);
+  assert.equal(client.totalCents, server.totalCents);
+  const saved = JSON.parse(storage.get('herbolaria_cart_items_v1'));
+  assert.deepEqual(saved.map(line => [line.variant.id, line.quantity]), old.map(row => [row[0], 2]));
+});
+
 test('shipping retains all rates and uses the approved inclusive 69900-cent threshold', () => {
   const config = pricing.shippingConfig.SHIPPING_CONFIG;
   assert.equal(config.freeShippingThresholdCents, 69900);

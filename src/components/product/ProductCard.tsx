@@ -19,10 +19,11 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product, context = 'default' }) => {
   const { addToCart } = useCart();
   const isStore = context === 'store';
+  const selectableVariants = product.variants.filter((variant) => !variant.hiddenFromSelection);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(() =>
     isStore
-      ? product.variants.find((variant) => variant.unitsCount === 1) || product.variants[0]
-      : product.variants.find((variant) => variant.isPopular) || product.variants[0]
+      ? selectableVariants.find((variant) => variant.unitsCount === 1) || selectableVariants[0]
+      : selectableVariants.find((variant) => variant.isPopular) || selectableVariants[0]
   );
 
   const savings = calculateSavingsPercentage(
@@ -31,7 +32,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, context = 'de
   );
 
   const brandName = getBrandBySlug(product.brandSlug)?.name ?? product.brandSlug;
-  const hasMultipleVariants = product.variants.length > 1;
+  const hasMultipleVariants = selectableVariants.length > 1;
   const qualifiesForFreeShipping = isStore && qualifiesForFreeStandardShipping(
     selectedVariant.priceCents,
     [selectedVariant],
@@ -118,7 +119,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, context = 'de
               {isStore ? 'Elige tu presentación' : 'Seleccionar presentación:'}
             </span>
             <div className="grid grid-cols-3 gap-1">
-              {product.variants.map((variant) => (
+              {selectableVariants.map((variant) => (
                 <button
                   key={variant.id}
                   type="button"
