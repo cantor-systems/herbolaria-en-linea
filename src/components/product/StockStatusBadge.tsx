@@ -15,14 +15,14 @@ const STOCK_PRESENTATION: Record<StockStatus, { label: string; className: string
   },
 };
 
-export function StockStatusBadge({ stockStatus }: { stockStatus: StockStatus }) {
+export function StockStatusBadge({ stockStatus, inStockLabel = 'En stock' }: { stockStatus: StockStatus; inStockLabel?: string }) {
   const presentation = STOCK_PRESENTATION[stockStatus];
 
   return (
     <span
       className={`rounded-md border px-2 py-0.5 text-[10px] font-bold ${presentation.className}`}
     >
-      {presentation.label}
+      {stockStatus === 'in_stock' ? inStockLabel : presentation.label}
     </span>
   );
 }

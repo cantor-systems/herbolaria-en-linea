@@ -2,7 +2,7 @@ import { ShippingConfig } from '@/types';
 
 export const SHIPPING_CONFIG: ShippingConfig = {
   coverage: 'Envíos a todo México con cobertura nacional',
-  freeShippingThresholdCents: 79900,
+  freeShippingThresholdCents: 69900,
   standardShippingCents: 9900,
   expressShippingCents: 18600,
   expressUpgradeCents: 7900,

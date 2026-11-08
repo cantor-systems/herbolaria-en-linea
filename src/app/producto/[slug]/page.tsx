@@ -46,8 +46,9 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const trackedProductSlug = useRef<string | null>(null);
   const brandName = getBrandBySlug(product.brandSlug)?.name ?? product.brandSlug;
   const categoryName = getCategoryBySlug(product.categorySlug)?.name ?? product.categorySlug;
-  const isSingleVariant = product.variants.length === 1;
-  const defaultVariant = product.variants.find((v) => v.isPopular) || product.variants[0];
+  const selectableVariants = product.variants.filter((variant) => !variant.hiddenFromSelection);
+  const isSingleVariant = selectableVariants.length === 1;
+  const defaultVariant = selectableVariants.find((v) => v.isPopular) || selectableVariants[0];
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(defaultVariant);
   const [selectedImage, setSelectedImage] = useState(defaultVariant.image || product.images[0] || '');
   const [quantity, setQuantity] = useState(1);

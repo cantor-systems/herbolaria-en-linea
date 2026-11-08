@@ -8,15 +8,22 @@ import { formatCurrency, calculateSavingsPercentage } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
 import { getBrandBySlug } from '@/data/brands';
 import { StockStatusBadge } from './StockStatusBadge';
+import { SHIPPING_CONFIG } from '@/config/shipping';
+import { qualifiesForFreeStandardShipping } from '@/lib/shipping';
 
 interface ProductCardProps {
   product: Product;
+  context?: 'default' | 'store';
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product, context = 'default' }) => {
   const { addToCart } = useCart();
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
-    product.variants.find((v) => v.isPopular) || product.variants[0]
+  const isStore = context === 'store';
+  const selectableVariants = product.variants.filter((variant) => !variant.hiddenFromSelection);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(() =>
+    isStore
+      ? selectableVariants.find((variant) => variant.unitsCount === 1) || selectableVariants[0]
+      : selectableVariants.find((variant) => variant.isPopular) || selectableVariants[0]
   );
 
   const savings = calculateSavingsPercentage(
@@ -25,7 +32,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   );
 
   const brandName = getBrandBySlug(product.brandSlug)?.name ?? product.brandSlug;
-  const hasMultipleVariants = product.variants.length > 1;
+  const hasMultipleVariants = selectableVariants.length > 1;
+  const qualifiesForFreeShipping = isStore && qualifiesForFreeStandardShipping(
+    selectedVariant.priceCents,
+    [selectedVariant],
+  );
+  const storeShippingMessage = qualifiesForFreeShipping
+    ? 'Esta presentación incluye envío estándar gratis'
+    : `Envío estándar gratis desde $${SHIPPING_CONFIG.freeShippingThresholdCents / 100} MXN`;
 
   return (
     <div className="bg-[#FAF7E8] rounded-2xl border border-[#D9D1B9] overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group">
@@ -40,7 +54,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         <div className="absolute top-2.5 right-2.5 flex flex-col items-end gap-1.5 z-10">
           {savings > 0 && (
-            <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#D17B24] text-white shadow-sm">
+            <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider shadow-sm ${isStore ? 'bg-[#285F50] text-[#FAF7E8]' : 'bg-[#D17B24] text-white'}`}>
               -{savings}% Ahorro
             </span>
           )}
@@ -49,9 +63,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </div>
 
       {/* Content Body */}
-      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3" data-store-product-content={isStore || undefined}>
         <div className="space-y-1.5">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#6F8F69]">
+          <span className={`text-xs font-bold uppercase tracking-wider ${isStore ? 'text-[#23312C]/80' : 'text-[#6F8F69]'}`}>
             {brandName}
           </span>
 
@@ -78,32 +92,39 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               )}
             </div>
             {selectedVariant.unitsCount > 1 && (
-              <span className="text-xs text-[#6F8F69] font-medium block">
-                Equivale a {formatCurrency(selectedVariant.unitPriceCents)} por unidad
+              <span className={`text-xs font-medium block ${isStore ? 'text-[#23312C]/80' : 'text-[#6F8F69]'}`}>
+                {isStore
+                  ? `Precio por unidad: ${formatCurrency(selectedVariant.unitPriceCents)}`
+                  : `Equivale a ${formatCurrency(selectedVariant.unitPriceCents)} por unidad`}
               </span>
             )}
-            {selectedVariant.freeShippingEligible && (
+            {isStore ? SHIPPING_CONFIG.enabled && (
+              <span className={`text-xs font-medium block ${qualifiesForFreeShipping ? 'text-[#285F50]' : 'text-[#23312C]/80'}`}>
+                {storeShippingMessage}
+              </span>
+            ) : selectedVariant.freeShippingEligible && (
               <span className="text-xs font-bold text-emerald-700 block">
                 Incluye envío estándar gratis
               </span>
             )}
           </div>
 
-          <StockStatusBadge stockStatus={product.stockStatus} />
+          <StockStatusBadge stockStatus={product.stockStatus} inStockLabel={isStore ? 'Disponible' : undefined} />
         </div>
 
         {/* Variant Pills Selector */}
         {hasMultipleVariants && (
           <div className="space-y-1.5 pt-1">
             <span className="text-[11px] font-bold text-[#23312C] uppercase tracking-wider block">
-              Seleccionar presentación:
+              {isStore ? 'Elige tu presentación' : 'Seleccionar presentación:'}
             </span>
             <div className="grid grid-cols-3 gap-1">
-              {product.variants.map((variant) => (
+              {selectableVariants.map((variant) => (
                 <button
                   key={variant.id}
                   type="button"
                   onClick={() => setSelectedVariant(variant)}
+                  aria-pressed={isStore ? selectedVariant.id === variant.id : undefined}
                   className={`min-h-[44px] px-1.5 py-1 rounded-lg text-[11px] font-bold text-center border transition-all leading-tight ${
                     selectedVariant.id === variant.id
                       ? 'bg-[#285F50] text-[#FAF7E8] border-[#285F50]'
@@ -118,15 +139,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         )}
 
         {/* Action Buttons */}
-        <div className="space-y-2 pt-2">
+        <div className="space-y-2 pt-2" data-store-product-actions={isStore || undefined}>
           <button
             disabled={product.stockStatus === 'out_of_stock'}
             onClick={() => addToCart(product, selectedVariant)}
             className="w-full py-2.5 px-4 bg-[#285F50] hover:bg-[#23312C] text-[#FAF7E8] font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-98 min-h-[44px] disabled:cursor-not-allowed disabled:bg-[#23312C]/45 disabled:shadow-none"
           >
-            <ShoppingBag className="w-4 h-4 text-[#D17B24]" />
+            <ShoppingBag className={`w-4 h-4 ${isStore ? 'text-[#FAF7E8]' : 'text-[#D17B24]'}`} />
             <span>
-              {product.stockStatus === 'out_of_stock' ? 'Agotado' : 'Agregar al Carrito'}
+              {product.stockStatus === 'out_of_stock' ? 'Agotado' : isStore ? 'Agregar al carrito' : 'Agregar al Carrito'}
             </span>
           </button>
 
@@ -134,7 +155,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             href={`/producto/${product.slug}`}
             className="min-h-[44px] w-full py-2 px-3 border border-[#D9D1B9] text-[#23312C] hover:bg-[#F4EFD6] font-bold text-[11px] rounded-lg text-center flex items-center justify-center gap-1 transition-colors"
           >
-            <span>Ver detalle</span>
+            <span>{isStore ? 'Ver detalles' : 'Ver detalle'}</span>
             <ArrowRight className="w-3.5 h-3.5 text-[#285F50]" />
           </Link>
         </div>

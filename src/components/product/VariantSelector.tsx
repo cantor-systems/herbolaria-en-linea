@@ -24,7 +24,7 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
         {label}
       </label>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-        {variants.map((variant) => {
+        {variants.filter((variant) => !variant.hiddenFromSelection).map((variant) => {
           const isSelected = selectedVariant.id === variant.id;
           const savings = calculateSavingsPercentage(
             variant.compareAtPriceCents || 0,

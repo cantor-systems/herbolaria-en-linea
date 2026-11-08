@@ -54,10 +54,10 @@ function StoreCatalogContent() {
           Herbolaria en Línea
         </span>
         <h1 className="text-2xl sm:text-4xl font-extrabold leading-tight">
-          Tienda
+          Encuentra tus productos herbolarios
         </h1>
         <p className="text-xs sm:text-sm text-[#FAF7E8]/90 max-w-2xl leading-relaxed">
-          Explora productos herbolarios por categoría y presentación.
+          Explora extractos, cápsulas, hierbas y paquetes seleccionados para ti.
         </p>
       </div>
 
@@ -69,8 +69,8 @@ function StoreCatalogContent() {
           <div className="relative flex-1 min-w-0">
             <input
               type="search"
-              placeholder="Buscar por producto o marca..."
-              aria-label="Buscar por producto o marca"
+              placeholder="¿Qué producto estás buscando?"
+              aria-label="¿Qué producto estás buscando?"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="min-h-[44px] w-full bg-[#F4EFD6] text-[#23312C] text-xs sm:text-sm pl-4 pr-10 py-2.5 rounded-xl border border-[#D9D1B9] focus:outline-hidden focus:border-[#285F50]"
@@ -164,7 +164,7 @@ function StoreCatalogContent() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredProducts.map((p) => (
-            <ProductCard key={p.id} product={p} />
+            <ProductCard key={p.id} product={p} context="store" />
           ))}
         </div>
       )}
