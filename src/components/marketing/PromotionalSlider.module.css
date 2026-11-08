@@ -132,4 +132,51 @@
   /* Keep navigation clear of the package labels, only while this slide is active. */
   .slider:has(.slide[data-slide-id='moronel-featured']:not([hidden])) .control { top: 1rem; }
 }
+/* Approved promotion/editorial assets: keep the copy away from their products. */
+@media (min-width: 640px) {
+  .slide[data-slide-id='moronel-packages'] .copy,
+  .slide[data-slide-id='herbal-world'] .copy { width: 40%; }
+  .slide[data-slide-id='moronel-packages'] .shade {
+    background: linear-gradient(90deg, rgb(12 25 19 / 78%) 0%, rgb(12 25 19 / 72%) 33%, transparent 43%),
+      linear-gradient(0deg, rgb(12 25 19 / 55%), transparent 25%);
+  }
+  .slide[data-slide-id='herbal-world'] .shade {
+    background: linear-gradient(270deg, rgb(12 25 19 / 78%) 0%, rgb(12 25 19 / 72%) 40%, transparent 48%),
+      linear-gradient(0deg, rgb(12 25 19 / 55%), transparent 25%);
+  }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .slide[data-slide-id='moronel-packages'],
+  .slide[data-slide-id='herbal-world'] { background: #d5bea3; }
+  .slide[data-slide-id='moronel-packages'] .image,
+  .slide[data-slide-id='herbal-world'] .image {
+    height: auto;
+    mask-image: linear-gradient(#000 95%, transparent);
+  }
+  .slide[data-slide-id='moronel-packages'] .copy { padding-inline: 4.5rem 1.5rem; }
+  .slide[data-slide-id='moronel-packages'] .cta { white-space: nowrap; }
+  .slide[data-slide-id='herbal-world'] .copy { width: 44%; padding-inline: 1.5rem 4.5rem; }
+}
+@media (min-width: 640px) and (max-width: 767px) {
+  .slide[data-slide-id='moronel-packages'] .headline,
+  .slide[data-slide-id='herbal-world'] .headline { font-size: 2rem; }
+}
+@media (max-width: 639px) {
+  .slide[data-slide-id='moronel-packages'] .image,
+  .slide[data-slide-id='herbal-world'] .image { height: auto; }
+  .slide[data-slide-id='moronel-packages'] .copy,
+  .slide[data-slide-id='herbal-world'] .copy { gap: .5rem; padding: 1rem 1.5rem 3.5rem; }
+  .slide[data-slide-id='moronel-packages'] .headline,
+  .slide[data-slide-id='herbal-world'] .headline { font-size: 1.625rem; }
+  .slide[data-slide-id='moronel-packages'] .eyebrow,
+  .slide[data-slide-id='herbal-world'] .eyebrow { padding: .25rem .8rem; }
+  .slide[data-slide-id='moronel-packages'] .cta,
+  .slide[data-slide-id='herbal-world'] .cta { min-height: 2.75rem; padding: .5rem 1.25rem; }
+  .slide[data-slide-id='moronel-packages'] .shade,
+  .slide[data-slide-id='herbal-world'] .shade {
+    background: linear-gradient(0deg, rgb(12 25 19 / 97%) 0%, rgb(12 25 19 / 92%) 30%, rgb(12 25 19 / 80%) 33%, transparent 43%);
+  }
+  .slider:has(.slide[data-slide-id='moronel-packages']:not([hidden])) .control,
+  .slider:has(.slide[data-slide-id='herbal-world']:not([hidden])) .control { top: 1rem; }
+}
 @media (prefers-reduced-motion: reduce) { .cta { transition: none; } }
