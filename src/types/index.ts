@@ -1,3 +1,5 @@
+import type { ManualWholesaleDiscountPolicy } from '@/lib/manual-orders/types';
+
 export type CatalogStatus = 'active' | 'draft';
 export type StockStatus = 'in_stock' | 'low_stock' | 'out_of_stock';
 
@@ -19,6 +21,7 @@ export interface Brand {
 }
 
 export interface ProductVariant {
+  manualWholesaleDiscountPolicy?: ManualWholesaleDiscountPolicy;
   id: string;
   name: string; // e.g. "1 Unidad", "3 Unidades (15% OFF)", "5 Unidades (25% OFF)"
   unitsCount: number;

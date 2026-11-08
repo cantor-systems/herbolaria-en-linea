@@ -35,6 +35,7 @@ export const PRODUCTS: Product[] = [
     variants: [
       {
         id: 'var-gotas-1',
+        manualWholesaleDiscountPolicy: { eligibility: 'eligible', reason: 'regular_individual', policyVersion: 'manual-catalog-v1' },
         name: '1 Frasco (50 ml)',
         unitsCount: 1,
         priceCents: 33000,
@@ -47,6 +48,7 @@ export const PRODUCTS: Product[] = [
       },
       {
         id: 'var-gotas-3',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'promotional_presentation', policyVersion: 'manual-catalog-v1' },
         name: '3 Frascos (Paquete 3 Meses)',
         unitsCount: 3,
         priceCents: 89100,
@@ -60,6 +62,7 @@ export const PRODUCTS: Product[] = [
       },
       {
         id: 'var-gotas-5',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'promotional_presentation', policyVersion: 'manual-catalog-v1' },
         name: '5 Frascos (Tratamiento Completo)',
         unitsCount: 5,
         priceCents: 140250,
@@ -72,6 +75,7 @@ export const PRODUCTS: Product[] = [
       },
       {
         id: 'var-gotas-10',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'promotional_presentation', policyVersion: 'manual-catalog-v1' },
         hiddenFromSelection: true,
         name: '10 Frascos (500 ml Total)',
         unitsCount: 10,
@@ -85,6 +89,7 @@ export const PRODUCTS: Product[] = [
       },
       {
         id: 'var-gotas-20',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'promotional_presentation', policyVersion: 'manual-catalog-v1' },
         name: '20 Frascos (1,000 ml Total)',
         unitsCount: 20,
         priceCents: 528000,
@@ -141,6 +146,7 @@ export const PRODUCTS: Product[] = [
     variants: [
       {
         id: 'var-caps-1',
+        manualWholesaleDiscountPolicy: { eligibility: 'eligible', reason: 'regular_individual', policyVersion: 'manual-catalog-v1' },
         name: '1 Frasco (60 Cápsulas)',
         unitsCount: 1,
         priceCents: 33500,
@@ -153,6 +159,7 @@ export const PRODUCTS: Product[] = [
       },
       {
         id: 'var-caps-3',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'promotional_presentation', policyVersion: 'manual-catalog-v1' },
         name: '3 Frascos (180 Cápsulas Total)',
         unitsCount: 3,
         priceCents: 90450,
@@ -166,6 +173,7 @@ export const PRODUCTS: Product[] = [
       },
       {
         id: 'var-caps-5',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'promotional_presentation', policyVersion: 'manual-catalog-v1' },
         name: '5 Frascos (300 Cápsulas Total)',
         unitsCount: 5,
         priceCents: 142375,
@@ -178,6 +186,7 @@ export const PRODUCTS: Product[] = [
       },
       {
         id: 'var-caps-10',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'promotional_presentation', policyVersion: 'manual-catalog-v1' },
         hiddenFromSelection: true,
         name: '10 Frascos (600 Cápsulas Total)',
         unitsCount: 10,
@@ -191,6 +200,7 @@ export const PRODUCTS: Product[] = [
       },
       {
         id: 'var-caps-20',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'promotional_presentation', policyVersion: 'manual-catalog-v1' },
         name: '20 Frascos (1,200 Cápsulas Total)',
         unitsCount: 20,
         priceCents: 536000,
@@ -246,6 +256,7 @@ export const PRODUCTS: Product[] = [
     variants: [
       {
         id: 'var-hierba-1',
+        manualWholesaleDiscountPolicy: { eligibility: 'eligible', reason: 'regular_individual', policyVersion: 'manual-catalog-v1' },
         name: '1 Bolsa (240 Gramos)',
         unitsCount: 1,
         priceCents: 25500,
@@ -258,6 +269,7 @@ export const PRODUCTS: Product[] = [
       },
       {
         id: 'var-hierba-3',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'promotional_presentation', policyVersion: 'manual-catalog-v1' },
         name: '3 Bolsas (720 Gramos Total)',
         unitsCount: 3,
         priceCents: 70500,
@@ -271,6 +283,7 @@ export const PRODUCTS: Product[] = [
       },
       {
         id: 'var-hierba-5',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'promotional_presentation', policyVersion: 'manual-catalog-v1' },
         name: '5 Bolsas (1,200 Gramos Total)',
         unitsCount: 5,
         priceCents: 119900,
@@ -283,6 +296,7 @@ export const PRODUCTS: Product[] = [
       },
       {
         id: 'var-hierba-10',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'promotional_presentation', policyVersion: 'manual-catalog-v1' },
         name: '10 Bolsas (2,400 Gramos Total)',
         unitsCount: 10,
         priceCents: 219000,
@@ -334,6 +348,7 @@ export const PRODUCTS: Product[] = [
     variants: [
       {
         id: 'var-pkg-1',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'promotional_bundle', policyVersion: 'manual-catalog-v1' },
         name: '1 Kit Integral Completo',
         unitsCount: 1,
         priceCents: 83600,
@@ -384,6 +399,7 @@ export const PRODUCTS: Product[] = [
     variants: [
       {
         id: 'var-colesterol-trigliceridos-1',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'unreviewed', policyVersion: 'manual-catalog-v1' },
         name: '1 Frasco (50 ml)',
         unitsCount: 1,
         priceCents: 33500,
@@ -424,6 +440,7 @@ export const PRODUCTS: Product[] = [
     variants: [
       {
         id: 'var-higado-1',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'unreviewed', policyVersion: 'manual-catalog-v1' },
         name: '1 Frasco (50 ml)',
         unitsCount: 1,
         priceCents: 33500,
@@ -468,6 +485,7 @@ export const PRODUCTS: Product[] = [
     variants: [
       {
         id: 'var-rinones-1',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'unreviewed', policyVersion: 'manual-catalog-v1' },
         name: '1 Frasco (50 ml)',
         unitsCount: 1,
         priceCents: 33500,
@@ -512,6 +530,7 @@ export const PRODUCTS: Product[] = [
     variants: [
       {
         id: 'var-super-curcuma-1',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'unreviewed', policyVersion: 'manual-catalog-v1' },
         name: '1 Frasco (50 ml)',
         unitsCount: 1,
         priceCents: 33500,
@@ -548,6 +567,7 @@ export const PRODUCTS: Product[] = [
     variants: [
       {
         id: 'var-super-propoleo-1',
+        manualWholesaleDiscountPolicy: { eligibility: 'excluded', reason: 'unreviewed', policyVersion: 'manual-catalog-v1' },
         name: '1 Frasco (50 ml)',
         unitsCount: 1,
         priceCents: 35000,
