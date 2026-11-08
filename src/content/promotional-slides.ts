@@ -25,10 +25,10 @@ export type PromotionalSlide = {
 export const PROMOTIONAL_SLIDES: readonly PromotionalSlide[] = [
   {
     id: 'moronel-featured', campaign: 'featured-product',
-    desktopImage: '/images/banners/featured-product.webp',
-    mobileImage: '/images/banners/featured-product.webp',
+    desktopImage: '/images/banners/moronel-linea-desktop-v2.webp',
+    mobileImage: '/images/banners/moronel-linea-mobile-v2.webp',
     imagePosition: '50% 55%', mobileImagePosition: '0% 50%', copyPosition: 'right',
-    alt: 'Frasco ámbar con gotero junto a flores sobre una superficie de madera.',
+    alt: 'Presentaciones de Moronel Herbazen en gotas, cápsulas y té sobre una superficie de piedra.',
     eyebrow: 'Producto destacado', headline: 'Descubre Moronel en línea',
     ctaText: 'Ver productos', href: '/tienda', order: 1, active: true, previewOnly: false,
   },
