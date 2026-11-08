@@ -10,7 +10,7 @@ export const TopAnnouncementBar: React.FC = () => {
         <div className="flex items-center gap-2 font-medium">
           <Truck className="w-3.5 h-3.5 text-[#AFC28E] shrink-0" />
           <span>
-            Envíos a todo México · Gratis en compras desde ${SHIPPING_CONFIG.freeShippingThresholdCents / 100} MXN
+            Envío estándar gratis en compras desde ${SHIPPING_CONFIG.freeShippingThresholdCents / 100} MXN
           </span>
         </div>
         <div className="hidden md:flex items-center gap-6 text-[#C9AD83]">
