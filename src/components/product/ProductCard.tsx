@@ -36,11 +36,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, context = 'de
     selectedVariant.priceCents,
     [selectedVariant],
   );
-  const storeShippingMessage = selectedVariant.freeShippingEligible
+  const storeShippingMessage = qualifiesForFreeShipping
     ? 'Esta presentación incluye envío estándar gratis'
-    : qualifiesForFreeShipping
-      ? 'Alcanza el mínimo para envío estándar gratis'
-      : `Para envío estándar gratis, reúne ${formatCurrency(SHIPPING_CONFIG.freeShippingThresholdCents)} en tu carrito.`;
+    : `Envío estándar gratis desde $${SHIPPING_CONFIG.freeShippingThresholdCents / 100} MXN`;
 
   return (
     <div className="bg-[#FAF7E8] rounded-2xl border border-[#D9D1B9] overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group">
@@ -92,7 +90,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, context = 'de
                 </span>
               )}
             </div>
-            {(isStore || selectedVariant.unitsCount > 1) && (
+            {selectedVariant.unitsCount > 1 && (
               <span className={`text-xs font-medium block ${isStore ? 'text-[#23312C]/80' : 'text-[#6F8F69]'}`}>
                 {isStore
                   ? `Precio por unidad: ${formatCurrency(selectedVariant.unitPriceCents)}`
@@ -140,7 +138,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, context = 'de
         )}
 
         {/* Action Buttons */}
-        <div className="space-y-2 pt-2">
+        <div className="space-y-2 pt-2" data-store-product-actions={isStore || undefined}>
           <button
             disabled={product.stockStatus === 'out_of_stock'}
             onClick={() => addToCart(product, selectedVariant)}

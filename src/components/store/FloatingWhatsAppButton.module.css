@@ -31,6 +31,12 @@
   outline-offset: 4px;
 }
 
+/* Keep product actions clear without moving the contact button or other pages. */
+.button[data-store-actions-overlap] {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .tooltip {
   position: absolute;
   right: calc(100% + 10px);
@@ -61,14 +67,14 @@
   height: 100%;
 }
 
-.button:not([data-tooltip-dismissed]):focus-visible .tooltip {
+.button:not([data-tooltip-dismissed]):not([data-store-actions-overlap]):focus-visible .tooltip {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .button:not([data-tooltip-dismissed]):hover .tooltip {
+  .button:not([data-tooltip-dismissed]):not([data-store-actions-overlap]):hover .tooltip {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
@@ -77,7 +83,7 @@
 
 /* Touch feedback only while pressed; native link navigation stays immediate. */
 @media (hover: none) and (pointer: coarse) {
-  .button:not([data-tooltip-dismissed]):active .tooltip {
+  .button:not([data-tooltip-dismissed]):not([data-store-actions-overlap]):active .tooltip {
     opacity: 1;
     visibility: visible;
     pointer-events: none;

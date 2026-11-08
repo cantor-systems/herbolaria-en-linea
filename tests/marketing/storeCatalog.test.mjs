@@ -53,7 +53,8 @@ test('Store copy, stock semantics and sober accents stay isolated from default c
   const product = PRODUCTS[0];
   const store = card(product, 'store');
   const html = store.html();
-  for (const text of [product.name, 'Elige tu presentación', 'Agregar al carrito', 'Ver detalles', 'Disponible', 'Precio por unidad: $335.00']) assert.ok(html.includes(text));
+  for (const text of [product.name, 'Elige tu presentación', 'Agregar al carrito', 'Ver detalles', 'Disponible', utils.formatCurrency(product.variants.find(v => v.unitsCount === 1).priceCents)]) assert.ok(html.includes(text));
+  assert.doesNotMatch(html, /Precio por unidad:/);
   assert.doesNotMatch(html, /Ahorro|line-through|#D17B24/);
   assert.match(html, /aria-pressed="true"[^>]*>1 unidad/);
   assert.match(html, /href="\/producto\/moronel-gotas-50ml"/);
@@ -94,9 +95,9 @@ test('Selecting 3, 5 and 10 updates prices, comparison, unit equivalent, percent
   }
 });
 
-test('Store shipping text separates own benefit, threshold qualification and cart accumulation', () => {
+test('Store shipping microcopy distinguishes a qualifying presentation from the general condition', () => {
   const single = card(PRODUCTS[0], 'store');
-  assert.match(single.html(), /Para envío estándar gratis, reúne \$699\.00 en tu carrito\./);
+  assert.match(single.html(), /Envío estándar gratis desde \$699 MXN/);
   assert.doesNotMatch(single.html(), /Esta presentación incluye|Alcanza el mínimo/);
   single.choose(3);
   assert.match(single.html(), /Esta presentación incluye envío estándar gratis/);
@@ -104,8 +105,7 @@ test('Store shipping text separates own benefit, threshold qualification and car
   herb.choose(3);
   assert.equal(herb.selected().freeShippingEligible, false);
   assert.equal(herb.selected().priceCents, 70500);
-  assert.match(herb.html(), /Alcanza el mínimo para envío estándar gratis/);
-  assert.doesNotMatch(herb.html(), /Esta presentación incluye/);
+  assert.match(herb.html(), /Esta presentación incluye envío estándar gratis/);
 });
 
 test('Store page supplies the localized context without renaming products or changing filters', () => {

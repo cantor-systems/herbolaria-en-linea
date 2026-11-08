@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { getWhatsAppHref } from '@/config/store';
 import { useCart } from '@/context/CartContext';
@@ -13,6 +13,8 @@ export function FloatingWhatsAppButton() {
   // Stay hidden until the footer's position is known, including without IO support.
   const [footerVisible, setFooterVisible] = useState(true);
   const [tooltipDismissed, setTooltipDismissed] = useState(false);
+  const [storeActionsOverlap, setStoreActionsOverlap] = useState(false);
+  const buttonRef = useRef<HTMLAnchorElement>(null);
   const excluded = !pathname || ['/operaciones', '/carrito', '/checkout'].some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
@@ -31,6 +33,40 @@ export function FloatingWhatsAppButton() {
     return () => observer.disconnect();
   }, [pathname, excluded, whatsappHref]);
 
+  useEffect(() => {
+    if (pathname !== '/tienda' || excluded || !whatsappHref || footerVisible || isCartOpen) return;
+
+    let frame = 0;
+    const checkOverlap = () => {
+      frame = 0;
+      const button = buttonRef.current;
+      if (!button) return;
+      const contact = button.getBoundingClientRect();
+      const overlapping = Array.from(document.querySelectorAll('[data-store-product-actions]')).some((actions) => {
+        const rect = actions.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0 &&
+          contact.left < rect.right + 8 && contact.right > rect.left - 8 &&
+          contact.top < rect.bottom + 8 && contact.bottom > rect.top - 8;
+      });
+      setStoreActionsOverlap(overlapping);
+    };
+    const scheduleCheck = () => {
+      if (!frame) frame = window.requestAnimationFrame(checkOverlap);
+    };
+    checkOverlap();
+    window.addEventListener('scroll', scheduleCheck, { passive: true });
+    window.addEventListener('resize', scheduleCheck);
+    const observer = 'ResizeObserver' in window ? new ResizeObserver(scheduleCheck) : null;
+    const main = document.querySelector('main');
+    if (main) observer?.observe(main);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', scheduleCheck);
+      window.removeEventListener('resize', scheduleCheck);
+      observer?.disconnect();
+    };
+  }, [pathname, excluded, whatsappHref, footerVisible, isCartOpen]);
+
   if (excluded || !whatsappHref || isCartOpen || footerVisible) return null;
 
   return (
@@ -40,6 +76,8 @@ export function FloatingWhatsAppButton() {
       rel="noopener noreferrer"
       aria-label="Contactar por WhatsApp"
       className={styles.button}
+      ref={buttonRef}
+      data-store-actions-overlap={pathname === '/tienda' && storeActionsOverlap || undefined}
       data-tooltip-dismissed={tooltipDismissed || undefined}
       onMouseEnter={() => setTooltipDismissed(false)}
       onFocus={() => setTooltipDismissed(false)}

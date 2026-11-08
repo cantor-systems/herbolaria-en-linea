@@ -26,12 +26,18 @@ function load(relativePath, dependencies = {}, globals = {}) {
   return module.exports;
 }
 
-function harness({ pathname = '/', number = '525500000000', cartOpen = false, footerExists = true, observerSupported = true } = {}) {
+function harness({ pathname = '/', number = '525500000000', cartOpen = false, footerExists = true, observerSupported = true, contactRect = null, actionRects = [] } = {}) {
   const config = load('../../src/config/store.ts', {}, { process: { env: { NEXT_PUBLIC_WHATSAPP_NUMBER: number } } });
   const state = [];
   let hookIndex = 0;
-  let effect, callback, observed, disconnected = false;
+  const effects = [];
+  let effectIndex = 0, callback, observed, disconnected = false;
   const footer = {};
+  const main = {};
+  const listeners = new Map(), frames = new Map();
+  let frameId = 0;
+  const ref = { current: contactRect ? { getBoundingClientRect: () => contactRect } : null };
+  class ResizeObserverMock { observe(element) { assert.equal(element, main); } disconnect() {} }
   class Observer {
     constructor(fn) { callback = fn; }
     observe(element) { observed = element; }
@@ -42,24 +48,35 @@ function harness({ pathname = '/', number = '525500000000', cartOpen = false, fo
       const index = hookIndex++;
       if (!(index in state)) state[index] = initial;
       return [state[index], (next) => { state[index] = next; }];
-    }, useEffect: (fn) => { effect = fn; } },
+    }, useEffect: (fn) => { effects[effectIndex++] = fn; }, useRef: () => ref },
     'next/navigation': { usePathname: () => pathname },
     '@/config/store': config,
     '@/context/CartContext': { useCart: () => ({ isCartOpen: cartOpen }) },
     './FloatingWhatsAppButton.module.css': { __esModule: true, default: { button: 'floating-whatsapp', tooltip: 'floating-whatsapp-tooltip' } },
   }, {
-    document: { querySelector: (selector) => { assert.equal(selector, 'footer'); return footerExists ? footer : null; } },
-    window: observerSupported ? { IntersectionObserver: Observer } : {},
-    IntersectionObserver: Observer,
+    document: {
+      querySelector: (selector) => { if (selector === 'main') return main; assert.equal(selector, 'footer'); return footerExists ? footer : null; },
+      querySelectorAll: (selector) => { assert.equal(selector, '[data-store-product-actions]'); return actionRects.map(rect => ({ getBoundingClientRect: () => rect })); },
+    },
+    window: {
+      ...(observerSupported ? { IntersectionObserver: Observer } : {}), ResizeObserver: ResizeObserverMock,
+      addEventListener: (type, fn) => listeners.set(type, fn), removeEventListener: type => listeners.delete(type),
+      requestAnimationFrame: fn => { frames.set(++frameId, fn); return frameId; }, cancelAnimationFrame: id => frames.delete(id),
+    },
+    IntersectionObserver: Observer, ResizeObserver: ResizeObserverMock,
   });
-  const tree = () => { hookIndex = 0; return FloatingWhatsAppButton(); };
+  const tree = () => { hookIndex = 0; effectIndex = 0; return FloatingWhatsAppButton(); };
   return {
     render: () => renderToStaticMarkup(tree()),
     keyDown: (key) => tree().props.onKeyDown({ key }),
     focus: () => tree().props.onFocus(),
     mouseEnter: () => tree().props.onMouseEnter(),
     baseHref: () => config.getWhatsAppHref(),
-    observe: () => effect(),
+    observe: () => effects[0](),
+    observeOverlap: () => effects[1](),
+    setActions: rects => { actionRects = rects; },
+    scroll: () => { listeners.get('scroll')?.(); const pending = [...frames.values()]; frames.clear(); pending.forEach(fn => fn()); },
+    get listenerCount() { return listeners.size; },
     intersect: (visible) => callback([{ isIntersecting: visible }]),
     get observedFooter() { return observed === footer; },
     get disconnected() { return disconnected; },
@@ -153,4 +170,26 @@ test('floating contact fails closed when footer visibility cannot be observed', 
     assert.equal(ui.observe(), undefined);
     assert.equal(ui.render(), '');
   }
+});
+
+test('Store temporarily hides contact during product-action collisions, restores it on scroll and cleans up', () => {
+  const rect = (left, top, width, height) => ({ left, top, width, height, right: left + width, bottom: top + height });
+  const ui = harness({ pathname: '/tienda', contactRect: rect(318, 878, 56, 56), actionRects: [rect(16, 872, 358, 90)] });
+  ui.render(); ui.observe(); ui.intersect(false); ui.render();
+  const cleanup = ui.observeOverlap();
+  assert.match(ui.render(), /data-store-actions-overlap="true"/);
+  assert.equal(ui.listenerCount, 2);
+  ui.setActions([rect(16, 400, 358, 90)]); ui.scroll();
+  assert.doesNotMatch(ui.render(), /data-store-actions-overlap/);
+  assert.match(ui.render(), /aria-label="Contactar por WhatsApp"/);
+  ui.setActions([rect(16, 872, 358, 90)]); ui.scroll();
+  assert.match(ui.render(), /data-store-actions-overlap="true"/);
+  cleanup(); assert.equal(ui.listenerCount, 0);
+});
+
+test('product-action collisions do not change floating contact outside Store', () => {
+  const ui = harness({ pathname: '/', contactRect: { left: 318, top: 878, right: 374, bottom: 934 }, actionRects: [{ left: 0, top: 870, right: 390, bottom: 950, width: 390, height: 80 }] });
+  ui.render(); ui.observe(); ui.intersect(false); ui.render();
+  assert.equal(ui.observeOverlap(), undefined);
+  assert.equal(ui.listenerCount, 0); assert.doesNotMatch(ui.render(), /data-store-actions-overlap/);
 });
