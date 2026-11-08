@@ -217,3 +217,53 @@ test('allocation invariants hold across mixed cent bases, rates and input permut
     }
   }
 });
+
+test('less favorable specials expose a stable blocker and preserve both calculated alternatives', () => {
+  const eligible = product('eligible', 1000, { wholesaleEligible: true });
+  const excluded = product('excluded', 1000, { wholesaleEligible: true, manualWholesaleDiscountPolicy: policy('excluded', 'unreviewed') });
+  const engine = harness({ products: [eligible, excluded] });
+  for (const [items, bps, normalDiscount, specialDiscount, subtotal] of [
+    [[line(eligible, 20)], 3000, 7000, 6000, 20000],
+    [[line(eligible, 20), line(excluded, 20)], 5000, 17200, 10000, 40000],
+  ]) {
+    const normal = engine.quote(request(items), admin);
+    const selected = engine.quote(request(items, { discount: special(bps) }), admin);
+    assert.equal(normal.discountCents, normalDiscount);
+    assert.equal(selected.normalDiscountAvailable.amountCents, normalDiscount);
+    assert.equal(selected.specialDiscountRequested.percentageBps, bps);
+    assert.equal(selected.specialDiscountApplied.amountCents, specialDiscount);
+    assert.equal(selected.discountCents, specialDiscount);
+    assert.equal(selected.totalCents, subtotal - specialDiscount);
+    assert.equal(normal.totalCents, subtotal - normalDiscount);
+    assert.equal(selected.lines.reduce((sum, row) => sum + row.appliedDiscountCents, 0), specialDiscount);
+    assert.deepEqual(plain(selected.blockingReasons), ['special_discount_less_favorable']);
+    assert.deepEqual(plain(normal.blockingReasons), []);
+  }
+});
+
+test('equal and more favorable specials stay available, including the existing zero-total blocker', () => {
+  const individual = product('individual', 1000, { wholesaleEligible: true });
+  const engine = harness({ products: [individual] });
+  for (const [bps, discount, blockers] of [
+    [3500, 7000, []], [5000, 10000, []], [10000, 20000, ['zero_total_persistence_not_authorized']],
+  ]) {
+    const selected = engine.quote(request([line(individual, 20)], { discount: special(bps) }), admin);
+    assert.equal(selected.normalDiscountAvailable.amountCents, 7000);
+    assert.equal(selected.specialDiscountApplied.amountCents, discount);
+    assert.equal(selected.totalCents, 20000 - discount);
+    assert.deepEqual(plain(selected.blockingReasons), blockers);
+    assert.equal(selected.persistenceImplemented, false);
+  }
+});
+
+test('comparison uses rounded cent benefit rather than comparing percentage labels', () => {
+  const individual = product('cents', 1, { wholesaleEligible: true });
+  const engine = harness({ products: [individual] });
+  const less = engine.quote(request([line(individual, 22)], { discount: special(3500) }), admin);
+  assert.equal(less.normalDiscountAvailable.amountCents, 8);
+  assert.equal(less.specialDiscountApplied.amountCents, 7);
+  assert.deepEqual(plain(less.blockingReasons), ['special_discount_less_favorable']);
+  const equal = engine.quote(request([line(individual, 22)], { discount: special(3999) }), admin);
+  assert.equal(equal.specialDiscountApplied.amountCents, 8);
+  assert.deepEqual(plain(equal.blockingReasons), []);
+});

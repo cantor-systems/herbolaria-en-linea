@@ -186,7 +186,11 @@ export function quoteManualOrder(input: unknown, authorizationContext: unknown):
     discountMode: intent.discount.mode, discountCents, normalShippingCents: normal.shippingCents,
     shippingCourtesyApplied, shippingCents, totalCents,
     requiresAdministrativeConfirmation: true,
-    blockingReasons: totalCents === 0 ? ['zero_total_persistence_not_authorized'] : [],
+    blockingReasons: [
+      ...(intent.discount.mode === 'special_percentage' && specialCents < normal.discountCents
+        ? ['special_discount_less_favorable' as const] : []),
+      ...(totalCents === 0 ? ['zero_total_persistence_not_authorized' as const] : []),
+    ],
     notices: [
       ...(intent.standardShippingCourtesy.requested && normal.shippingCents === 0 ? ['courtesy_already_free' as const] : []),
       ...(lines.some(line => line.composition === 'unstructured') ? ['unstructured_composition' as const] : []),

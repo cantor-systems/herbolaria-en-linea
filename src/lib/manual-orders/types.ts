@@ -84,7 +84,7 @@ export interface ManualQuote {
   shippingCents: number;
   totalCents: number;
   requiresAdministrativeConfirmation: boolean;
-  blockingReasons: 'zero_total_persistence_not_authorized'[];
+  blockingReasons: ('zero_total_persistence_not_authorized' | 'special_discount_less_favorable')[];
   notices: ('courtesy_already_free' | 'unstructured_composition')[];
   persistenceImplemented: false;
   requestFingerprint: string;
