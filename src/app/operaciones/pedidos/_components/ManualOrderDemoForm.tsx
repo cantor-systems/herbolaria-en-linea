@@ -15,6 +15,7 @@ function CatalogProduct({ product, add, atLimit }: { product: DemoCatalogProduct
   return <article className={styles.product}><strong>{product.productName}</strong>
     <label className={styles.label} htmlFor={id}>Presentación de {product.productName}</label>
     <select className={styles.input} id={id} value={variantId} data-quote-ignore="true" onChange={e => setVariantId(e.target.value)}>{product.variants.map(v => <option value={v.variantId} key={v.variantId}>{v.variantLabel} · {demoMoney(v.priceCents)} MXN</option>)}</select>
+    {variant && <p className={styles.hint}>{variant.variantLabel} · {demoMoney(variant.priceCents)} MXN por paquete</p>}
     <p className={styles.hint}>{variant?.eligibility.eligibility === 'eligible' ? 'Individual regular · Elegible para descuento especial' : 'Promoción, kit u otra presentación excluida de descuento especial'}</p>
     <button className={styles.secondary} type="button" disabled={!variant?.selectable || atLimit} onClick={() => add(product.productId, variantId)}>{!variant?.selectable ? 'No disponible' : atLimit ? 'Límite de 50 líneas' : 'Añadir presentación'}</button>
   </article>;
@@ -32,7 +33,7 @@ export function ManualOrderDemoForm({ catalog, defaults, quoteAction }: Props) {
   const [discount, setDiscount] = useState('normal');
   const [courtesy, setCourtesy] = useState(false);
   const [search, setSearch] = useState('');
-  // Controlled fields preserve the reviewed intent across React's action form reset.
+  // The quote action retains this draft; it never captures or clears an order.
   const [values, setValues] = useState<Record<string, string>>({ ...defaults, otherChannelDetail: 'Canal sintético de demostración', discountPercent: '35', discountReason: '', courtesyReason: '' });
   const [lines, setLines] = useState<DraftLine[]>([]);
   const [nextKey, setNextKey] = useState(1);
@@ -53,7 +54,9 @@ export function ManualOrderDemoForm({ catalog, defaults, quoteAction }: Props) {
     return <Field id={name} label={label} error={errors[name]} hint={hint}><input {...props(name, !!hint)} type={type} value={values[name] ?? value} onChange={e => setValues(v => ({ ...v, [name]: e.target.value }))} inputMode={name === 'postalCode' ? 'numeric' : undefined} required={name !== 'customerEmail'} maxLength={maxLength} autoComplete="off" /></Field>;
   }
   const blocking = quote?.blockingReasons ?? [];
-  return <form action={action} onChange={event => { if (!(event.target as HTMLElement).dataset.quoteIgnore) changed(); }}>
+  // React requests a native reset after an action. Cancel it so selects/checkboxes
+  // cannot revert independently of React state and the accepted quote revision.
+  return <form action={action} onReset={event => event.preventDefault()} onChange={event => { if (!(event.target as HTMLElement).dataset.quoteIgnore) changed(); }}>
     <input type="hidden" name="revision" value={revision} />
     <input type="hidden" name="items" value={JSON.stringify(lines.map(l => ({ productId: l.productId, variantId: l.variantId, packageQuantity: Number(l.quantity) })))} />
     {fresh && Object.keys(errors).length > 0 && <div className={styles.notice} role="alert" tabIndex={-1}><strong>Revisa los siguientes campos</strong><ul>{Object.entries(errors).map(([key, message]) => <li key={key}>{key !== 'form' ? <a className={styles.textLink} href={`#${key}`}>{message}</a> : message}</li>)}</ul></div>}

@@ -12,6 +12,7 @@
     "test:db:manual": "node tests/integration/localManualOrders.mjs",
     "test:db": "npm run test:db:manual",
     "test:demo:local": "node tests/integration/localManualDemo.mjs",
+    "test:demo:browser": "node tests/integration/localManualDemoBrowser.mjs",
     "start": "next start"
   },
   "dependencies": {

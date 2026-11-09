@@ -147,11 +147,17 @@ test('editing, quoting and reviewing retain the entered percentage and invalidat
   const control = (tree, id) => nodes(tree).find(n => n.props.id === id && ['input', 'select', 'textarea'].includes(n.type));
   const change = (tree, id, value) => { control(tree, id).props.onChange({ target: { value } }); tree.props.onChange({ target: { dataset: {} } }); return render(); };
   let tree = render();
+  let resetPrevented = false;
+  tree.props.onReset({ preventDefault() { resetPrevented = true; } });
+  assert.equal(resetPrevented, true, 'quote-only actions must cancel the native reset, including select/checkbox defaults');
   const picker = nodes(tree).find(n => n.props.product?.productId === first.productId);
   picker.props.add(first.productId, variant.variantId); tree = render();
   tree = change(tree, 'discountMode', 'special_percentage');
   tree = change(tree, 'discountPercent', '50');
   tree = change(tree, 'discountReason', 'Descuento sintético de revisión.');
+  tree = change(tree, 'channel', 'phone');
+  tree = change(tree, 'frequency', 'frequent');
+  tree = change(tree, 'segment', 'wholesale');
   const data = new FormData();
   for (const node of nodes(tree)) {
     if (!['input', 'select', 'textarea'].includes(node.type) || !node.props.name || node.props.disabled || (node.props.type === 'checkbox' && !node.props.checked)) continue;
@@ -160,6 +166,12 @@ test('editing, quoting and reviewing retain the entered percentage and invalidat
   await tree.props.action(data); tree = render();
   assert.equal(response.status, 'success'); assert.equal(response.quote.specialDiscountRequested.percentageBps, 5000);
   assert.equal(control(tree, 'discountPercent').props.value, '50', 'form action must not replace user input with the 35% default');
+  for (const [id, value] of [['channel', 'phone'], ['frequency', 'frequent'], ['segment', 'wholesale'], ['discountMode', 'special_percentage'], ['discountReason', 'Descuento sintético de revisión.']]) {
+    assert.equal(control(tree, id).props.value, value);
+  }
+  const firstQuote = JSON.stringify(response.quote);
+  await tree.props.action(data); tree = render();
+  assert.equal(JSON.stringify(response.quote), firstQuote, 'unchanged intent must produce the same total, allocations and snapshot');
   const review = nodes(tree).find(n => n.type === 'input' && n.props.type === 'checkbox' && n.props['data-quote-ignore']);
   assert.equal(review.props.checked, false); assert.equal(review.props.disabled, false);
   review.props.onChange({ target: { checked: true } }); tree = render();
