@@ -107,6 +107,9 @@ function request(value: unknown): ManualQuoteRequest {
 export function quoteManualOrder(input: unknown, authorizationContext: unknown): ManualQuote {
   const context = authorization(authorizationContext);
   const intent = request(input);
+  if (intent.discount.mode === 'normal' && intent.discount.promotionCode === 'BF20') {
+    throw new ManualPricingError('invalid_discount');
+  }
   const resolved = intent.items.map(item => ({ ...item, ...resolveManualVariant(item.productId, item.variantId) }));
   let normal;
   try {

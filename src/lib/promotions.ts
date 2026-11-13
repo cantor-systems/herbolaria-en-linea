@@ -125,7 +125,7 @@ export function validatePromotion({
     return {
       valid: false,
       reason: 'expired',
-      message: 'Este cupón expiró el 30/09/2026.',
+      message: `El cupón ${normalizePromotionCode(promotion.code)} ya expiró.`,
     };
   }
 
@@ -133,7 +133,7 @@ export function validatePromotion({
     return {
       valid: false,
       reason: 'minimum_not_met',
-      message: 'La compra mínima para MORONEL15 es de $500 MXN.',
+      message: `La compra mínima elegible para ${normalizePromotionCode(promotion.code)} es de ${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(promotion.minimumSubtotalCents / 100)} MXN.`,
     };
   }
 

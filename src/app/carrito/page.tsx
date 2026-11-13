@@ -226,7 +226,7 @@ export default function CartPage() {
                     }
                     disabled={wholesaleDiscountPercent > 0}
                     type="text"
-                    placeholder="Ej. MORONEL15"
+                    placeholder="Código de cupón"
                     value={promoInput}
                     onChange={(e) => setPromoInput(e.target.value)}
                     aria-label="Código de cupón"
