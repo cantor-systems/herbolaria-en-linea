@@ -52,7 +52,7 @@ try {
     await bf.waitFor({ state: 'visible' });
     assert.equal(await bf.getAttribute('aria-label'), '1 de 4');
     assert.equal(await bf.locator('a').getAttribute('href'), '/tienda');
-    for (const copy of ['20% de descuento', 'Usa el cupón BF20', 'Del 12 al 17 de noviembre', 'Compra mínima de $799 MXN', '3 MSI con tarjeta de crédito', 'El descuento no aplica al envío.']) assert.ok((await bf.innerText()).includes(copy));
+    for (const copy of ['20% de descuento', 'Usa el cupón BF20', 'Del 12 al 17 de noviembre', 'Compra mínima de $799 MXN', '3 MSI con tarjeta de crédito']) assert.ok((await bf.innerText()).includes(copy));
     const dimensions = await bf.evaluate(el => ({ width: el.clientWidth, scroll: el.scrollWidth, image: { width: el.querySelector('img').naturalWidth, source: el.querySelector('img').currentSrc }, copy: el.querySelector('h2').getBoundingClientRect().toJSON() }));
     assert.ok(dimensions.image.width > 0);
     assert.ok(dimensions.image.source.endsWith(width < 640 ? 'bf20-mobile.webp' : 'bf20-desktop.webp'));

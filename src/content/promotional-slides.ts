@@ -29,7 +29,7 @@ export const PROMOTIONAL_SLIDES: readonly PromotionalSlide[] = [
     desktopImage: '/images/banners/bf20-desktop.webp', mobileImage: '/images/banners/bf20-mobile.webp',
     copyPosition: 'right', alt: 'Productos Herbazen en gotas, cápsulas y té sobre piedra natural.',
     eyebrow: 'BUEN FIN 2026', headline: '20% de descuento',
-    details: ['Usa el cupón BF20', 'Del 12 al 17 de noviembre', 'Compra mínima de $799 MXN', '3 MSI con tarjeta de crédito', 'El descuento no aplica al envío.'],
+    details: ['Usa el cupón BF20', 'Del 12 al 17 de noviembre', 'Compra mínima de $799 MXN', '3 MSI con tarjeta de crédito'],
     ctaText: 'Ver promociones', href: '/tienda', order: 1, active: true, previewOnly: false,
     startsAt: '2026-11-12T00:00:00-06:00', endsAt: '2026-11-18T00:00:00-06:00',
   },
