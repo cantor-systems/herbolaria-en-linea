@@ -135,14 +135,17 @@ function mercadoPagoItems(cart: PricedCheckoutCart) {
   const discountableSubtotalCents =
     cart.wholesaleDiscountPercent > 0
       ? cart.wholesaleEligibleSubtotalCents
-      : cart.subtotalCents;
+      : cart.promotionCode === 'BF20'
+        ? cart.items.reduce((sum, item) => sum + (item.promotionEligible ? item.unitPriceCents * item.quantity : 0), 0)
+        : cart.subtotalCents;
   let cumulativeDiscountableSubtotalCents = 0;
   let cumulativeDiscountCents = 0;
 
   const discountedItems = cart.items.map((item) => {
     const lineTotalCents = item.unitPriceCents * item.quantity;
     const lineReceivesDiscount =
-      cart.wholesaleDiscountPercent === 0 || item.wholesaleEligible;
+      cart.wholesaleDiscountPercent > 0 ? item.wholesaleEligible
+        : cart.promotionCode !== 'BF20' || item.promotionEligible;
     if (lineReceivesDiscount) {
       cumulativeDiscountableSubtotalCents += lineTotalCents;
     }

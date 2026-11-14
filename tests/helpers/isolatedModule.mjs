@@ -27,12 +27,13 @@ export function loadSource(relativePath, dependencies = {}, globals = {}) {
   return module.exports;
 }
 
-export function loadPricing({ products, promotions } = {}) {
+export function loadPricing({ products, promotions, now } = {}) {
   const shippingConfig = loadSource('src/config/shipping.ts');
   const shipping = loadSource('src/lib/shipping.ts', { '@/config/shipping': shippingConfig });
   const catalog = products ? { PRODUCTS: products } : loadSource('src/data/products.ts');
   const promotionConfig = promotions ?? loadSource('src/config/promotions.ts');
-  const promotionRules = loadSource('src/lib/promotions.ts', { '@/config/promotions': promotionConfig });
+  const Clock = now ? class extends Date { constructor(...args) { super(...(args.length ? args : [now])); } } : Date;
+  const promotionRules = loadSource('src/lib/promotions.ts', { '@/config/promotions': promotionConfig }, { Date: Clock });
   const wholesale = loadSource('src/lib/wholesale.ts');
   const server = loadSource('src/lib/checkout/serverPricing.ts', {
     'server-only': {}, '@/data/products': catalog, '@/lib/promotions': promotionRules,

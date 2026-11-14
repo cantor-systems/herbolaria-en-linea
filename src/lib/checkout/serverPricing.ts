@@ -31,6 +31,7 @@ export interface PricedCheckoutItem {
   unitPriceCents: number;
   freeShippingEligible: boolean;
   wholesaleEligible: boolean;
+  promotionEligible: boolean;
 }
 
 export interface PricedCheckoutCart {
@@ -131,6 +132,7 @@ export function priceCheckoutCart(
       unitPriceCents: variant.priceCents,
       freeShippingEligible: variant.freeShippingEligible,
       wholesaleEligible: isWholesaleEligiblePresentation(product, variant),
+      promotionEligible: !variant.hiddenFromSelection,
     };
   });
 
@@ -149,7 +151,10 @@ export function priceCheckoutCart(
   let promotionCode: string | null = null;
   let discountCents = wholesaleDiscount.discountCents;
   if (wholesaleDiscount.percent === 0 && typeof promotionCodeInput === 'string') {
-    const promotion = validatePromotion({ code: promotionCodeInput, subtotalCents });
+    const eligibleSubtotal = promotionCodeInput.trim().toUpperCase() === 'BF20'
+      ? items.reduce((sum, item) => sum + (item.promotionEligible ? item.unitPriceCents * item.quantity : 0), 0)
+      : subtotalCents;
+    const promotion = validatePromotion({ code: promotionCodeInput, subtotalCents: eligibleSubtotal });
     if (!promotion.valid) throw new CheckoutValidationError(promotion.message);
     promotionCode = promotion.code;
     discountCents = promotion.discountCents;

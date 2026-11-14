@@ -126,6 +126,7 @@ export function PromotionalSlider({ slides }: { slides: readonly PromotionalSlid
               <div className={styles.copy}>
                 <p className={styles.eyebrow}>{slide.eyebrow}</p>
                 <h2 className={styles.headline}>{slide.headline}</h2>
+                {slide.details && <div className={styles.details}>{slide.details.map(detail => <p key={detail}>{detail}</p>)}</div>}
                 <Link href={slide.href} className={styles.cta} prefetch={false}>
                   {slide.ctaText}<ArrowRight size={22} aria-hidden="true" />
                 </Link>

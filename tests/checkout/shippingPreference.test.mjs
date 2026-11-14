@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { loadSource, loadPricing } from '../helpers/isolatedModule.mjs';
 
-function harness({ products, promotions } = {}) {
-  const pricing = loadPricing({ products, promotions });
+function harness({ products, promotions, now } = {}) {
+  const pricing = loadPricing({ products, promotions, now });
   const policy = loadSource('src/lib/mercadopago/preferencePolicy.ts');
   const lifecycle = loadSource('src/lib/mercadopago/preferenceLifecycle.ts');
   const created = [], persisted = [], failures = [];
@@ -68,6 +68,46 @@ test('the actual checkout API keeps server totals, the stored snapshot and a sim
     const retry = await h.post(items, shippingMethod);
     assert.equal(retry.status, 200); assert.equal(h.created.length, 1);
   }
+});
+
+test('BF20 preserves exact snapshots, hidden-line prices, shipping and preference replay', async () => {
+  for (const [shippingMethod, shippingCents, totalCents] of [['standard', 0, 63920], ['express', 7900, 71820]]) {
+    const product = { id: 'synthetic', slug: 'synthetic', name: 'Synthetic', status: 'active', stockStatus: 'in_stock', variants: [{ id: 'unit', name: 'Unit', priceCents: 79900, wholesaleEligible: false }] };
+    const h = harness({ products: [product], now: '2026-11-13T12:00:00-06:00' });
+    const lines = [{ slug: 'synthetic', variantId: 'unit', quantity: 1 }];
+    assert.equal((await h.post(lines, shippingMethod, ' BF20 ')).status, 200);
+    assert.equal(h.persisted[0].promotionCode, 'BF20'); assert.equal(h.persisted[0].discountCents, 15980);
+    assert.equal(h.persisted[0].shippingCents, shippingCents); assert.equal(h.persisted[0].totalCents, totalCents);
+    assert.equal(h.created[0].body.metadata.expected_total_cents, totalCents);
+    assert.equal((await h.post(lines, shippingMethod, 'BF20')).status, 200); assert.equal(h.created.length, 1);
+  }
+  const h = harness({ now: '2026-11-13T12:00:00-06:00' });
+  const lines = [{ slug: 'moronel-gotas-50ml', variantId: 'var-gotas-3', quantity: 1 }, { slug: 'moronel-gotas-50ml', variantId: 'var-gotas-10', quantity: 1 }];
+  assert.equal((await h.post(lines, 'standard', 'BF20')).status, 200);
+  const items = h.created[0].body.items;
+  assert.equal(Math.round(items[1].unit_price * 100), 268000);
+  assert.equal(items.reduce((sum, i) => sum + Math.round(i.unit_price * 100) * i.quantity, 0), h.persisted[0].totalCents);
+  for (const forged of [{ ...lines[1], promotionEligible: true }, { ...lines[1], unitPriceCents: 1 }]) {
+    assert.equal((await h.post([forged], 'standard', 'BF20')).status, 400);
+  }
+  assert.equal((await h.post(lines, 'standard', ['BF20', 'MORONEL15'])).status, 400);
+});
+
+test('payment verification after BF20 expiry uses the stored economic amount without consulting promotions', async () => {
+  const externalReference = 'order_00000000-0000-4000-8000-000000000001';
+  const snapshot = { totalCents: 71820, shippingCents: 7900, discountCents: 15980 };
+  const provider = { external_reference: externalReference, status: 'approved', currency_id: 'MXN', transaction_amount: 639.20, shipping_amount: 79, metadata: { order_id: externalReference, expected_total_cents: snapshot.totalCents } };
+  const { fetchVerifiedPayment } = loadSource('src/lib/mercadopago/paymentVerification.ts', {
+    'server-only': {}, mercadopago: { Payment: class { async get() { return provider; } } },
+    '@/lib/mercadopago/client': { createMercadoPagoClient: () => ({}) },
+  }, { Date: class extends Date { constructor(...args) { super(...(args.length ? args : ['2026-11-19T12:00:00-06:00'])); } } });
+  const payment = await fetchVerifiedPayment('123456789', externalReference);
+  assert.equal(payment.totalCents, snapshot.totalCents);
+  assert.equal(snapshot.discountCents, 15980);
+  provider.transaction_amount = 639.19;
+  assert.equal(await fetchVerifiedPayment('123456789', externalReference), null);
+  provider.transaction_amount = 639.201;
+  assert.equal(await fetchVerifiedPayment('123456789', externalReference), null);
 });
 
 test('a discounted synthetic preference uses pre-discount free shipping and exact cent distribution', async () => {
