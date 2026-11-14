@@ -184,6 +184,9 @@
 /* BF20 artwork already reserves its green copy area; preserve the full photo. */
 .slide[data-slide-id='buen-fin-2026'] { background: #102b20; }
 .slide[data-slide-id='buen-fin-2026'] .image { object-fit: contain; }
+@media (min-width: 1024px) {
+  .slide[data-slide-id='buen-fin-2026'] .image { object-fit: cover; object-position: left center; }
+}
 .slide[data-slide-id='buen-fin-2026'] .shade { display: none; }
 .slide[data-slide-id='buen-fin-2026'] .copy { width: 38%; padding: 1.5rem 4rem 3.5rem 1rem; gap: .8rem; }
 .slide[data-slide-id='buen-fin-2026'] .headline { font-size: clamp(1.7rem, 3.2vw, 3rem); }
