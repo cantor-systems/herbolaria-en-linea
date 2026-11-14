@@ -1,5 +1,42 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+const bfNow = '2026-11-13T12:00:00-06:00';
+
+test('BF20 normalization, precise Mexico City boundaries, minimum and commercial cent rounding', () => {
+  const rules = loadPricing().promotionRules;
+  for (const code of ['BF20', 'bf20', '  bf20  ']) {
+    const result = rules.validatePromotion({ code, subtotalCents: 79900, now: new Date(bfNow) });
+    assert.equal(result.valid, true); assert.equal(result.code, 'BF20'); assert.equal(result.discountCents, 15980);
+  }
+  for (const [instant, valid] of [['2026-11-11T23:59:59.999-06:00', false], ['2026-11-12T00:00:00-06:00', true], ['2026-11-17T23:59:59.999-06:00', true], ['2026-11-18T00:00:00-06:00', false]]) {
+    assert.equal(rules.validatePromotion({ code: 'BF20', subtotalCents: 79900, now: new Date(instant) }).valid, valid);
+  }
+  assert.equal(rules.validatePromotion({ code: 'BF20', subtotalCents: 79899, now: new Date(bfNow) }).reason, 'minimum_not_met');
+  assert.equal(rules.validatePromotion({ code: 'BF20', subtotalCents: 79903, now: new Date(bfNow) }).discountCents, 15981);
+  assert.equal(rules.validatePromotion({ code: 'BF20 MORONEL15', subtotalCents: 79900, now: new Date(bfNow) }).valid, false);
+});
+
+test('BF20 covers every visible commercial variant, excludes hidden lines and retains wholesale', () => {
+  const h = loadPricing({ now: bfNow });
+  for (const product of h.catalog.PRODUCTS) for (const variant of product.variants) {
+    const quantity = Math.ceil(79900 / variant.priceCents);
+    const lines = [{ slug: product.slug, variantId: variant.id, quantity }];
+    if (variant.hiddenFromSelection) {
+      assert.throws(() => h.server.priceCheckoutCart(lines, 'standard', 'BF20'));
+      assert.doesNotThrow(() => h.server.priceCheckoutCart(lines, 'standard', null));
+    } else {
+      const q = h.server.priceCheckoutCart(lines, 'standard', 'bf20');
+      assert.equal(q.discountCents, Math.round(q.subtotalCents * .2));
+    }
+  }
+  const p = h.catalog.PRODUCTS[0], visible = { slug: p.slug, variantId: 'var-gotas-3', quantity: 1 }, hidden = { slug: p.slug, variantId: 'var-gotas-10', quantity: 1 };
+  const mixed = h.server.priceCheckoutCart([visible, hidden], 'standard', 'BF20');
+  assert.equal(mixed.discountCents, 17820);
+  assert.throws(() => h.server.priceCheckoutCart([{ slug: p.slug, variantId: 'var-gotas-1', quantity: 1 }, hidden], 'standard', 'BF20'));
+  const wholesale = h.server.priceCheckoutCart([{ slug: p.slug, variantId: 'var-gotas-1', quantity: 20 }], 'standard', 'BF20');
+  assert.equal(wholesale.wholesaleDiscountPercent, 35); assert.equal(wholesale.promotionCode, null);
+  assert.equal(wholesale.discountCents, 231000);
+});
 import React from 'react';
 import { loadSource, loadPricing } from '../helpers/isolatedModule.mjs';
 
@@ -12,6 +49,27 @@ export function syntheticProduct(priceCents = 69900, overrides = {}) {
 }
 const item = (quantity = 1) => [{ slug: 'synthetic-product', variantId: 'synthetic-variant', quantity }];
 const pricing = loadPricing();
+
+test('client estimates match authoritative BF20 eligibility, and wholesale explains replacement', () => {
+  const h = loadPricing({ now: bfNow }), product = h.catalog.PRODUCTS[0];
+  for (const [variants, quantities] of [[['var-gotas-3', 'var-gotas-10'], [1, 1]], [['var-gotas-1', 'var-gotas-10'], [1, 1]], [['var-gotas-1'], [20]]]) {
+    const cart = variants.map((id, index) => ({ product, variant: product.variants.find(v => v.id === id), quantity: quantities[index] }));
+    const states = [cart, false, 'BF20']; let index = 0;
+    const { CartProvider } = loadSource('src/context/CartContext.tsx', {
+      react: { ...React, useState() { const i = index++; return [states[i], value => { states[i] = value; }]; }, useEffect() {} },
+      '@/config/shipping': h.shippingConfig, '@/data/products': h.catalog, '@/lib/promotions': h.promotionRules,
+      '@/lib/shipping': h.shipping, '@/lib/wholesale': h.wholesale, '@/lib/analytics': { trackAddToCart() {} },
+    });
+    const client = CartProvider({ children: null }).props.value;
+    if (variants[0] === 'var-gotas-1' && quantities[0] === 1) {
+      assert.equal(client.discountCents, 0); assert.equal(client.applyPromoCode('BF20').success, false);
+    } else {
+      const server = h.server.priceCheckoutCart(cart.map(i => ({ slug: product.slug, variantId: i.variant.id, quantity: i.quantity })), 'standard', 'BF20');
+      assert.equal(client.discountCents, server.discountCents); assert.equal(client.totalCents, server.totalCents);
+      if (quantities[0] === 20) assert.match(client.applyPromoCode('BF20').message, /mayoreo lo reemplaza/);
+    }
+  }
+});
 
 for (const [slug, prefix, single, rows] of [
   ['moronel-gotas-50ml', 'gotas', 33000, [[1, 33000, 33000, 0], [3, 89100, 29700, 10], [5, 140250, 28050, 15], [20, 528000, 26400, 20]]],

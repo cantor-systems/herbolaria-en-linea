@@ -5,6 +5,12 @@ import { admin, errorCode, harness, line, plain, policy, product, reason, reques
 const p = product();
 const h = harness({ products: [p] });
 
+test('BF20 is refused explicitly in manual quotes, including normalized codes and wholesale', () => {
+  for (const code of ['BF20', ' bf20 ']) for (const quantity of [1, 20]) {
+    assert.throws(() => h.quote(request([line(p, quantity)], { discount: { mode: 'normal', promotionCode: code } }), admin), errorCode('invalid_discount'));
+  }
+});
+
 test('regular individual quantities mean packages purchased, not a promotional variant', () => {
   const q = h.quote(request([line(p, 2)], { discount: special() }), admin);
   assert.equal(q.subtotalCents, 60000); assert.equal(q.eligibleBaseCents, 60000);

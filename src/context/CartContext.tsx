@@ -153,8 +153,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }))
   );
 
+  const promotionSubtotal = (code: string) => normalizePromotionCode(code) === 'BF20'
+    ? cart.reduce((sum, item) => sum + (item.variant.hiddenFromSelection ? 0 : item.variant.priceCents * item.quantity), 0)
+    : subtotalCents;
   const promotionValidation = selectedPromotionCode
-    ? validatePromotion({ code: selectedPromotionCode, subtotalCents })
+    ? validatePromotion({ code: selectedPromotionCode, subtotalCents: promotionSubtotal(selectedPromotionCode) })
     : null;
   const appliedPromo =
     wholesaleDiscount.percent === 0 && promotionValidation?.valid
@@ -163,7 +166,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const promotionCode = appliedPromo?.code ?? null;
 
   const applyPromoCode = (code: string) => {
-    const result = validatePromotion({ code, subtotalCents });
+    const result = validatePromotion({ code, subtotalCents: promotionSubtotal(code) });
     if (!result.valid) {
       return { success: false, message: result.message };
     }

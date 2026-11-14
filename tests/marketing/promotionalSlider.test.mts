@@ -5,7 +5,7 @@ import vm from 'node:vm';
 import ts from 'typescript';
 import { PROMOTIONAL_SLIDES, allowPromotionalPreview, selectPromotionalSlides, type PromotionalSlide } from '../../src/content/promotional-slides.ts';
 
-const sample = (changes: Partial<PromotionalSlide> = {}): PromotionalSlide => ({ ...PROMOTIONAL_SLIDES[0], previewOnly: false, ...changes });
+const sample = (changes: Partial<PromotionalSlide> = {}): PromotionalSlide => ({ ...PROMOTIONAL_SLIDES[1], previewOnly: false, ...changes });
 const categoriesModule = { exports: {} as { getActiveCategories: () => { slug: string }[] } };
 vm.runInNewContext(ts.transpileModule(readFileSync(new URL('../../src/data/categories.ts', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS },
@@ -25,6 +25,7 @@ test('unapproved reference artwork is excluded from production by default', () =
 
 test('the three owner-approved provisional banners are available in production', () => {
   const slides = selectPromotionalSlides(PROMOTIONAL_SLIDES, {
+    now: Date.parse('2026-11-01T12:00:00Z'),
     allowPreview: allowPromotionalPreview('production', 'production'),
   });
   assert.deepEqual(slides.map((slide) => slide.id), ['moronel-featured', 'moronel-packages', 'herbal-world']);
@@ -53,13 +54,20 @@ test('slides use unique identifiers, local images and verified existing destinat
   assert.equal(new Set(PROMOTIONAL_SLIDES.map((slide) => slide.id)).size, PROMOTIONAL_SLIDES.length);
   const category = getActiveCategories().find((entry) => entry.slug === 'paquetes-y-promociones');
   assert.ok(category);
-  assert.deepEqual(PROMOTIONAL_SLIDES.map((slide) => slide.href), ['/tienda', `/categoria/${category.slug}`, '/blog']);
+  assert.deepEqual(PROMOTIONAL_SLIDES.map((slide) => slide.href), ['/tienda', '/tienda', `/categoria/${category.slug}`, '/blog']);
   for (const slide of PROMOTIONAL_SLIDES) {
     for (const image of [slide.desktopImage, slide.mobileImage].filter(Boolean) as string[]) {
       assert.ok(image.startsWith('/images/'));
       assert.ok(existsSync(new URL(`../../public${image}`, import.meta.url)));
     }
     assert.ok(slide.alt.length > 10);
-    assert.doesNotMatch(`${slide.headline} ${slide.eyebrow} ${slide.ctaText}`, /\d+%|gratis|regalo|nuevo lanzamiento/i);
+    if (slide.id !== 'buen-fin-2026') assert.doesNotMatch(`${slide.headline} ${slide.eyebrow} ${slide.ctaText}`, /\d+%|gratis|regalo|nuevo lanzamiento/i);
+  }
+});
+
+test('BF20 is first only inside its approved window, preserving the other three slides', () => {
+  const original = ['moronel-featured', 'moronel-packages', 'herbal-world'];
+  for (const [instant, active] of [['2026-11-11T23:59:59.999-06:00', false], ['2026-11-12T00:00:00-06:00', true], ['2026-11-17T23:59:59.999-06:00', true], ['2026-11-18T00:00:00-06:00', false]] as const) {
+    assert.deepEqual(selectPromotionalSlides(PROMOTIONAL_SLIDES, { now: Date.parse(instant) }).map(s => s.id), active ? ['buen-fin-2026', ...original] : original);
   }
 });

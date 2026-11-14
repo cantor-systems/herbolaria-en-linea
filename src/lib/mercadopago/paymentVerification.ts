@@ -29,7 +29,9 @@ function normalizeProviderStatus(status: string): VerifiedPaymentStatus {
 
 function toSafeCents(amount: number): number | null {
   const cents = Math.round(amount * 100);
-  if (!Number.isSafeInteger(cents) || Math.abs(amount * 100 - cents) > Number.EPSILON) {
+  // Compare in pesos after rounding: e.g. 639.20 * 100 has binary float noise.
+  // Values containing a genuine fraction of a cent still fail closed.
+  if (!Number.isSafeInteger(cents) || cents / 100 !== amount) {
     return null;
   }
   return cents;

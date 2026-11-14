@@ -243,7 +243,7 @@ export const DrawerCart: React.FC = () => {
                       }
                       disabled={wholesaleDiscountPercent > 0}
                       type="text"
-                      placeholder="Código de cupón (ej. MORONEL15)"
+                      placeholder="Código de cupón"
                       value={promoInput}
                       onChange={(e) => setPromoInput(e.target.value)}
                       className="min-h-[44px] min-w-0 flex-1 bg-[#F4EFD6] border border-[#D9D1B9] text-xs px-3 py-2 rounded-lg text-[#23312C] font-semibold focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-55"
