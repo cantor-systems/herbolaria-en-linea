@@ -2,7 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Leaf, MessageCircle, Mail, Clock, ShieldCheck, MapPin, Truck } from 'lucide-react';
+import Image from 'next/image';
+import { MessageCircle, Mail, Clock, ShieldCheck, MapPin, Truck } from 'lucide-react';
 import { STORE_CONFIG, getWhatsAppHref } from '@/config/store';
 import { trackWhatsAppClick } from '@/lib/analytics';
 import { SOCIAL_CONFIG } from '@/config/social';
@@ -23,19 +24,7 @@ export const Footer: React.FC = () => {
 
           {/* Col 1: Brand Info */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-[#285F50] text-[#FAF7E8] flex items-center justify-center shadow-md">
-                <Leaf className="w-5 h-5 text-[#D17B24]" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-lg font-extrabold text-[#FAF7E8] leading-tight">
-                  {STORE_CONFIG.storeName}
-                </span>
-                <span className="text-xs font-semibold text-[#AFC28E] uppercase tracking-wider">
-                  Tienda herbolaria
-                </span>
-              </div>
-            </div>
+            <Image src="/images/brand/herbolaria-logo-blanco.webp" alt="Herbolaria en Línea" width={3571} height={828} sizes="224px" className="h-auto w-56 max-w-full" />
             <p className="text-xs text-[#F4EFD6]/80 leading-relaxed">
               {STORE_CONFIG.description}
             </p>

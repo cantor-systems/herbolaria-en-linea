@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
-  Leaf,
   ShoppingBag,
   Search,
   Menu,
@@ -44,21 +44,8 @@ export const Header: React.FC = () => {
         <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4">
 
           {/* Logo & Brand Name */}
-          <Link href="/" className="flex items-center gap-2 sm:gap-3 group shrink-0 min-w-0">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-[#285F50] text-[#FAF7E8] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform shrink-0">
-              <Leaf className="w-5 h-5 sm:w-6 sm:h-6 text-[#D17B24]" />
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-base sm:text-xl font-extrabold tracking-tight text-[#285F50] leading-tight truncate">
-                {STORE_CONFIG.logo.text}{' '}
-                <span className="text-[#98552B] font-semibold text-sm sm:text-lg">
-                  {STORE_CONFIG.logo.tagline}
-                </span>
-              </span>
-              <span className="text-[10px] sm:text-xs font-semibold text-[#6F8F69] tracking-wider uppercase truncate">
-                Tienda herbolaria
-              </span>
-            </div>
+          <Link href="/" aria-label="Herbolaria en Línea — Inicio" className="flex items-center shrink-0 min-w-0">
+            <Image src="/images/brand/herbolaria-logo-verde.webp" alt="Herbolaria en Línea" width={3568} height={826} sizes="(min-width: 640px) 224px, (min-width: 360px) 176px, 144px" priority className="h-auto w-36 min-[360px]:w-44 sm:w-56" />
           </Link>
 
           {/* Desktop Search */}
