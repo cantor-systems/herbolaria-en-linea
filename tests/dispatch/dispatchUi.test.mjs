@@ -110,6 +110,9 @@ test('administrative detail requires authorization before reading or rendering c
 
 test('public footer links only to administrative login and does not render shipping data', () => {
   const { Footer } = loadUi('../../src/components/store/Footer.tsx', {
+    // Preserve image markup while keeping this link/privacy test independent of Next runtime.
+    'next/image': { default: ({ src, alt, width, height, sizes, className }) =>
+      React.createElement('img', { src, alt, width, height, sizes, className }), __esModule: true },
     'next/link': { default: 'a', __esModule: true },
     '@/config/store': { STORE_CONFIG: { storeName: 'Tienda de prueba', description: 'Prueba', contact: { email: { enabled: false }, businessHours: { enabled: false } } }, getWhatsAppHref: () => null },
     '@/lib/analytics': { trackWhatsAppClick() { throw new Error('unexpected analytics'); } },
