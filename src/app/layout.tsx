@@ -2,11 +2,7 @@ import type { Metadata } from 'next';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import './globals.css';
 import { CartProvider } from '@/context/CartContext';
-import { TopAnnouncementBar } from '@/components/store/TopAnnouncementBar';
-import { Header } from '@/components/store/Header';
-import { Footer } from '@/components/store/Footer';
-import { DrawerCart } from '@/components/store/DrawerCart';
-import { FloatingWhatsAppButton } from '@/components/store/FloatingWhatsAppButton';
+import { StorefrontDraftsProvider } from '@/context/StorefrontDraftsContext';
 import { STORE_CONFIG } from '@/config/store';
 import { metadataBase, SITE_NAME, SITE_URL } from '@/lib/site';
 import { Clarity } from '@/components/analytics/Clarity';
@@ -61,16 +57,9 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-[#FAF7E8] text-[#23312C] antialiased min-h-screen flex flex-col justify-between selection:bg-[#285F50] selection:text-[#FAF7E8]">
-        <CartProvider>
-          <div>
-            <TopAnnouncementBar />
-            <Header />
-            <main className="w-full max-w-full overflow-hidden">{children}</main>
-          </div>
-          <DrawerCart />
-          <Footer />
-          <FloatingWhatsAppButton />
-        </CartProvider>
+        <StorefrontDraftsProvider>
+          <CartProvider>{children}</CartProvider>
+        </StorefrontDraftsProvider>
         {googleAnalyticsId && <GoogleAnalytics gaId={googleAnalyticsId} />}
         <Clarity projectId={clarityProjectId} />
       </body>

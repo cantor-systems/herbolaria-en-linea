@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight, Tag, Truck } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useStorefrontDrafts } from '@/context/StorefrontDraftsContext';
 import { getBrandBySlug } from '@/data/brands';
 import { formatCurrency } from '@/lib/utils';
 import { SHIPPING_CONFIG } from '@/config/shipping';
@@ -31,7 +32,7 @@ export const DrawerCart: React.FC = () => {
 
   const handleBeginCheckout = () => trackBeginCheckout(cart.map((item) => ({ item_id: item.product.slug, item_name: item.product.name, item_variant: item.variant.name, price: item.variant.priceCents / 100, quantity: item.quantity })), totalCents / 100);
 
-  const [promoInput, setPromoInput] = useState('');
+  const { couponDraft, setCouponDraft } = useStorefrontDrafts();
   const [promoFeedback, setPromoFeedback] = useState<{ success: boolean; message: string } | null>(null);
 
   useEffect(() => {
@@ -53,11 +54,11 @@ export const DrawerCart: React.FC = () => {
 
   const handleApplyCode = (e: React.FormEvent) => {
     e.preventDefault();
-    if (wholesaleDiscountPercent > 0 || !promoInput.trim()) return;
-    const res = applyPromoCode(promoInput);
+    if (wholesaleDiscountPercent > 0 || !couponDraft.trim()) return;
+    const res = applyPromoCode(couponDraft);
     setPromoFeedback(res);
     if (res.success) {
-      setPromoInput('');
+      setCouponDraft('');
     }
   };
 
@@ -244,8 +245,8 @@ export const DrawerCart: React.FC = () => {
                       disabled={wholesaleDiscountPercent > 0}
                       type="text"
                       placeholder="Código de cupón"
-                      value={promoInput}
-                      onChange={(e) => setPromoInput(e.target.value)}
+                      value={couponDraft}
+                      onChange={(e) => setCouponDraft(e.target.value)}
                       className="min-h-[44px] min-w-0 flex-1 bg-[#F4EFD6] border border-[#D9D1B9] text-xs px-3 py-2 rounded-lg text-[#23312C] font-semibold focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-55"
                     />
                     <button

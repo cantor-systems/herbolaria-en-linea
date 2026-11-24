@@ -43,6 +43,7 @@ function renderCategories(categories = active) {
     '@/data/categories': { getActiveCategories: () => categories },
     '@/content/home-categories': homeCopy,
     '@/content/homepage': homepage,
+    '@/components/store/StorefrontShell': { StorefrontShell: ({ children }) => children },
     '@/content/promotional-slides': { PROMOTIONAL_SLIDES: [], allowPromotionalPreview: () => false, selectPromotionalSlides: () => [] },
     '@/lib/site': { canonicalAlternates: () => ({}) },
     '@/lib/catalog': { getFeaturedProducts: () => [] },
