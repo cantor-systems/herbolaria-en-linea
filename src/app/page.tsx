@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { StorefrontShell } from '@/components/store/StorefrontShell';
 import { HeroBanner } from '@/components/marketing/HeroBanner';
 import { PromotionalSlider } from '@/components/marketing/PromotionalSlider';
 import { PROMOTIONAL_SLIDES, allowPromotionalPreview, selectPromotionalSlides } from '@/content/promotional-slides';
@@ -28,7 +29,7 @@ export default function HomePage() {
     allowPreview: allowPromotionalPreview(process.env.NODE_ENV, process.env.VERCEL_ENV),
   });
 
-  return (
+  const content = (
     <div className="space-y-6 sm:space-y-12">
       {promotionalSlides.length > 0 && <PromotionalSlider slides={promotionalSlides} />}
       {/* 1. Hero Section */}
@@ -132,4 +133,6 @@ export default function HomePage() {
       <FinalCTA />
     </div>
   );
+
+  return <StorefrontShell>{content}</StorefrontShell>;
 }

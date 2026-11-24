@@ -13,6 +13,6 @@ export default async function ManualOrdersLayout({ children }: { children: React
       <div><p className={styles.brand}>Herbolaria en Línea · Operaciones</p><p><strong>Pedidos · DEMO</strong></p></div>
       <nav className={styles.nav} aria-label="Pedidos de demostración"><Link href="/operaciones/pedidos">Listado</Link><Link href="/operaciones/pedidos/nuevo">Nuevo pedido demo</Link></nav>
     </div></header>
-    <div className={styles.content}><p className={styles.banner} role="note"><strong>Demostración privada.</strong> Sólo datos sintéticos. No guarda pedidos, registra pagos, despacha ni envía comunicaciones. Utiliza únicamente información ficticia.</p>{children}</div>
+    <main className={styles.content}><p className={styles.banner} role="note"><strong>Demostración privada.</strong> Sólo datos sintéticos. No guarda pedidos, registra pagos, despacha ni envía comunicaciones. Utiliza únicamente información ficticia.</p>{children}</main>
   </section>;
 }

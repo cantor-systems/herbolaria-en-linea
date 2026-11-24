@@ -18,6 +18,7 @@ import {
 import { STORE_CONFIG, getWhatsAppHref } from '@/config/store';
 import { getActiveCategories } from '@/data/categories';
 import { useCart } from '@/context/CartContext';
+import { useStorefrontDrafts } from '@/context/StorefrontDraftsContext';
 import { trackWhatsAppClick } from '@/lib/analytics';
 
 const activeCategories = getActiveCategories();
@@ -26,14 +27,14 @@ export const Header: React.FC = () => {
   const router = useRouter();
   const { setIsCartOpen, cartCount } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const { searchDraft, setSearchDraft } = useStorefrontDrafts();
   const [conocerMenuOpen, setConocerMenuOpen] = useState(false);
   const [diseasesMenuOpen, setDiseasesMenuOpen] = useState(false);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/tienda?q=${encodeURIComponent(searchQuery.trim())}`);
+    if (searchDraft.trim()) {
+      router.push(`/tienda?q=${encodeURIComponent(searchDraft.trim())}`);
       setMobileMenuOpen(false);
     }
   };
@@ -53,8 +54,8 @@ export const Header: React.FC = () => {
             <input
               type="text"
               placeholder="Buscar gotas, cápsulas, hierba..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchDraft}
+              onChange={(e) => setSearchDraft(e.target.value)}
               className="min-h-[44px] w-full bg-[#FAF7E8] text-[#23312C] text-sm pl-4 pr-12 py-2 rounded-full border border-[#D9D1B9] focus:outline-hidden focus:border-[#285F50] focus:ring-1 focus:ring-[#285F50] transition-all"
             />
             <button
@@ -147,8 +148,8 @@ export const Header: React.FC = () => {
               <input
                 type="text"
                 placeholder="Buscar en Herbolaria en Línea..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={searchDraft}
+                onChange={(e) => setSearchDraft(e.target.value)}
                 className="min-h-[44px] w-full bg-[#FAF7E8] text-[#23312C] text-sm pl-4 pr-12 py-2.5 rounded-full border border-[#D9D1B9] focus:outline-hidden focus:border-[#285F50] focus:ring-1 focus:ring-[#285F50]"
               />
               <button
